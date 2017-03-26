@@ -50,6 +50,12 @@ bool CommandManager::addGoTo(int64_t posXInmm, int64_t posYInmm)
     return liste->enqueue(CMD_GOTO , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
+bool CommandManager::addGoToBack(int64_t posXInmm, int64_t posYInmm)
+{
+    lastStatus = 0;
+    return liste->enqueue(CMD_GOTO_BACK , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
+}
+
 bool CommandManager::addGoToEnchainement(int64_t posXInmm, int64_t posYInmm)
 {
     lastStatus = 0;
@@ -94,6 +100,8 @@ void CommandManager::perform()
             return; //Dans ce cas, on attend simplement d'etre arrive :)
         } else if (currCMD.type == CMD_GOTO) { // On est en plein GoTo, donc on est en train de se planter et on ajuste
             computeGoTo();
+        } else if (currCMD.type == CMD_GOTO_BACK) {
+            computeGoToBack();
         } else if (currCMD.type == CMD_GOTOANGLE) { // On est en plein GoTo en angle, donc on est en train de se planter et on ajuste
             computeGoToAngle();
         } else if (currCMD.type == CMD_GOTOENCHAIN) { // Là, on est vraiment en train de se planter parce qu'on veut enchainer les consignes
@@ -139,6 +147,8 @@ void CommandManager::perform()
             cnsgCtrl->add_angle_consigne(currCMD.value);
         } else if (currCMD.type == CMD_GOTO) {   // On appel computeGoTo qui se débrouille pour aller en (x,y)
             computeGoTo();
+        } else if (currCMD.type == CMD_GOTO_BACK) {
+            computeGoToBack();
         } else if (currCMD.type == CMD_GOTOENCHAIN) {
             computeEnchainement(); //On va tenter d'enchainer la consigne suivante
         } else if (currCMD.type == CMD_GOTOANGLE) { // On appel computeGoToAngle qui se débrouille pour s'aligner avec (x,y)
@@ -200,6 +210,18 @@ void CommandManager::computeGoTo()
         cnsgCtrl->set_dist_consigne(consigne_dist);
         //printf("Cd=%lld\n", consigne_dist);
     }
+
+}
+
+/*
+ * On a une commande GoToBack(x,y) avec x et y deux points dans le repère du robot
+ * (0,0) est la position initiale du robot après calage bordure
+ * TODO décider de cette connerie
+ */
+void CommandManager::computeGoToBack()
+{
+
+    // TODO @JBH on fait un goto mais en marche arrière, je te laisse l'écrire
 
 }
 

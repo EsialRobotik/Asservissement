@@ -106,6 +106,13 @@ void ecouteSerie()
             //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
             break;
 
+        case 'b': //GoToBack : va à un point précis en marche arrière
+            gotoLed = !gotoLed;
+            scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
+            commandManager->addGoTo((int64_t) consigneValue1, (int64_t) consigneValue2);
+            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
+            break;
+
         case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
             gotoLed = !gotoLed;
             scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
