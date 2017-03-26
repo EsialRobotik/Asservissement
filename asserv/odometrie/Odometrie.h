@@ -19,6 +19,7 @@ public:
     // Reset de la position du robot
     void resetX(float xval);
     void resetY(float yval);
+    void resetTheta(double thetaVal);
     void resetTheta();
 
     // Mise à jour de la position du robot

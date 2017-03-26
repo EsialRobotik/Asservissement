@@ -54,6 +54,7 @@ void ecouteSerie()
 {
     double consigneValue1 = 0;
     double consigneValue2 = 0;
+    double consigneValue3 = 0;
     char c = getchar();
     std::string name, value;
     const Parameter *param;
@@ -196,6 +197,36 @@ void ecouteSerie()
         default:
             //putchar(c);
             break;
+    }
+
+    // Commande de contrôle de l'asserv
+    std::string controlCommand = c + getchar() + getchar();
+    if (controlCommand == "elw") {
+        char enable = getchar();
+        consignController->setLowSpeed(enable == "1" ? true, false);
+    } else if (controlCommand == "era") {
+        char enable = getchar();
+        consignController->angle_Regu_On(enable == "1" ? true, false);
+    }  else if (controlCommand == "erd") {
+        char enable = getchar();
+        consignController->dist_Regu_On(enable == "1" ? true, false);
+    }  else if (controlCommand == "rth") {
+        odometrie->resetTheta();
+    }  else if (controlCommand == "rra") {
+        consignController->reset_regu_angle();
+    }  else if (controlCommand == "rrd") {
+        consignController->reset_regu_dist();
+    }  else if (controlCommand == "dfx") {
+        scanf("%lf", &consigneValue1);
+        odometrie->resetX((int64_t) consigneValue1);
+    }  else if (controlCommand == "dfy") {
+        scanf("%lf", &consigneValue1);
+        odometrie->resetY((int64_t) consigneValue1);
+    }  else if (controlCommand == "dfp") {
+        scanf("%lf#%lf#%lf", &consigneValue1, &consigneValue2, &consigneValue3);
+        odometrie->resetX((int64_t) consigneValue1);
+        odometrie->resetY((int64_t) consigneValue1);
+        odometrie->resetTheta(consigneValue3);
     }
 }
 
