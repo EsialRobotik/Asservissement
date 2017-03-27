@@ -215,25 +215,25 @@ void ecouteSerie()
     if (controlCommand.compare("elw") == 0) {
         char enable = getchar();
         consignController->setLowSpeed(enable == '1' ? true : false);
-    } else if (controlCommand.compare("era")) {
+    } else if (controlCommand.compare("era") == 0) {
         char enable = getchar();
         consignController->angle_Regu_On(enable == '1' ? true : false);
-    }  else if (controlCommand.compare("erd")) {
+    }  else if (controlCommand.compare("erd") == 0) {
         char enable = getchar();
         consignController->dist_Regu_On(enable == '1' ? true : false);
-    }  else if (controlCommand.compare("rth")) {
+    }  else if (controlCommand.compare("rth") == 0) {
         odometrie->resetTheta();
-    }  else if (controlCommand.compare("rra")) {
+    }  else if (controlCommand.compare("rra") == 0) {
         consignController->reset_regu_angle();
-    }  else if (controlCommand.compare("rrd")) {
+    }  else if (controlCommand.compare("rrd") == 0) {
         consignController->reset_regu_dist();
-    }  else if (controlCommand.compare("dfx")) {
+    }  else if (controlCommand.compare("dfx") == 0) {
         scanf("%lf", &consigneValue1);
         odometrie->resetX((int64_t) consigneValue1);
-    }  else if (controlCommand.compare("dfy")) {
+    }  else if (controlCommand.compare("dfy") == 0) {
         scanf("%lf", &consigneValue1);
         odometrie->resetY((int64_t) consigneValue1);
-    }  else if (controlCommand.compare("dfp")) {
+    }  else if (controlCommand.compare("dfp") == 0) {
         scanf("%lf#%lf#%lf", &consigneValue1, &consigneValue2, &consigneValue3);
         odometrie->resetX((int64_t) consigneValue1);
         odometrie->resetY((int64_t) consigneValue1);
