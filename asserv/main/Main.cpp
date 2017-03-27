@@ -207,16 +207,20 @@ void ecouteSerie()
     }
 
     // Commande de contrôle de l'asserv
-    std::string controlCommand = c + getchar() + getchar();
+    std::string controlCommand;
+    controlCommand = c;                 // Seul manière de concaténer
+    controlCommand += (char) getchar(); // des "char" dans un
+    controlCommand += (char) getchar(); // std::string
+
     if (controlCommand == "elw") {
         char enable = getchar();
-        consignController->setLowSpeed(enable == "1" ? true, false);
+        consignController->setLowSpeed(enable == '1' ? true : false);
     } else if (controlCommand == "era") {
         char enable = getchar();
-        consignController->angle_Regu_On(enable == "1" ? true, false);
+        consignController->angle_Regu_On(enable == '1' ? true : false);
     }  else if (controlCommand == "erd") {
         char enable = getchar();
-        consignController->dist_Regu_On(enable == "1" ? true, false);
+        consignController->dist_Regu_On(enable == '1' ? true : false);
     }  else if (controlCommand == "rth") {
         odometrie->resetTheta();
     }  else if (controlCommand == "rra") {
