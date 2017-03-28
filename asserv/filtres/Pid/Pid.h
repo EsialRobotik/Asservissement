@@ -22,13 +22,13 @@ private:
     int64_t integrale;
 
     //Coeffs d'asservissement
-    int64_t kp, ki, kd; // Coeff venant de config.h
+    int32_t kp, ki, kd; // Coeff venant de config.h
 
     //Ratios & Saturation
     /* Coeffs venant de config.h */
     double outRatio; // Ratio de sortie
-    int64_t maxIntegral; // Valeur maximale de l'intégrale
-    int64_t maxOutput; // Valeur maximale de la sortie
+    int32_t maxIntegral; // Valeur maximale de l'intégrale
+    int32_t maxOutput; // Valeur maximale de la sortie
 
 };
 

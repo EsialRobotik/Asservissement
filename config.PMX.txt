@@ -5,39 +5,39 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2013051001
+configVersion = 2017031201
 
 //--------------------------//
 //     Modes de réglage     //
 //--------------------------//
 
 // Désactivation du command manager (le robot n'est plus asservi)
-disableAsserv = 0
+disableAsserv = false
 
 // Réglage des codeurs (on affiche simplement les valeurs des codeurs et on desactive le calcul odometrique)
-reglageCodeurs = 0
+reglageCodeurs = false
 
 // Désactiver la QuadRampDérivée en distance
-disableDistanceQuad = 0
+disableDistanceQuad = false
 
 // Désactiver la QuadRampDérivée en angle
-disableAngleQuad = 0
+disableAngleQuad = false
 
 // Désactiver le régulateur de distance
-disableDistanceRegu = 0
+disableDistanceRegu = false
 
 // Désactiver le régulateur d'angle
-disableAngleRegu = 0
+disableAngleRegu = false
 
 //--------------------------//
 //       CommandManager     //
 //--------------------------//
 
 // Fenêtre de l'angle dans lequel on considère que le GoTo peut commencer à avancer
-angleThreshold = 0.3
+angleThreshold = 0.1
 
 // Distance en dessous de laquelle on revient en marche arriere si on dépasse, sinon demi-tour
-returnThreshold = 50
+returnThreshold = 10
 
 // Distance au point de consigne à partir de laquelle on va essayer d'enchainer la consigne suivante
 enchainThreshold = 2000000
@@ -52,28 +52,28 @@ placementOrigineY = 0
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 15316
+frontParMetreCodeurG = 21730.0
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 15572
+frontParMetreCodeurD = 21730.0
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-distRoues = 220
+distRoues = 283
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-uOParFront = 512
+uOParFront = 2048
 
 // Inversion du sens du codeur gauche
 inverseCodeurG = false
 
 // Inversion du sens du codeur droit
-inverseCodeurD = true
+inverseCodeurD = false
 
 // Échange des codeurs
-swapCodeurs = true
+swapCodeurs = false
 
 //--------------------------//
 //         Moteurs          //
@@ -90,10 +90,10 @@ V_MAX_NEG_MOTOR = -128
 // envoyer de jus dans des moteurs qui ne tournent pas
 
 // MD22 : 1 a 127
-V_MIN_POS_MOTOR = 10
+V_MIN_POS_MOTOR = 1
 
 // MD22 : -1 a -128
-V_MIN_NEG_MOTOR = -10
+V_MIN_NEG_MOTOR = -1
 
 // Inversion du sens du moteur gauche
 inverseMoteurG = false
@@ -114,19 +114,19 @@ swapMoteurs = false
 
 
 // Coeff proportionelle
-DIST_KP = 65
+DIST_KP = 30
 
 // Coeff intégrale
 DIST_KI = 0
 
 // Coeff dérivée
-DIST_KD = 800
+DIST_KD = 500
 
 // Coeff permettant de diminuer les valeurs du PID
-DIST_OUT_RATIO = 0.00001
+DIST_OUT_RATIO = 0.000001
 
 // Valeur de sortie maximum pour le moteur
-DIST_MAX_OUTPUT = 127
+DIST_MAX_OUTPUT = 125
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 DIST_MAX_INTEGRAL = 0
@@ -136,19 +136,19 @@ DIST_MAX_INTEGRAL = 0
 
 
 // Coeff proportionelle
-ANGLE_KP = 90
+ANGLE_KP = 10
 
 // Coeff intégrale
 ANGLE_KI = 0
 
 // Coeff dérivée
-ANGLE_KD = 800
+ANGLE_KD = 400
 
 // Coeff permettant de diminuer les valeurs du PID
-ANGLE_OUT_RATIO = 0.000005
+ANGLE_OUT_RATIO = 0.000001
 
 // Valeur de sortie maximum pour le moteur
-ANGLE_MAX_OUTPUT = 127
+ANGLE_MAX_OUTPUT = 125
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 ANGLE_MAX_INTEGRAL = 0
@@ -157,48 +157,47 @@ ANGLE_MAX_INTEGRAL = 0
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-DIST_QUAD_1ST_POS = 800000
+DIST_QUAD_1ST_POS = 0
 
 // Vitesse max en marche arrière
-DIST_QUAD_1ST_NEG = 800000
+DIST_QUAD_1ST_NEG = 0
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 5000
+DIST_QUAD_AV_2ND_ACC = 0
 
 // Décélération max en marche avant
-DIST_QUAD_AV_2ND_DEC = 1500
+DIST_QUAD_AV_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 110
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 0
 
 // Accélération max en marche arrière
-DIST_QUAD_AR_2ND_ACC = 3000
+DIST_QUAD_AR_2ND_ACC = 0
 
 // Décélération max en marche arrière
-DIST_QUAD_AR_2ND_DEC = 1500
+DIST_QUAD_AR_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 95
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 0
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-DIST_TAILLE_FENETRE_ARRIVEE = 200000
+DIST_TAILLE_FENETRE_ARRIVEE = 0
 
 
 // QUADRAMPDerivee (angle)
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 300000
+ANGLE_QUAD_1ST_POS = 0
 
 // Accélération max en rotation
-ANGLE_QUAD_2ND_ACC = 6000
+ANGLE_QUAD_2ND_ACC = 0
 
 // Décélération max en rotation
-ANGLE_QUAD_2ND_DEC = 4000
+ANGLE_QUAD_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 35
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 0
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-ANGLE_TAILLE_FENETRE_ARRIVEE = 100000
-
+ANGLE_TAILLE_FENETRE_ARRIVEE = 0
