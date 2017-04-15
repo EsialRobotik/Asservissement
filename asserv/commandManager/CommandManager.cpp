@@ -137,10 +137,6 @@ void CommandManager::perform()
 		// On vient de terminer la consigne courante, on le signale en haut lieu
 		if (currentConsignFinished == false)
 		{
-			//iaCom.printf("d\n"); //ou iaCom.putc('d');
-//            putchar('d');
-//            putchar('\n');
-			//printf("D sent \n");
 			lastStatus = 1;
 		}
 
@@ -322,11 +318,14 @@ void CommandManager::computeEnchainement()
 		currCMD = nextCMD; // La consigne suivante devient la consigne courante
 		nextCMD = liste->dequeue(); // On essaye de récupérer la prochaine consigne
 
+
+		//TODO a changer pour l'I2C
+#ifdef COM_SERIE_ACTIVATE
 		// On vient de terminer la consigne courante, on le signale en haut lieu
 		putchar('d');
 		putchar('\r');
 		putchar('\n');
-
+#endif
 		// Le reste, c'est pas grave, on le calculera à la prochaine itération
 	}
 
@@ -366,7 +365,7 @@ void CommandManager::calageBordureGros(int sens)
 	wait(2); //et on attend encore
 
 	// On considère qu'on est contre la bordure, on reset la postion du robot
-	odometrie->resetTheta();
+	odometrie->resetTheta(0.0);
 	cnsgCtrl->reset_regu_angle();
 	odometrie->resetX(Config::placementOrigineX);
 	cnsgCtrl->reset_regu_dist();
@@ -411,7 +410,7 @@ void CommandManager::calageBordurePetit(int sens)
 	wait(5);
 
 	// Au bout de 5sec, on considère qu'on est contre la bordure, on reset la postion du robot
-	odometrie->resetTheta();
+	odometrie->resetTheta(0.0);
 	cnsgCtrl->reset_regu_angle();
 	odometrie->resetX(Config::placementOrigineX);
 	cnsgCtrl->reset_regu_dist();

@@ -11,6 +11,9 @@ configVersion = 2017031201
 //     Modes de réglage     //
 //--------------------------//
 
+//Période de l'asservissement en sec : T=1/f 
+asservPeriod = 0.002
+
 // Désactivation du command manager (le robot n'est plus asservi)
 disableAsserv = false
 

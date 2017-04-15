@@ -41,6 +41,8 @@ private:
 
     MD25 md_;
 
+    bool connected_;
+
 };
 
 #endif /* ASSERV_MOTORSCONTROLLER_MD25_MD25CTRL_H_ */

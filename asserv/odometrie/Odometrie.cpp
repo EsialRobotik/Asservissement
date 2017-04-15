@@ -87,9 +87,9 @@ void Odometrie::resetY(float yval)
 	y = Utils::mmToUO(this, yval);
 }
 
-void Odometrie::resetTheta()
+void Odometrie::resetTheta(float tval)
 {
-	theta = 0.0;
+	theta = tval;
 }
 
 // Mise à jour de la position du robot

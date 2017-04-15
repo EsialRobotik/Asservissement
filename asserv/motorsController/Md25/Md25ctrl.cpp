@@ -9,7 +9,7 @@
 
 // Constructeur d'une instance de MD22
 Md25ctrl::Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin) :
-		i2cLink_(I2CsdaPin, I2CsclPin), md_(&i2cLink_, ADDR_MD25)
+		i2cLink_(I2CsdaPin, I2CsclPin), md_(&i2cLink_, ADDR_MD25), connected_(false)
 {
 	vitMoteurG_ = 0;
 	vitMoteurD_ = 0;
@@ -29,6 +29,15 @@ Md25ctrl::Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin) :
 
 	printf("MD25 -- soft=%d \tbat=%d \tenc1=%d \tenc2=%d \tcur1=%d \tcur2=%d\r\n", soft, bat, enc1,
 			enc2, cur1, cur2);
+
+	if (bat == -1)
+	{
+		ErrorLed = 1;
+		return;
+	}else
+	{
+		connected_ = true;
+	}
 
 	int r = 0;
 	r = md_.mode_set(MODE_1);
@@ -74,6 +83,7 @@ Md25ctrl::~Md25ctrl()
 
 void Md25ctrl::vitesseG(int vitMoteurG)
 {
+	if (!connected_) return;
 	if (Config::reglageCodeurs)
 		return;
 
@@ -114,6 +124,7 @@ void Md25ctrl::vitesseG(int vitMoteurG)
 
 void Md25ctrl::vitesseD(int vitMoteurD)
 {
+	if (!connected_) return;
 	if (Config::reglageCodeurs)
 		return;
 

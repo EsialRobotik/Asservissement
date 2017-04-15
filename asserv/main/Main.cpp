@@ -1,15 +1,28 @@
 #include "Main.h"
-#include "mbed.h"
-#include <iostream>
-#include <cstdint>
+
+#include <LocalFileSystem.h>
+#include <mbed_error.h>
+#include <sys/_stdint.h>
+#include <Serial.h>
 #include <cstdio>
 #include <iostream>
+#include <string>
+
+#ifdef LCD_ACTIVATE
+#include "../../C12832/C12832.h"
+C12832 lcd(p5, p7, p6, p8, p11);
+#endif
+
+#include "../config/parameter.h"
+#include "../Utils/Utils.h"
+#include "EcouteI2c.h"
 
 //extern serial_t stdio_uart;
 
 extern "C" void HardFault_Handler()
 {
 	error("Planté !!\r\n");
+	stopAsserv(); //TODO test ?
 }
 
 void loadConfig()
@@ -19,9 +32,6 @@ void loadConfig()
 }
 
 Serial pc(USBTX, USBRX);
-#ifdef COM_I2C_ACTIVATE
-I2CSlave slave(p9, p10);
-#endif
 
 int main()
 {
@@ -33,15 +43,16 @@ int main()
 	//    serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
 	// serial_baud(&stdio_uart, 230400); // GaG va être content
 
-	printf("--- Asservissement Nancyborg ---\r\n");
+	printf("--- Asservissement PMX ---\r\n");
 	printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
 	LocalFileSystem local("local");
 
 	loadConfig();
-	initAsserv();
 
-	refLed = 1;
+	//on configure et démarre l'interruption timer
+	startAsserv();
+
 	gotoLed = 0;
 #ifdef DEBUG_UDP
 	debugUdp = new DebugUDP(commandManager, odometrie);
@@ -50,25 +61,59 @@ int main()
 	liveLed = 0;
 #endif
 
-	// On attache l'interruption timer à la méthode Live_isr
-	Live.attach(Live_isr, ASSERV_FREQ);
-
 	//On est prêt !
-	printf("GOGO !");
+	//printf("\r\nGOGO !");
+	//refLed = 1;
 
-	leftSpeed = 0;
+	leftSpeed = 0; //TODO
 
 #ifdef COM_I2C_ACTIVATE
 	ecouteI2cConfig();
 #endif
 
+#ifdef LCD_ACTIVATE
+
+	lcd.cls();
+	//lcd.invert(0);
+	//lcd.set_contrast(50);
+	lcd.locate(0, 0);
+
+	lcd.printf("mbed Cho v2! c=%d", lcd.get_contrast());
+#endif
+
 	while (1)
 	{
-		//ecouteSerie();
-		ecouteSeriePC();
-#ifdef COM_I2C_ACTIVATE
-		ecouteI2c();
+#ifdef COM_SERIE_ACTIVATE
+		ecouteSerie();
 #endif
+
+#ifdef COM_SERIEPC_ACTIVATE
+		ecouteSeriePC();
+#endif
+
+#ifdef COM_I2C_ACTIVATE
+		ecouteI2c(consignController, commandManager, motorController, odometrie);
+#endif
+	}
+}
+
+void startAsserv()
+{
+	// Et on reinitialise les objets
+	initAsserv();
+
+	if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
+	{
+
+		// On attache l'interruption timer à la méthode Live_isr
+		if (Config::asservPeriod > 0 && Config::asservPeriod < 0.5)
+			Live.attach(Live_isr, Config::asservPeriod);
+		else
+		{
+			printf("pb avec la valeur de periode de l'asserv dans la config !!");
+			ErrorLed = 1;
+			Live.attach(Live_isr, ASSERV_PERIOD);
+		}
 	}
 }
 
@@ -89,7 +134,9 @@ void ecouteSeriePC()
 	 r / Reset de l'arrêt d'urgence / Remet le robot dans son fonctionnement normal après un arrêt d'urgence. Les commandes en cours au moment de l'arrêt d'urgence NE sont PAS reprises. Si le robot n'est pas en arrêt d'urgence, cette commande n'a aucun effet.
 	 c%s%r / Calage bordure / s : sens du calage bordure, r : robot ('g' : gros ; 'p' : petit) / Effectue un calage bordure. Le robot doit être dans sa zone de départ au début du calage, dirigé vers la case de départ adverse en face de la table. Il doit être assez proche de la bordure derrière lui, et pas trop proche de la bordure sur le côté. A la fin du calage, le robot est prêt à partir pour un match dans sa case de départ.
 	 Le choix du robot est possible, si on veut que deux robots asservis concourent en même temps sur la même table, pour qu'ils puissent faire un calage bordure en même temps sans se rentrer dedans.
-	 p / Position / Récupère la position et le cap du robot sur la connexion série, sous la forme "x%xy%ya%a\n", avec x, y, et a les coordonnées et l'angle du robot.
+
+	 p / get Position / Récupère la position et le cap du robot sur la connexion i2c, sous la forme de 3 types float (3 * 4 bytes), avec x, y, et a les coordonnées et l'angle du robot.
+	 S / set Position / applique la nouvelle position du robot
 
 	 z / avance de 10 cm
 	 s / recule de 10 cm
@@ -98,14 +145,17 @@ void ecouteSeriePC()
 
 	 c / calage bordure
 
-	 S / modifie la valeur d'un paramètre / name, value
+	 M / modifie la valeur d'un paramètre / name, value
 	 R / réinitialiser l'asserv
 	 D / dump la config du robot
 	 G / lire la valeur d'un paramètre / name
 	 L / recharge la config config.txt
 	 W / sauvegarde la config courante  config~1.txt = config.default.txt
 
-	 a / active/reactive le consignController et le commlandManager
+	 A / Active la boucle d'asservissement
+	 Q / Stop la boucle d'asservissement
+	 K / desactive le consignController et le commandManager
+
 	 + / applique une valeur +1 sur les moteurs
 	 - / applique une valeur -1 sur les moteurs
 
@@ -202,8 +252,20 @@ void ecouteSeriePC()
 		}
 			break;
 
+		case 'A': // start l'asserv
+			startAsserv();
+			break;
+
+		case 'Q': // stop/quit l'asserv
+			stopAsserv();
+			break;
 		case 'R': // réinitialiser l'asserv
 			resetAsserv();
+			break;
+		case 'K':
+			pc.printf("--a\r\n");
+			consignController->perform_On(false);
+			commandManager->perform_On(false);
 			break;
 
 		case 'D': // dump la config du robot
@@ -220,7 +282,7 @@ void ecouteSeriePC()
 				std::cout << param->toString() << std::endl;
 			break;
 
-		case 'S': // modifie la valeur d'un paramètre
+		case 'M': // modifie la valeur d'un paramètre
 			std::getline(std::cin, name, '\r');
 			std::getline(std::cin, value, '\r');
 			param = Config::getParam(name);
@@ -260,13 +322,6 @@ void ecouteSeriePC()
 			pc.printf("-%d ", leftSpeed);
 			break;
 
-		case 'a':
-			// do what you want for 'a'
-			pc.printf("--a\r\n");
-			consignController->perform_On(false);
-			commandManager->perform_On(false);
-			break;
-
 		case '3':
 			// do what you want for '3'
 			pc.printf("--3\r\n");
@@ -278,40 +333,6 @@ void ecouteSeriePC()
 		}
 	}
 }
-
-#ifdef COM_I2C_ACTIVATE
-void ecouteI2cConfig()
-{
-	slave.frequency(100000);
-	slave.address(0xAA);
-}
-
-void ecouteI2c()
-{
-	char buf[10];
-	char msg[] = "Slave!";
-	while (1)
-	{
-		int i = slave.receive();
-		switch (i)
-		{
-		case I2CSlave::ReadAddressed:
-			slave.write(msg, strlen(msg) + 1); // Includes null char
-			break;
-		case I2CSlave::WriteGeneral:
-			slave.read(buf, 10);
-			printf("Read G: %s\n", buf);
-			break;
-		case I2CSlave::WriteAddressed:
-			slave.read(buf, 10);
-			printf("Read A: %s\n", buf);
-			break;
-		}
-		for (int i = 0; i < 10; i++)
-			buf[i] = 0;    // Clear buffer
-	}
-}
-#endif
 
 void ecouteSerie()
 {
@@ -476,8 +497,8 @@ void initAsserv()
 	fflush(stdout);
 
 	odometrie = new Odometrie();
+
 	motorController = new Md25ctrl(p28, p27);
-	//motorController = new Md25ctrl(p9, p10);
 	//motorController = new Md22(p9, p10);
 	//motorController = new Qik(p9, p10);
 	//motorController = new PololuSMCs(p13, p14, p28, p27);
@@ -488,9 +509,8 @@ void initAsserv()
 	printf("ok\r\n");
 }
 
-void resetAsserv()
+void stopAsserv()
 {
-	printf("Réinitialisation de l'asserv...\r\n");
 	//On arrête le traitement de l'asserv
 	Live.detach();
 
@@ -507,15 +527,18 @@ void resetAsserv()
 	delete motorController;
 	motorController = NULL;
 
-	// Et on les refait !!!
-	initAsserv();
+}
+void resetAsserv()
+{
+	printf("Réinitialisation de l'asserv...\r\n");
+	stopAsserv();
 
 #ifdef DEBUG_UDP
 	debugUdp->setNewObjectPointers(commandManager, odometrie);
 #endif
 
 	//On reprend l'asserv
-	Live.attach(Live_isr, ASSERV_FREQ);
+	startAsserv();
 }
 
 // On rafraichit l'asservissement régulièrement
@@ -535,15 +558,14 @@ void Live_isr()
 
 	if ((mod++) % 20 == 0)
 	{
-#ifdef DEBUG_ASSERV
+#ifdef COM_SERIE_ACTIVATE
 		printf("%d #x%lfy%lfa%lfd%dvg%dvd%d\r\n", asserv_flip,
 				(double) Utils::UOTomm(odometrie, odometrie->getX()),
 				(double) Utils::UOTomm(odometrie, odometrie->getY()),
 				odometrie->getTheta(), commandManager->getLastCommandStatus(),
 				motorController->getVitesseG(), motorController->getVitesseD());
 #endif
-		if (commandManager->getLastCommandStatus() == 1)
-			commandManager->setLastCommandStatus(2);
+		if (commandManager->getLastCommandStatus() == 1) commandManager->setLastCommandStatus(2);
 	}
 
 #ifdef DEBUG_UDP

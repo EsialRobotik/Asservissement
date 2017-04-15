@@ -58,6 +58,9 @@ PARAM(int32_t, configVersion)
 //     Modes de réglage     //
 //--------------------------//
 
+//Période de l'asservissement en sec : T=1/f
+PARAM(double, asservPeriod)
+
 // Désactivation du command manager (le robot n'est plus asservi)
 PARAM(bool, disableAsserv)
 
