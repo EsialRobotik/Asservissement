@@ -25,13 +25,15 @@
 #ifdef LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 #endif
-#define ASSERV_PERIOD 0.002 //en s
+
+//#define ASSERV_PERIOD 0.002 //en s
 
 // Ticker pour l'interruption de la boucle d'asserv
 Ticker Live;
 void Live_isr(void);
 
 int leftSpeed;
+bool run;
 
 // Méthodes utiles
 int main();
@@ -51,6 +53,7 @@ CommandManager *commandManager;
 DigitalOut refLed(LED2);
 DigitalOut liveLed(LED4);
 DigitalOut gotoLed(LED3);
+
 #ifdef DEBUG_UDP
 DigitalOut dataLed(LED1);
 char debugLedStatus;

@@ -21,8 +21,9 @@ C12832 lcd(p5, p7, p6, p8, p11);
 
 extern "C" void HardFault_Handler()
 {
+	ErrorLed = 1;
 	error("Planté !!\r\n");
-	stopAsserv(); //TODO test ?
+
 }
 
 void loadConfig()
@@ -47,8 +48,10 @@ int main()
 	printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
 	LocalFileSystem local("local");
-
 	loadConfig();
+
+	// Et on reinitialise les objets
+	initAsserv();
 
 	//on configure et démarre l'interruption timer
 	startAsserv();
@@ -63,7 +66,7 @@ int main()
 
 	//On est prêt !
 	//printf("\r\nGOGO !");
-	//refLed = 1;
+	refLed = 1;
 
 	leftSpeed = 0; //TODO
 
@@ -94,25 +97,28 @@ int main()
 #ifdef COM_I2C_ACTIVATE
 		ecouteI2c(consignController, commandManager, motorController, odometrie);
 #endif
+
+		wait_us(5); //permet une meilleure detection par l'USBPC
 	}
 }
 
 void startAsserv()
 {
-	// Et on reinitialise les objets
-	initAsserv();
-
+	run = false;
 	if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
 	{
-
 		// On attache l'interruption timer à la méthode Live_isr
-		if (Config::asservPeriod > 0 && Config::asservPeriod < 0.5)
+		double period = Config::asservPeriod;
+		if (period > 0 && period < 0.5)
+		{
 			Live.attach(Live_isr, Config::asservPeriod);
+			printf("Periode asserv ok : %lf sec\r\n", period);
+		}
 		else
 		{
-			printf("pb avec la valeur de periode de l'asserv dans la config !!");
+			printf("pb avec la valeur de periode de l'asserv dans la config : %lf!!\r\n", period);
 			ErrorLed = 1;
-			Live.attach(Live_isr, ASSERV_PERIOD);
+			//Live.attach(Live_isr, ASSERV_PERIOD);
 		}
 	}
 }
@@ -152,12 +158,13 @@ void ecouteSeriePC()
 	 L / recharge la config config.txt
 	 W / sauvegarde la config courante  config~1.txt = config.default.txt
 
-	 A / Active la boucle d'asservissement
-	 Q / Stop la boucle d'asservissement
+	 I / Active les actions dans la boucle d'asservissement
+	 ! / Stoppes actions dans la boucle d'asservissement
 	 K / desactive le consignController et le commandManager
+	 J / reactive le consignController et le commandManager
 
-	 + / applique une valeur +1 sur les moteurs
-	 - / applique une valeur -1 sur les moteurs
+	 + / applique une valeur +1 sur les moteurs LEFT
+	 - / applique une valeur -1 sur les moteurs LEFT
 
 
 	 */
@@ -252,22 +259,23 @@ void ecouteSeriePC()
 		}
 			break;
 
-		case 'A': // start l'asserv
-			startAsserv();
+		case 'I': // start l'asserv
+			initAsserv();
 			break;
-
-		case 'Q': // stop/quit l'asserv
+		case '!': // stop/quit l'asserv
 			stopAsserv();
 			break;
 		case 'R': // réinitialiser l'asserv
 			resetAsserv();
 			break;
-		case 'K':
-			pc.printf("--a\r\n");
+		case 'K': //uniquement odométrie active
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
 			break;
-
+		case 'J':
+			consignController->perform_On(true);
+			commandManager->perform_On(true);
+			break;
 		case 'D': // dump la config du robot
 			std::cout << Config::dumpConfig() << std::endl;
 			break;
@@ -493,26 +501,30 @@ void ecouteSerie()
 
 void initAsserv()
 {
-	printf("Creation des objets... ");
+	run = false; //pour etre sûr que isr ne fait rien
+	printf("Creation des objets si necessaire... \r\n");
 	fflush(stdout);
 
-	odometrie = new Odometrie();
-
-	motorController = new Md25ctrl(p28, p27);
+	if (odometrie == NULL) odometrie = new Odometrie();
+	if (motorController == NULL) motorController = new Md25ctrl(p28, p27);
 	//motorController = new Md22(p9, p10);
 	//motorController = new Qik(p9, p10);
 	//motorController = new PololuSMCs(p13, p14, p28, p27);
 
-	consignController = new ConsignController(odometrie, motorController);
-	commandManager = new CommandManager(50, consignController, odometrie);
+	if (consignController == NULL)
+		consignController = new ConsignController(odometrie, motorController);
+	if (commandManager == NULL)
+		commandManager = new CommandManager(50, consignController, odometrie);
 
-	printf("ok\r\n");
+	run = true;
+	//printf("ok\r\n");
 }
 
 void stopAsserv()
 {
 	//On arrête le traitement de l'asserv
-	Live.detach();
+	//Live.detach();
+	run = false;
 
 	// On détruit tout les objets (sauf les moteurs, on s'en fiche de ça)
 	delete odometrie;
@@ -527,6 +539,7 @@ void stopAsserv()
 	delete motorController;
 	motorController = NULL;
 
+	liveLed = 0;
 }
 void resetAsserv()
 {
@@ -538,16 +551,23 @@ void resetAsserv()
 #endif
 
 	//On reprend l'asserv
-	startAsserv();
+	initAsserv();
 }
+#ifdef COM_SERIE_ACTIVATE
+static int mod = 0;
+#endif
+static int led = 0;
 
 // On rafraichit l'asservissement régulièrement
 void Live_isr()
 {
+	if (run == false) return;
 
-	liveLed = 1 - liveLed;
+	if ((led++) % 50 == 0)
+	{
+		liveLed = 1 - liveLed;
+	}
 
-	static int mod = 0;
 	odometrie->refresh();
 
 	if (!Config::disableAsserv)
@@ -556,17 +576,18 @@ void Live_isr()
 		commandManager->perform();
 	}
 
+#ifdef COM_SERIE_ACTIVATE
 	if ((mod++) % 20 == 0)
 	{
-#ifdef COM_SERIE_ACTIVATE
 		printf("%d #x%lfy%lfa%lfd%dvg%dvd%d\r\n", asserv_flip,
 				(double) Utils::UOTomm(odometrie, odometrie->getX()),
 				(double) Utils::UOTomm(odometrie, odometrie->getY()),
 				odometrie->getTheta(), commandManager->getLastCommandStatus(),
 				motorController->getVitesseG(), motorController->getVitesseD());
-#endif
-		if (commandManager->getLastCommandStatus() == 1) commandManager->setLastCommandStatus(2);
+
+		if (commandManager->getLastCommandStatus() == 1) commandManager->setLastCommandStatus(2); //TODO ??????
 	}
+#endif
 
 #ifdef DEBUG_UDP
 	temps++;

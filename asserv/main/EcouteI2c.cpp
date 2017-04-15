@@ -127,7 +127,6 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 		break;
 
 	case I2CSlave::WriteAddressed:
-
 		if (code == 0)
 		{
 			r = slave.read(buf, 2); //2 bytes => 0.5ms
@@ -135,7 +134,7 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 			if (r == 0)					//uniquement si ok.
 			{
 #ifdef DEBUG_COM_I2C
-				//printf("I2CSlave::WriteAddressed: %c%d\r\n", buf[0], (int) buf[1]);
+				printf("I2CSlave::WriteAddressed: %c%d\r\n", buf[0], (int) buf[1]);
 #endif
 				code = buf[0];
 				nbdata = (int) buf[1];
@@ -147,8 +146,28 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 				printf("ERROR I2CSlave::WriteAddressed: IMPOSSIBLE TO READ FIRST COMMAND!\r\n");
 				ErrorLed = 1;
 			}
+
+			//cas des commandes sans parametre
+			if (code == 'I')
+			{
+				initAsserv();
+#ifdef DEBUG_COM_I2C
+				printf("%c -- initAsserv\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}else
+			if (code == '!')
+			{
+				stopAsserv();
+#ifdef DEBUG_COM_I2C
+				printf("%c -- stopAsserv\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}
 		}
-		else
+		else //cas des parametres uniquement s'il y en a
 		{
 			if (code == 'S') //set position
 			{
@@ -204,27 +223,7 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 				code = 0;
 				nbdata = 0;
 			}
-
-			if (code == 'Q')
-			{
-				stopAsserv();
-#ifdef DEBUG_COM_I2C
-				printf("stopAsserv\r\n");
-#endif
-				code = 0;
-				nbdata = 0;
-			}
-			if (code == 'A')
-			{
-				startAsserv();
-#ifdef DEBUG_COM_I2C
-				printf("startAsserv\r\n");
-#endif
-				code = 0;
-				nbdata = 0;
-			}
 		}
-
 		break;
 	}
 

@@ -61,7 +61,7 @@ PARAM(int32_t, configVersion)
 //Période de l'asservissement en sec : T=1/f
 PARAM(double, asservPeriod)
 
-// Désactivation du command manager (le robot n'est plus asservi)
+// Désactivation du command manager (le robot n'est plus asservi mais l'odométrie est toujours active)
 PARAM(bool, disableAsserv)
 
 // Réglage des codeurs (on affiche simplement les valeurs des codeurs et on desactive le calcul odometrique)
