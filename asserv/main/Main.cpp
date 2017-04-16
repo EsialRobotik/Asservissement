@@ -109,7 +109,7 @@ void ecouteSerie()
         case 'b': //GoToBack : va à un point précis en marche arrière
             gotoLed = !gotoLed;
             scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoTo((int64_t) consigneValue1, (int64_t) consigneValue2);
+            commandManager->addGoToBack((int64_t) consigneValue1, (int64_t) consigneValue2);
             //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
             break;
 
