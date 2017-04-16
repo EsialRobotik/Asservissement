@@ -53,7 +53,7 @@ int main()
 
 void ecouteSerie()
 {
-    int64_t consigneValue;
+    int32_t consigneValue;
     char c = getchar();
 
     switch (c) {
@@ -67,13 +67,13 @@ void ecouteSerie()
             break;
 
         case 'v': //aVance d'un certain nombre de mm
-            scanf("%" PRIi64, &consigneValue);
-            commandManager->addStraightLine((int64_t) consigneValue);
+            scanf("%" PRIi32, &consigneValue);
+            commandManager->addStraightLine(consigneValue);
             break;
 
         case 't': //Tourne d'un certain angle en degrés
-            scanf("%" PRIi64, &consigneValue);
-            commandManager->addTurn((int64_t) consigneValue);
+            scanf("%" PRIi32, &consigneValue);
+            commandManager->addTurn(consigneValue);
             break;
         // Fin commandes basiques
 
@@ -204,12 +204,12 @@ void Live_isr()
 }
 
 void parseGoto(void) {
-    int64_t consigneX = 0;
-    int64_t consigneY = 0;
+    int32_t consigneX = 0;
+    int32_t consigneY = 0;
     char c = getchar(); // On récupère le type de Goto
 
     // Chaque Goto prend deux paramètres : X et Y
-    scanf("%" PRIi64 "#%" PRIi64, &consigneX, &consigneY); //X, Y
+    scanf("%" PRIi32 "#%" PRIi32, &consigneX, &consigneY); //X, Y
     gotoLed = !gotoLed;
 
     switch(c) {
@@ -251,11 +251,11 @@ void parseCommandeOdometrie(void) {
                 break;
 
             case 'x': // Définition de la position en X
-                odometrie->setX((int64_t) consigneValue);
+                odometrie->setX(Utils::mmToUO(odometrie, (int32_t) consigneValue));
                 break;
 
             case 'y': // Définition de la position en Y
-                odometrie->setY((int64_t) consigneValue);
+                odometrie->setY(Utils::mmToUO(odometrie, (int32_t) consigneValue));
                 break;
         }
     }

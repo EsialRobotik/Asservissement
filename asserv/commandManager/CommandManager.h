@@ -14,12 +14,12 @@ public:
     CommandManager(int capacity , ConsignController *ctrlr, Odometrie *odo);
     ~CommandManager();
 
-    bool addStraightLine(int64_t valueInmm);
-    bool addTurn(int64_t angleInDeg);
-    bool addGoTo(int64_t posXInmm, int64_t posYInmm);
-    bool addGoToBack(int64_t posXInmm, int64_t posYInmm);
-    bool addGoToEnchainement(int64_t posXInmm, int64_t posYInmm);
-    bool addGoToAngle(int64_t posXInmm, int64_t posYInmm);
+    bool addStraightLine(int32_t valueInmm);
+    bool addTurn(int32_t angleInDeg);
+    bool addGoTo(int32_t posXInmm, int32_t posYInmm);
+    bool addGoToBack(int32_t posXInmm, int32_t posYInmm);
+    bool addGoToEnchainement(int32_t posXInmm, int32_t posYInmm);
+    bool addGoToAngle(int32_t posXInmm, int32_t posYInmm);
     void perform();
 
     // Gestion d'un éventuel arrêt d'urgence

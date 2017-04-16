@@ -32,37 +32,37 @@ CommandManager::~CommandManager()
  * Pour ajouter des commandes à la file, on donne la position à parcourir en mm ou en degré,
  * le commandManager fait les convertion en UO lui même
  */
-bool CommandManager::addStraightLine(int64_t valueInmm)
+bool CommandManager::addStraightLine(int32_t valueInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GO , Utils::mmToUO(odometrie, valueInmm), 0);
 }
 
-bool CommandManager::addTurn(int64_t angleInDeg)
+bool CommandManager::addTurn(int32_t angleInDeg)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_TURN , Utils::degToUO(odometrie, angleInDeg) , 0);
 }
 
-bool CommandManager::addGoTo(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoTo(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTO , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToBack(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToBack(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTO_BACK , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToEnchainement(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToEnchainement(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTOENCHAIN , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToAngle(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToAngle(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTOANGLE , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));

@@ -16,10 +16,10 @@ public:
     Odometrie();
     ~Odometrie();
 
-    // Reset de la position du robot
-    void setX(float xval);
-    void setY(float yval);
-    void setTheta(double thetaVal);
+    // Paramétrage de la position du robot
+    void setX(int64_t xval); // En UO
+    void setY(int64_t yval); // En UO
+    void setTheta(double thetaVal); // En radians
 
     // Mise à jour de la position du robot
     void refresh();
