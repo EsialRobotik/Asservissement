@@ -171,7 +171,7 @@ void Live_isr()
 
 
     if ((mod++) % 20 == 0) {
-        printf("#x%" PRIi32 "y%" PRIi32 "a%lfd%dvg%dvd%d\r\n",
+        printf("#%" PRIi32 ";%" PRIi32 ";%lf;%d;%d;%d\r\n",
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getY()),
                 (double) odometrie->getTheta(),

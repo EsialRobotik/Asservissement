@@ -5,7 +5,7 @@
 L'asservissement envoie à intervalle régulier des infos sur son état.
 Le format du statut est le suivant :
 
-`"#x<positionX>y<positionY>a<angle>d<statutConsigne>vg<vitesseG>vd<vitesseD>\r\n"`
+`"#<positionX>;<positionY>;<angle>;<statutConsigne>;<vitesseG>;<vitesseD>\r\n"`
 
 | Paramètre      | Type    | Description                       | Unité   |
 |----------------|---------|-----------------------------------|---------|
