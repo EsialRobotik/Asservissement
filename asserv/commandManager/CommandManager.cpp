@@ -50,6 +50,12 @@ bool CommandManager::addGoTo(int64_t posXInmm, int64_t posYInmm)
     return liste->enqueue(CMD_GOTO , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
+bool CommandManager::addGoToBack(int64_t posXInmm, int64_t posYInmm)
+{
+    lastStatus = 0;
+    return liste->enqueue(CMD_GOTO_BACK , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
+}
+
 bool CommandManager::addGoToEnchainement(int64_t posXInmm, int64_t posYInmm)
 {
     lastStatus = 0;
@@ -94,6 +100,8 @@ void CommandManager::perform()
             return; //Dans ce cas, on attend simplement d'etre arrive :)
         } else if (currCMD.type == CMD_GOTO) { // On est en plein GoTo, donc on est en train de se planter et on ajuste
             computeGoTo();
+        } else if (currCMD.type == CMD_GOTO_BACK) {
+            computeGoToBack();
         } else if (currCMD.type == CMD_GOTOANGLE) { // On est en plein GoTo en angle, donc on est en train de se planter et on ajuste
             computeGoToAngle();
         } else if (currCMD.type == CMD_GOTOENCHAIN) { // Là, on est vraiment en train de se planter parce qu'on veut enchainer les consignes
@@ -139,6 +147,8 @@ void CommandManager::perform()
             cnsgCtrl->add_angle_consigne(currCMD.value);
         } else if (currCMD.type == CMD_GOTO) {   // On appel computeGoTo qui se débrouille pour aller en (x,y)
             computeGoTo();
+        } else if (currCMD.type == CMD_GOTO_BACK) {
+            computeGoToBack();
         } else if (currCMD.type == CMD_GOTOENCHAIN) {
             computeEnchainement(); //On va tenter d'enchainer la consigne suivante
         } else if (currCMD.type == CMD_GOTOANGLE) { // On appel computeGoToAngle qui se débrouille pour s'aligner avec (x,y)
@@ -193,6 +203,51 @@ void CommandManager::computeGoTo()
         //printf("Td=%f - aT=%f\n", fabs( thetaCible - odometrie->getTheta()), Config::angleThreshold);
         if (fabs(deltaTheta) < Config::angleThreshold) {
             consigne_dist = deltaDist + cnsgCtrl->getAccuDist();
+        } else {
+            consigne_dist = cnsgCtrl->getAccuDist();
+        }
+
+        cnsgCtrl->set_dist_consigne(consigne_dist);
+        //printf("Cd=%lld\n", consigne_dist);
+    }
+
+}
+
+/*
+ * On a une commande GoToBack(x,y) avec x et y deux points dans le repère du robot
+ */
+void CommandManager::computeGoToBack()
+{
+
+    double deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
+    double deltaY = currCMD.secValue - odometrie->getY();  // Différence entre la cible et le robot selon Y
+
+    // Valeur absolue de la distance à parcourir en allant tout droit pour atteindre la consigne
+    int64_t deltaDist = computeDeltaDist(deltaX, deltaY);
+
+    // La différence entre le thetaCible (= cap à atteindre) et le theta (= cap actuel du robot) donne l'angle à parcourir
+    // Comme on veux aller en marche arrière (computeGoToBack), on utilise
+    // -deltaX et -deltaY pour calculer l'angle.
+    double deltaTheta = computeDeltaTheta(-deltaX, -deltaY);
+
+    // On projette la distance à parcourir sur l'axe X du repaire mobile du robot
+    double projectedDist = deltaDist * cos(deltaTheta);
+    //printf("dd=%lld - rT=%lld - rTUO=%lld - ", deltaDist, Config::returnThreshold, Utils::mmToUO(odometrie, Config::returnThreshold));
+    int64_t consigne_dist;
+
+    // On utilise -projectedDist et -deltaDist parc qu'on veut reculer
+    if (deltaDist < Utils::mmToUO(odometrie, Config::returnThreshold)) {
+        consigne_dist =  cnsgCtrl->getAccuDist() - projectedDist;
+        cnsgCtrl->set_dist_consigne(consigne_dist);
+    } else {
+        cnsgCtrl->set_angle_consigne(
+            Utils::radToUO(odometrie, deltaTheta) + cnsgCtrl->getAccuAngle()
+        ) ; //on se met dans la bonne direction
+
+        //printf("dT=%ldd - ",Utils::radToUO(odometrie, deltaTheta) + cnsgCtrl->getAccuAngle());
+        //printf("Td=%f - aT=%f\n", fabs( thetaCible - odometrie->getTheta()), Config::angleThreshold);
+        if (fabs(deltaTheta) < Config::angleThreshold) {
+            consigne_dist = cnsgCtrl->getAccuDist() - deltaDist;
         } else {
             consigne_dist = cnsgCtrl->getAccuDist();
         }

@@ -11,6 +11,7 @@ enum typeCMD {
     CMD_WAIT, // Attendre un certain temps ('fin, je suppose, c'est pas implémenté...)
     CMD_STOP, // Bon, là, je sais pas...
     CMD_GOTO, // Aller à un point précis
+    CMD_GOTO_BACK, // Aller à un point précis en marche arrière
     CMD_GOTOANGLE, // Se tourner vers un point précis
     CMD_GOTOENCHAIN // Aller vers un point précis, mais si la commande suivante est un GOTO ou
     // un GOTOENCHAIN, on s'autorise à ne pas s'arrêter au point de consigne
