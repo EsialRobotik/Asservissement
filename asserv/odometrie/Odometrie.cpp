@@ -3,6 +3,7 @@
 #include "../codeurs/CodeursDirects.h"
 //#include "../codeurs/CodeursAVR.h"
 #include "../Utils/Utils.h"
+#include <cinttypes>
 
 #ifdef DEBUG
 #include "../debug/DebugUDP.h"
@@ -78,16 +79,20 @@ void Odometrie::setTheta(double thetaVal) {
 // Mise à jour de la position du robot
 void Odometrie::refresh()
 {
-    if (!Config::reglageCodeurs) { // Fonctionnement normal
-        //Récupération des comptes des codeurs
-        codeurs->getCounts(&compteurG, &compteurD);
+    //Déclaration temporaire pour les comptes des codeurs
+    int32_t tempCompteG;
+    int32_t tempCompteD;
 
+    //Récupération des comptes des codeurs
+    codeurs->getCounts(&tempCompteG, &tempCompteD);
+
+    if (!Config::reglageCodeurs) { // Fonctionnement normal
         //printf("CG=%lld CD=%lld\n", compteurG, compteurD);
         //printf(compteurD==0 ? "***\n" : ".\n");
 
-        //On transforme ces valeurs en Unites Odometrique
-        compteurD = compteurD * Config::uOParFront;
-        compteurG = compteurG * Config::uOParFront;
+        //On transforme les compteurs en Unites Odometrique
+        compteurD = tempCompteD * Config::uOParFront;
+        compteurG = tempCompteG * Config::uOParFront;
 
         // On applique le ratio pour prendre en compte la différence entre les codeurs
         if (applyRatioOnG) {
@@ -103,18 +108,12 @@ void Odometrie::refresh()
         // Le robot va violemment osciller et ça risque d'abîmer le matos.
         // On peut l'éviter, alors on le fait, hein, ça évite de donner des cheveux blancs aux trésoriers...
 
-        //Déclaration temporaire pour les comptes des codeurs
-        int64_t tempCompteG;
-        int64_t tempCompteD;
-        //Récupération des comptes des codeurs
-        codeurs->getCounts(&tempCompteG, &tempCompteD);
-
         //On rajoute les comptes récupérés aux totaux
         compteurD += tempCompteD;
         compteurG += tempCompteG;
 
         //renvoi des résultats sur la série
-        printf("CG=%lld \tCD=%lld\r\n", compteurG, compteurD);
+        printf("CG=%" PRIi64 " \tCD=%" PRIi64 "\r\n", compteurG, compteurD);
     }
 
     /*
