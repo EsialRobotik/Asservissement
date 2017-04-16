@@ -26,9 +26,7 @@ public:
     void setEmergencyStop();
     void resetEmergencyStop();
 
-    //Calage bordure
-    void calageBordureGros(int sens);
-    void calageBordurePetit(int sens);
+    // Statut de la dernière commande
     int getLastCommandStatus() { return lastStatus; }
     void setLastCommandStatus(int s) { lastStatus = s; }
 
