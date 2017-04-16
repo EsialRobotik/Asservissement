@@ -22,7 +22,13 @@ void Live_isr(void);
 int main();
 void initAsserv();
 void resetAsserv();
+
 void ecouteSerie();
+void parseGoto(void);
+void parseCommandeOdometrie(void);
+void parseCommandeRegulateur(void);
+void parseCommandeConfig(void);
+
 
 // Objets qui vont bien pour asservir le bestiau
 Odometrie *odometrie;
