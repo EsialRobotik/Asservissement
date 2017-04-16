@@ -33,7 +33,8 @@ prend pas.
 
 ### Commandes basiques
 
-`h`: Arrêt d'urgence
+`h`: Arrêt d'urgence. Le robot s'arrête et n'accepte plus aucune
+    consigne. Seul une commande `r` peut faire repartir le robot.
 
 `r`: Reset de l'arrêt d'urgence
 
