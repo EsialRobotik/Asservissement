@@ -247,15 +247,15 @@ void parseCommandeOdometrie(void) {
     {
         switch(c2) {
             case 'a': // Définition de l'angle
-                odometrie->resetTheta(consigneValue);
+                odometrie->setTheta(consigneValue);
                 break;
 
             case 'x': // Définition de la position en X
-                odometrie->resetX((int64_t) consigneValue);
+                odometrie->setX((int64_t) consigneValue);
                 break;
 
             case 'y': // Définition de la position en Y
-                odometrie->resetY((int64_t) consigneValue);
+                odometrie->setY((int64_t) consigneValue);
                 break;
         }
     }

@@ -63,20 +63,16 @@ Odometrie::~Odometrie()
     delete codeurs;
 }
 
-void Odometrie::resetX(float xval) {
+void Odometrie::setX(float xval) {
     x = Utils::mmToUO(this, xval);
 }
 
-void Odometrie::resetY(float yval) {
+void Odometrie::setY(float yval) {
     y = Utils::mmToUO(this, yval);
 }
 
-void Odometrie::resetTheta(double thetaVal) {
+void Odometrie::setTheta(double thetaVal) {
     theta = thetaVal;
-}
-
-void Odometrie::resetTheta() {
-    theta = 0;
 }
 
 // Mise à jour de la position du robot
