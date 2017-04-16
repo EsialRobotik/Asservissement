@@ -1,5 +1,6 @@
 #include "Main.h"
 #include <iostream>
+#include <cinttypes>
 
 extern serial_t stdio_uart;
 
@@ -52,192 +53,61 @@ int main()
 
 void ecouteSerie()
 {
-    double consigneValue1 = 0;
-    double consigneValue2 = 0;
-    double consigneValue3 = 0;
+    int64_t consigneValue;
     char c = getchar();
-    std::string name, value;
-    const Parameter *param;
 
     switch (c) {
-        //Test de débug
-        case 'z' :
-            // Go 10cm
-            //printf("consigne avant : %d\n", consignController->getDistConsigne());
-            consignController->add_dist_consigne(Utils::mmToUO(odometrie,100));
-            //printf("consigne apres : %d\n", consignController->getDistConsigne());
-            //putchar('z');
-            break;
-
-        case 's' :
-            // Backward 10cm
-            //printf("consigne avant : %d\n", consignController->getDistConsigne());
-            consignController->add_dist_consigne(-Utils::mmToUO(odometrie,100));
-            //printf("consigne apres : %d\n", consignController->getDistConsigne());
-            //putchar('s');
-            break;
-
-        case 'q' :
-            // Left 45
-            consignController->add_angle_consigne(Utils::degToUO(odometrie,45));
-            //putchar('q');
-            break;
-
-        case 'd' :
-            // Right 45
-            consignController->add_angle_consigne(-Utils::degToUO(odometrie,45));
-            //putchar('d');
-            break;
-
+        // Commandes basiques
         case 'h': //Arrêt d'urgence
             commandManager->setEmergencyStop();
-            //putchar('h');
             break;
 
         case 'r': //Reset de l'arrêt d'urgence
             commandManager->resetEmergencyStop();
-            //putchar('r');
-            break;
-
-        case 'g': //Go : va à un point précis
-            gotoLed = !gotoLed;
-            scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoTo((int64_t) consigneValue1, (int64_t) consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
-
-        case 'b': //GoToBack : va à un point précis en marche arrière
-            gotoLed = !gotoLed;
-            scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoToBack((int64_t) consigneValue1, (int64_t) consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
-
-        case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
-            gotoLed = !gotoLed;
-            scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoToEnchainement((int64_t) consigneValue1, (int64_t) consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
             break;
 
         case 'v': //aVance d'un certain nombre de mm
-            scanf("%lf", &consigneValue1);
-            commandManager->addStraightLine((int64_t) consigneValue1);
-            //printf("v%lf\n", consigneValue1);
+            scanf("%" PRIi64, &consigneValue);
+            commandManager->addStraightLine((int64_t) consigneValue);
             break;
 
         case 't': //Tourne d'un certain angle en degrés
-            scanf("%lf", &consigneValue1);
-            commandManager->addTurn((int64_t) consigneValue1);
-            //printf("t%lf\n", consigneValue1);
+            scanf("%" PRIi64, &consigneValue);
+            commandManager->addTurn((int64_t) consigneValue);
+            break;
+        // Fin commandes basiques
+
+        // Commandes GOTO.
+        case 'g':
+            parseGoto();
             break;
 
-        case 'f': //faire Face à un point précis, mais ne pas y aller, juste se tourner
-            scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoToAngle((int64_t) consigneValue1, (int64_t) consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
-
+        // Commande de feedback
         case 'p': //retourne la Position et l'angle courants du robot
-            printf("x%lfy%lfa%lf\r\n", (double)Utils::UOTomm(odometrie, odometrie->getX()),
-                                     (double)Utils::UOTomm(odometrie, odometrie->getY()),
-                                     odometrie->getTheta());
+            printf("x%" PRIi32 "y%" PRIi32 "a%lf\r\n",
+                    (int32_t) Utils::UOTomm(odometrie, odometrie->getX()),
+                    (int32_t) Utils::UOTomm(odometrie, odometrie->getY()),
+                    odometrie->getTheta());
             break;
 
-        case 'c': {//calage bordure
-                char sens = getchar(); // si 0, y vers l'intérieur de la table, si 1, y vers l'extérieur de la table
-                char gros = getchar(); // g pour le Gros, p pour le petit
-
-                if (sens != '1' && sens != '0') {
-                    return;
-                }
-
-                if (gros == 'g') {
-                    commandManager->calageBordureGros(sens == '1' ? 1 : 0);
-                } else if (gros == 'p') {
-                    commandManager->calageBordurePetit(sens == '1' ? 1 : 0);
-                }
-
-                //printf("c%c%c", sens, gros);
-            }
+        // Commandes de l'odométrie
+        case 'O':
+            parseCommandeOdometrie();
             break;
 
-        case 'R': // réinitialiser l'asserv
-            resetAsserv();
+        // Commandes des réglateurs
+        case 'R':
+            parseCommandeRegulateur();
             break;
 
-        case 'D': // dump la config du robot
-            std::cout << Config::dumpConfig() << std::endl;
+        // Commandes de configuration
+        case 'C':
+            parseCommandeConfig();
             break;
 
-        case 'G': // lire la valeur d'un paramètre
-            std::getline(std::cin, name, '\r');
-            param = Config::getParam(name);
-
-            if (param == NULL)
-                std::cout << "error" << endl;
-            else
-                std::cout << param->toString() << std::endl;
-            break;
-
-        case 'S': // modifie la valeur d'un paramètre
-            std::getline(std::cin, name, '\r');
-            std::getline(std::cin, value, '\r');
-            param = Config::getParam(name);
-
-            if (param == NULL) {
-                std::cout << "error" << endl;
-            } else {
-                param->setFromString(value);
-                std::cout << "ok" << std::endl;
-            }
-            break;
-        case 'L': // recharge la config
-            loadConfig();
-            std::cout << "ok" << endl;
-            break;
-        case 'W': // sauvegarde la config courante
-            // config~1.txt = config.default.txt
-            Config::saveToFile("/local/config~1.txt", "/local/config.txt");
-            std::cout << "ok" << endl;
-            break;
         default:
             //putchar(c);
             break;
-    }
-
-    // Commande de contrôle de l'asserv
-    std::string controlCommand;
-    controlCommand = c;                 // Seul manière de concaténer
-    controlCommand += (char) getchar(); // des "char" dans un
-    controlCommand += (char) getchar(); // std::string
-
-    if (controlCommand.compare("elw") == 0) {
-        char enable = getchar();
-        consignController->setLowSpeed(enable == '1' ? true : false);
-    } else if (controlCommand.compare("era") == 0) {
-        char enable = getchar();
-        consignController->angle_Regu_On(enable == '1' ? true : false);
-    }  else if (controlCommand.compare("erd") == 0) {
-        char enable = getchar();
-        consignController->dist_Regu_On(enable == '1' ? true : false);
-    }  else if (controlCommand.compare("rth") == 0) {
-        odometrie->resetTheta();
-    }  else if (controlCommand.compare("rra") == 0) {
-        consignController->reset_regu_angle();
-    }  else if (controlCommand.compare("rrd") == 0) {
-        consignController->reset_regu_dist();
-    }  else if (controlCommand.compare("dfx") == 0) {
-        scanf("%lf", &consigneValue1);
-        odometrie->resetX((int64_t) consigneValue1);
-    }  else if (controlCommand.compare("dfy") == 0) {
-        scanf("%lf", &consigneValue1);
-        odometrie->resetY((int64_t) consigneValue1);
-    }  else if (controlCommand.compare("dfp") == 0) {
-        scanf("%lf#%lf#%lf", &consigneValue1, &consigneValue2, &consigneValue3);
-        odometrie->resetX((int64_t) consigneValue1);
-        odometrie->resetY((int64_t) consigneValue1);
-        odometrie->resetTheta(consigneValue3);
     }
 }
 
@@ -301,12 +171,13 @@ void Live_isr()
 
 
     if ((mod++) % 20 == 0) {
-        printf("#x%lfy%lfa%lfd%dvg%dvd%d\r\n", (double)Utils::UOTomm(odometrie, odometrie->getX()),
-                                   (double)Utils::UOTomm(odometrie, odometrie->getY()),
-                                   odometrie->getTheta(),
-                                   commandManager->getLastCommandStatus(),
-                                   motorController->getVitesseG(),
-                                   motorController->getVitesseD());
+        printf("#x%" PRIi32 "y%" PRIi32 "a%lfd%dvg%dvd%d\r\n",
+                (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),
+                (int32_t)Utils::UOTomm(odometrie, odometrie->getY()),
+                (double) odometrie->getTheta(),
+                (int) commandManager->getLastCommandStatus(),
+                (int) motorController->getVitesseG(),
+                (int) motorController->getVitesseD());
 
         if (commandManager->getLastCommandStatus() == 1)
             commandManager->setLastCommandStatus(2);
@@ -332,3 +203,166 @@ void Live_isr()
 #endif
 }
 
+void parseGoto(void) {
+    int64_t consigneX = 0;
+    int64_t consigneY = 0;
+    char c = getchar(); // On récupère le type de Goto
+
+    // Chaque Goto prend deux paramètres : X et Y
+    scanf("%" PRIi64 "#%" PRIi64, &consigneX, &consigneY); //X, Y
+    gotoLed = !gotoLed;
+
+    switch(c) {
+        case 'o': // Goto normal
+            commandManager->addGoTo(consigneX, consigneY);
+            break;
+
+        case 'e': // Goto enchainé
+            commandManager->addGoToEnchainement(consigneX, consigneY);
+            break;
+
+        case 'f': // Goto angle (faire face)
+            commandManager->addGoToAngle(consigneX, consigneY);
+            break;
+
+        case 'b': // Goto en marche arrière (backward)
+            commandManager->addGoToBack(consigneX, consigneY);
+            break;
+    }
+}
+
+void parseCommandeOdometrie(void) {
+    char c1, c2;
+    double consigneValue;
+
+    // On récupère le type de commande
+    c1 = getchar();
+    c2 = getchar();
+
+    // On attend une valeur en consigne
+    scanf("%lf", &consigneValue);
+
+    // Les commandes d'odométrie n'ont que des 'set'
+    if(c1 == 's')
+    {
+        switch(c2) {
+            case 'a': // Définition de l'angle
+                odometrie->resetTheta(consigneValue);
+                break;
+
+            case 'x': // Définition de la position en X
+                odometrie->resetX((int64_t) consigneValue);
+                break;
+
+            case 'y': // Définition de la position en Y
+                odometrie->resetY((int64_t) consigneValue);
+                break;
+        }
+    }
+}
+
+void parseCommandeRegulateur(void) {
+    char c1, c2;
+
+    // On récupère le type de commande
+    c1 = getchar();
+    c2 = getchar();
+
+    switch(c1) {
+        case 'l': // Réglage de la vitesse lente
+            switch(c2) {
+                case 'd': // Désactivation
+                    consignController->setLowSpeed(false);
+                    break;
+
+                case 'e': // Activation
+                    consignController->setLowSpeed(true);
+                    break;
+            }
+            break;
+
+        case 'a': // Paramétrage du régu d'angle
+            switch(c2) {
+                case 'd': // Désactivation
+                    consignController->angle_Regu_On(false);
+                    break;
+
+                case 'e': // Activation
+                    consignController->angle_Regu_On(true);
+                    break;
+
+                case 'r': // Reset
+                    consignController->reset_regu_angle();
+                    break;
+            }
+            break;
+
+        case 'd': // Paramétrage du régu de distance
+            switch(c2) {
+                case 'd': // Désactivation
+                    consignController->dist_Regu_On(false);
+                    break;
+
+                case 'e': // Activation
+                    consignController->dist_Regu_On(true);
+                    break;
+
+                case 'r': // Reset
+                    consignController->reset_regu_dist();
+                    break;
+            }
+            break;
+    }
+}
+
+void parseCommandeConfig(void) {
+    std::string name, value;
+    const Parameter *param;
+    char c = getchar(); // On récupère le type de commande
+
+    switch(c) {
+        case 'R': // réinitialiser l'asserv
+            resetAsserv();
+            break;
+
+        case 'D': // dump la config du robot
+            std::cout << Config::dumpConfig() << std::endl;
+            break;
+
+        case 'G': // lire la valeur d'un paramètre
+            std::getline(std::cin, name, '\r');
+            param = Config::getParam(name);
+
+            if (param == NULL)
+                std::cout << "error" << endl;
+            else
+                std::cout << param->toString() << std::endl;
+            break;
+
+        case 'S': // modifie la valeur d'un paramètre
+            std::getline(std::cin, name, '\r');
+            std::getline(std::cin, value, '\r');
+            param = Config::getParam(name);
+
+            if (param == NULL) {
+                std::cout << "error" << endl;
+            } else {
+                param->setFromString(value);
+                std::cout << "ok" << std::endl;
+            }
+            break;
+
+        case 'L': // recharge la config
+            loadConfig();
+            std::cout << "ok" << endl;
+            break;
+
+        case 'W': // sauvegarde la config courante
+            // config~1.txt = config.default.txt
+            Config::saveToFile("/local/config~1.txt", "/local/config.txt");
+            std::cout << "ok" << endl;
+            break;
+
+    }
+
+}
