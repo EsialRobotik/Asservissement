@@ -47,11 +47,11 @@ Md22::Md22(PinName I2CsdaPin , PinName I2CsclPin)
 Md22::~Md22()
 {
     // On arrête les moteurs à la destruction
-    vitesseG(0);
-    vitesseD(0);
+    setVitesseG(0);
+    setVitesseD(0);
 }
 
-void Md22::vitesseG(int vitMoteurG)
+void Md22::setVitesseG(int vitMoteurG)
 {
     if (Config::reglageCodeurs)
         return;
@@ -88,7 +88,7 @@ void Md22::vitesseG(int vitMoteurG)
 
 
 
-void Md22::vitesseD(int vitMoteurD)
+void Md22::setVitesseD(int vitMoteurD)
 {
     if (Config::reglageCodeurs)
         return;

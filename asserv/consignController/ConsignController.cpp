@@ -73,11 +73,11 @@ void ConsignController::perform()
     int64_t VmoteurG = Utils::constrain(dist_output - angle_output, Config::V_MAX_NEG_MOTOR , Config::V_MAX_POS_MOTOR);
 
     // On donne l'ordre aux moteurs et roulez jeunesse !!
-    motors->vitesseG(VmoteurG);
-    motors->vitesseD(VmoteurD);
+    motors->setVitesseG(VmoteurG);
+    motors->setVitesseD(VmoteurD);
 
     //printf("VG=%d  ", VmoteurG);
-    //printf("VD=%d\n", VmoteurD);
+    //printf("VD=%d\r\n", VmoteurD);
 }
 
 

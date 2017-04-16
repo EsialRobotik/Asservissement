@@ -14,10 +14,10 @@ public:
     ~Md22();
 
     // Paramétrage des vitesses
-    virtual void vitesseG(int vitMoteurG);
-    virtual void vitesseD(int vitMoteurD);
-    virtual int getVitesseG() { return vitMoteurG; }
-    virtual int getVitesseD() { return vitMoteurD; }
+    virtual void setVitesseG(int vitMoteurG);
+    virtual void setVitesseD(int vitMoteurD);
+    virtual int getVitesseG(void) { return vitMoteurG; }
+    virtual int getVitesseD(void) { return vitMoteurD; }
 
 private:
     int vitMoteurG, vitMoteurD;
