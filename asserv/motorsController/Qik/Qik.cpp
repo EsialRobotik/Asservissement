@@ -16,8 +16,8 @@ Qik::Qik(PinName txPinToQik, PinName rxPinToQik)
 
     // qikSerial.putc(0xAA); //if baud rate jumper is not set
 
-    this->vitesseD(0);
-    this->vitesseG(0);
+    this->setVitesseD(0);
+    this->setVitesseG(0);
 
 
 }
@@ -25,11 +25,11 @@ Qik::Qik(PinName txPinToQik, PinName rxPinToQik)
 Qik::~Qik()
 {
     // On arrête les moteurs à la destruction
-    vitesseG(0);
-    vitesseD(0);
+    setVitesseG(0);
+    setVitesseD(0);
 }
 
-void Qik::vitesseD(int vitMoteurD)
+void Qik::setVitesseD(int vitMoteurD)
 {
     if (Config::inverseMoteurD)
         vitMoteurD = -vitMoteurD;
@@ -60,7 +60,7 @@ void Qik::vitesseD(int vitMoteurD)
 }
 
 
-void Qik::vitesseG(int vitMoteurG)
+void Qik::setVitesseG(int vitMoteurG)
 {
     if (Config::inverseMoteurG)
         vitMoteurG = -vitMoteurG;

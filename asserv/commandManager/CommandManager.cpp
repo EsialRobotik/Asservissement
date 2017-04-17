@@ -32,37 +32,37 @@ CommandManager::~CommandManager()
  * Pour ajouter des commandes à la file, on donne la position à parcourir en mm ou en degré,
  * le commandManager fait les convertion en UO lui même
  */
-bool CommandManager::addStraightLine(int64_t valueInmm)
+bool CommandManager::addStraightLine(int32_t valueInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GO , Utils::mmToUO(odometrie, valueInmm), 0);
 }
 
-bool CommandManager::addTurn(int64_t angleInDeg)
+bool CommandManager::addTurn(int32_t angleInDeg)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_TURN , Utils::degToUO(odometrie, angleInDeg) , 0);
 }
 
-bool CommandManager::addGoTo(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoTo(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTO , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToBack(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToBack(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTO_BACK , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToEnchainement(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToEnchainement(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTOENCHAIN , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
-bool CommandManager::addGoToAngle(int64_t posXInmm, int64_t posYInmm)
+bool CommandManager::addGoToAngle(int32_t posXInmm, int32_t posYInmm)
 {
     lastStatus = 0;
     return liste->enqueue(CMD_GOTOANGLE , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
@@ -363,95 +363,4 @@ void CommandManager::resetEmergencyStop()
     emergencyStop = false;
     //cnsgCtrl->angle_Regu_On(true);
     //cnsgCtrl->dist_Regu_On(true);
-}
-
-void CommandManager::calageBordureGros(int sens)
-{
-
-    cnsgCtrl->setLowSpeed(true);
-
-    // On recule 2sec
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, -150));
-    wait(4);
-    cnsgCtrl->angle_Regu_On(false); //on coupe le régu d'angle pour s'aligner avec la bordure
-    wait(2); //et on attend encore
-
-    // On considère qu'on est contre la bordure, on reset la postion du robot
-    odometrie->resetTheta();
-    cnsgCtrl->reset_regu_angle();
-    odometrie->resetX(Config::placementOrigineX);
-    cnsgCtrl->reset_regu_dist();
-
-    // On remet le regulateur d'angle
-    cnsgCtrl->angle_Regu_On(true);
-
-    // On avance un peu pour sortir de la zone
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, 340));
-    wait(4);
-
-    // En fonction de la couleur, on tourne dans un sens ou l'autre
-    int mult = sens == 0 ? 1 : -1;
-    cnsgCtrl->add_angle_consigne(mult * Utils::degToUO(odometrie, -90));
-    wait(2);
-
-    // On recule dans la bordure
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, -150));
-    wait(4);
-    cnsgCtrl->angle_Regu_On(false); //on coupe le régu d'angle pour s'aligner avec la bordure
-    wait(4); //et on attend encore
-
-    // On reset l'axe Y du robot et on se décolle de la bordure
-    odometrie->resetY(Config::placementOrigineY * -mult);
-    cnsgCtrl->reset_regu_dist();
-    cnsgCtrl->angle_Regu_On(true);
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, 150));
-    wait(4);
-
-    // On remet la marche arrière à vitesse normale
-    cnsgCtrl->setLowSpeed(false);
-}
-
-void CommandManager::calageBordurePetit(int sens)
-{
-
-    cnsgCtrl->setLowSpeed(true);
-
-    // On recule 5sec sans régulateur d'angle
-    cnsgCtrl->angle_Regu_On(false);
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, -100));
-    wait(5);
-
-    // Au bout de 5sec, on considère qu'on est contre la bordure, on reset la postion du robot
-    odometrie->resetTheta();
-    cnsgCtrl->reset_regu_angle();
-    odometrie->resetX(Config::placementOrigineX);
-    cnsgCtrl->reset_regu_dist();
-
-    // On remet le régulateur d'angle
-    cnsgCtrl->angle_Regu_On(true);
-
-    // On avance un peu pour sortir de la zone
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, 550));
-    wait(5);
-
-    // En fonction de la couleur, on tourne dans un sens ou l'autre
-    int mult = sens == 0 ? 1 : -1;
-    cnsgCtrl->add_angle_consigne(mult * Utils::degToUO(odometrie, 90));
-    wait(3);
-
-    // On recule dans la bordure
-    cnsgCtrl->angle_Regu_On(false);
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, -300));
-    wait(5);
-
-    // On reset l'axe Y du robot et on se décolle de la bordure
-    odometrie->resetY(Config::placementOrigineY * -mult);
-    cnsgCtrl->reset_regu_dist();
-    cnsgCtrl->angle_Regu_On(true);
-    cnsgCtrl->add_dist_consigne(Utils::mmToUO(odometrie, 140));
-    wait(3);
-
-    // On remet la marche arrière à vitesse normale
-    cnsgCtrl->setLowSpeed(false);
-
 }

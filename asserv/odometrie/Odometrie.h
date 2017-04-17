@@ -16,11 +16,10 @@ public:
     Odometrie();
     ~Odometrie();
 
-    // Reset de la position du robot
-    void resetX(float xval);
-    void resetY(float yval);
-    void resetTheta(double thetaVal);
-    void resetTheta();
+    // Paramétrage de la position du robot
+    void setX(int64_t xval); // En UO
+    void setY(int64_t yval); // En UO
+    void setTheta(double thetaVal); // En radians
 
     // Mise à jour de la position du robot
     void refresh();
@@ -56,17 +55,6 @@ public:
     }
     double getDistanceRouesUO() {
         return distanceRouesUO;
-    }
-
-    //Inversion logicielle des codeurs, des fois qu'on ait fait de la merde dans le cablage ...
-    void inverseCodeurDroit() {
-        Config::inverseCodeurD = !Config::inverseCodeurD;    //sens de rotation inverse pour le codeur droit
-    }
-    void inverseCodeurGauche() {
-        Config::inverseCodeurG = !Config::inverseCodeurG;    //idem, pour le codeur gauche
-    }
-    void echangeCodeurs() {
-        Config::swapCodeurs = !Config::swapCodeurs;    // codeurGauche <-> codeurDroit
     }
 
 private:

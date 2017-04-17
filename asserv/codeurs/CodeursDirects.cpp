@@ -10,7 +10,7 @@ CodeursDirects::CodeursDirects(PinName pinChanA_G, PinName pinChanB_G, PinName p
 
 CodeursDirects::~CodeursDirects() { }
 
-void CodeursDirects::getCounts(int64_t* countG, int64_t* countD)
+void CodeursDirects::getCounts(int32_t* countG, int32_t* countD)
 {
     __disable_irq(); //On désactive les interruptions
     *countD = codeurD.getCount(); //On récupère le compte des codeurs
@@ -21,7 +21,7 @@ void CodeursDirects::getCounts(int64_t* countG, int64_t* countD)
 
     // On ajuste le sens des codeurs en cas de problème de cablage
     if (Config::swapCodeurs) { //inversion des deux codeurs
-        int64_t temp = *countG;
+        int32_t temp = *countG;
         *countG = *countD;
         *countD = temp;
     }
