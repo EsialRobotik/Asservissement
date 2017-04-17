@@ -33,17 +33,12 @@ void ecouteI2cConfig()
 
 //Name		Permissions	DataAddress	ReadResponse	WriteAction
 //Whoami		R		0x00		Device ID		N/A
-//setPosition	W		S			N/A				X Y T
-//getPosition	R		P			x y t			N/A
-
-//Control1		RW		0x01		Actual Value	Set Setpoint
-//Control2		RW		0x02		Actual Value	Set Setpoint
-//Sensor		R		0x03		Sensor Data		N/A
+//TODO
 
 int code = 0;
 int nbdata = 0;
 
-void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsController *mot,
+void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsController *motorsC,
 		Odometrie *odo)
 {
 
@@ -156,12 +151,51 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 #endif
 				code = 0;
 				nbdata = 0;
-			}else
-			if (code == '!')
+			}
+			else if (code == '!')
 			{
 				stopAsserv();
 #ifdef DEBUG_COM_I2C
 				printf("%c -- stopAsserv\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}
+			else if (code == 'K')
+			{
+				//uniquement odométrie active
+				consignC->perform_On(false);
+				commandM->perform_On(false);
+#ifdef DEBUG_COM_I2C
+				printf("%c -- stop consignC & commandM\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}
+			else if (code == 'J')
+			{
+				//uniquement odométrie active
+				consignC->perform_On(true);
+				commandM->perform_On(true);
+#ifdef DEBUG_COM_I2C
+				printf("%c -- activate consignC & commandM\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}
+			else if (code == 'h')
+			{
+				commandM->setEmergencyStop();
+#ifdef DEBUG_COM_I2C
+				printf("%c -- EmergencyStop\r\n", code);
+#endif
+				code = 0;
+				nbdata = 0;
+			}else if (code == 'r')
+			{
+				commandM->resetEmergencyStop();
+#ifdef DEBUG_COM_I2C
+				printf("%c -- resetEmergencyStop\r\n", code);
 #endif
 				code = 0;
 				nbdata = 0;
@@ -210,6 +244,84 @@ void ecouteI2c(ConsignController *consign, CommandManager *command, MotorsContro
 #ifdef DEBUG_COM_I2C
 						printf("S12 x=%f  y=%f  t=%f \r\n", odo->getXmm(), odo->getYmm(),
 								odo->getTheta());
+#endif
+					}
+					else
+					{
+						printf(
+								"ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n",
+								r);
+						ErrorLed = 1;
+					}
+				}
+				code = 0;
+				nbdata = 0;
+			}
+			else if (code == 'v') //avancer
+			{
+				if (nbdata != sizeof(cmd))
+				{
+					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
+							code);
+					ErrorLed = 1;
+				}
+				else
+				{
+					r = slave.read(cmd, sizeof(cmd));
+					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
+
+					if (r == 0)
+					{
+						gotoLed = !gotoLed;
+						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+						float2bytes_t mm;
+						mm.bytes[0] = cmd[0];
+						mm.bytes[1] = cmd[1];
+						mm.bytes[2] = cmd[2];
+						mm.bytes[3] = cmd[3];
+
+						commandM->addStraightLine(mm.f);
+#ifdef DEBUG_COM_I2C
+						printf("v4 dist=%f \r\n", mm.f);
+#endif
+					}
+					else
+					{
+						printf(
+								"ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n",
+								r);
+						ErrorLed = 1;
+					}
+				}
+				code = 0;
+				nbdata = 0;
+			}
+			else if (code == 't') //tourner en deg
+			{
+				if (nbdata != sizeof(cmd))
+				{
+					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
+							code);
+					ErrorLed = 1;
+				}
+				else
+				{
+					r = slave.read(cmd, sizeof(cmd));
+					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
+
+					if (r == 0)
+					{
+						gotoLed = !gotoLed;
+						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+						float2bytes_t deg;
+						deg.bytes[0] = cmd[0];
+						deg.bytes[1] = cmd[1];
+						deg.bytes[2] = cmd[2];
+						deg.bytes[3] = cmd[3];
+
+						commandM->addTurn(deg.f);
+#ifdef DEBUG_COM_I2C
+						printf("v4 degrees=%f \r\n", deg.f);
 #endif
 					}
 					else

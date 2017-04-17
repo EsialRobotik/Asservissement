@@ -215,13 +215,13 @@ void ecouteSeriePC()
 
 		case 'v': //aVance d'un certain nombre de mm
 			pc.scanf("%lf", &consigneValue1);
-			commandManager->addStraightLine((int32_t) consigneValue1);
+			commandManager->addStraightLine(consigneValue1);
 			pc.printf("v%lf\r\n", consigneValue1);
 			break;
 
 		case 't': //Tourne d'un certain angle en degrés
 			scanf("%lf", &consigneValue1);
-			commandManager->addTurn((int64_t) consigneValue1);
+			commandManager->addTurn(consigneValue1);
 			pc.printf("t%lf\n", consigneValue1);
 			break;
 
