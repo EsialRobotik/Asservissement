@@ -171,11 +171,12 @@ void Live_isr()
 
 
     if ((mod++) % 20 == 0) {
-        printf("#%" PRIi32 ";%" PRIi32 ";%lf;%" PRIi32 ";%" PRIi32 ";%" PRIi32 "\r\n",
+        printf("#%" PRIi32 ";%" PRIi32 ";%lf;%" PRIi32 ";%" PRIi32 ";%" PRIi32 ";%" PRIi32 "\r\n",
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getY()),
                 (double) odometrie->getTheta(),
                 (int32_t) commandManager->getCommandStatus(),
+                (int32_t) commandManager->getPendingCommandCount(),
                 (int32_t) motorController->getVitesseG(),
                 (int32_t) motorController->getVitesseD());
     }

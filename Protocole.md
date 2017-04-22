@@ -5,7 +5,7 @@
 L'asservissement envoie à intervalle régulier des infos sur son état.
 Le format du statut est le suivant :
 
-`"#<positionX>;<positionY>;<angle>;<statutConsigne>;<vitesseG>;<vitesseD>\r\n"`
+`"#<positionX>;<positionY>;<angle>;<commandStatus>;<cmdQueueSize>;<vitesseG>;<vitesseD>\r\n"`
 
 | Paramètre     | Type    | Description                        | Unité   |
 |---------------|---------|------------------------------------|---------|
@@ -13,6 +13,7 @@ Le format du statut est le suivant :
 | positionY     | int32_t | Coordonnée en Y du robot           | mm      |
 | angle         | double  | Cap du robot                       | radians |
 | commandStatus | int32_t | Statut du gestionnaire de commande | N/A     |
+| cmdQueueSize  | int32_t | Nombre de commandes en attente     | N/A     |
 | vitesseG      | int32_t | Consigne de vitesse moteur gauche  | N/A     |
 | vitesseD      | int32_t | Consigne de vitesse moteur droit   | N/A     |
 

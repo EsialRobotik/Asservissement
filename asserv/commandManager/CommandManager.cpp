@@ -342,3 +342,17 @@ void CommandManager::resetEmergencyStop()
         commandStatus = STATUS_IDLE;
     }
 }
+
+int CommandManager::getPendingCommandCount()
+{
+    // Nombre de commande dans la file d'attente
+    int count = liste->size();
+
+    // On n'oublie pas l'éventuelle commande suivante
+    if(nextCMD.type != CMD_NULL)
+    {
+        count++;
+    }
+
+    return count;
+}

@@ -35,6 +35,7 @@ public:
 
     // Statut des commandes
     int getCommandStatus() { return commandStatus; }
+    int getPendingCommandCount();
 
 private:
     CMDList *liste; //File d'attente des commandes

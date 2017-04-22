@@ -38,9 +38,11 @@ int CMDList::size()
 {
     if (full) {
         return capa;
+    } else if(headPos < nextFreePos) {
+        return nextFreePos - headPos;
+    } else {
+        return nextFreePos + capa - headPos;
     }
-
-    return nextFreePos - headPos;
 }
 
 
