@@ -81,8 +81,13 @@ void CommandManager::perform()
     * Sinon on attend tranquillement la fin
     */
     if (!cnsgCtrl->areRampsFinished()) {
-        // On est forcément en train d'exécuter une consigne
-        commandStatus = STATUS_RUNNING;
+        // On est forcément en train d'exécuter une consigne, on vérifie
+        // si on est pas bloqué
+        if(cnsgCtrl->isBlocked()) {
+            commandStatus = STATUS_BLOCKED;
+        } else {
+            commandStatus = STATUS_RUNNING;
+        }
 
         if (currCMD.type == CMD_GO || currCMD.type == CMD_TURN) {  // On avance ou on tourne sur place
             return; //Dans ce cas, on attend simplement d'etre arrive :)

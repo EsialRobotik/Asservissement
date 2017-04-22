@@ -31,7 +31,7 @@
  *
  * De même, si PARAM est définie comme suit :
  *
- * 	   #define PARAM(type, nom) Parameter(#nom, &Config::nom),
+ *     #define PARAM(type, nom) Parameter(#nom, &Config::nom),
  *
  * La ligne sera alors remplacée par
  *
@@ -248,5 +248,19 @@ PARAM(int64_t, ANGLE_QUAD_ANTICIPATION_GAIN_COEF)
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 PARAM(int64_t, ANGLE_TAILLE_FENETRE_ARRIVEE)
+
+
+//--------------------------//
+//   Detection de blocage   //
+//--------------------------//
+
+// Seuil de détection du blocage pour la distance (en UO/tick)
+PARAM(int64_t, BLOCK_DIST_SPEED_THRESHOLD)
+
+// Seuil de détection du blocage pour l'angle (en UO/tick)
+PARAM(int64_t, BLOCK_ANGLE_SPEED_THRESHOLD)
+
+// Si on ne bouge pas pendant ce nombre de tick, on signale l'info
+PARAM(int64_t, BLOCK_TICK_THRESHOLD)
 
 #undef PARAM
