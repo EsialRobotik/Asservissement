@@ -1,17 +1,16 @@
 #include "Main.h"
 
+#include <DigitalOut.h>
 #include <LocalFileSystem.h>
 #include <mbed_error.h>
+#include <PinNames.h>
 #include <sys/_stdint.h>
 #include <Serial.h>
+#include <Ticker.h>
+#include <wait_api.h>
 #include <cstdio>
 #include <iostream>
 #include <string>
-
-#ifdef LCD_ACTIVATE
-#include "../../C12832/C12832.h"
-C12832 lcd(p5, p7, p6, p8, p11);
-#endif
 
 #include "../config/parameter.h"
 #include "../Utils/Utils.h"
@@ -50,11 +49,11 @@ int main()
 	LocalFileSystem local("local");
 	loadConfig();
 
+	//on configure et démarre l'interruption timer (qui ne fait rien par defaut)
+	startAsserv();
+
 	// Et on reinitialise les objets
 	initAsserv();
-
-	//on configure et démarre l'interruption timer
-	startAsserv();
 
 	gotoLed = 0;
 #ifdef DEBUG_UDP
@@ -68,7 +67,8 @@ int main()
 	//printf("\r\nGOGO !");
 	refLed = 1;
 
-	leftSpeed = 0; //TODO
+	leftSpeed = 0;
+	rightSpeed = 0;
 
 #ifdef COM_I2C_ACTIVATE
 	ecouteI2cConfig();
@@ -81,7 +81,7 @@ int main()
 	//lcd.set_contrast(50);
 	lcd.locate(0, 0);
 
-	lcd.printf("mbed Cho v2! c=%d", lcd.get_contrast());
+	lcd.printf("mbed Cho v3! c=%d", lcd.get_contrast());
 #endif
 
 	while (1)
@@ -104,14 +104,16 @@ int main()
 
 void startAsserv()
 {
-	run = false;
+	printf("start asserv ...\r\n");
+	run = false; //on lance le thread qui ne fait rien
 	if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
 	{
 		// On attache l'interruption timer à la méthode Live_isr
 		double period = Config::asservPeriod;
 		if (period > 0 && period < 0.5)
 		{
-			Live.attach(Live_isr, Config::asservPeriod);
+
+			Live.attach(Live_isr, period);
 			printf("Periode asserv ok : %lf sec\r\n", period);
 		}
 		else
@@ -158,7 +160,7 @@ void ecouteSeriePC()
 	 L / recharge la config config.txt
 	 W / sauvegarde la config courante  config~1.txt = config.default.txt
 
-	 I / Active les actions dans la boucle d'asservissement
+	 I / Active les actions dans la boucle d'asservissement (odo + managers)
 	 ! / Stoppes actions dans la boucle d'asservissement
 	 K / desactive le consignController et le commandManager
 	 J / reactive le consignController et le commandManager
@@ -176,6 +178,7 @@ void ecouteSeriePC()
 
 	if (pc.readable())
 	{
+		gotoLed = !gotoLed;
 
 		switch (pc.getc())
 		{
@@ -220,15 +223,27 @@ void ecouteSeriePC()
 			break;
 
 		case 't': //Tourne d'un certain angle en degrés
-			scanf("%lf", &consigneValue1);
+			pc.scanf("%lf", &consigneValue1);
 			commandManager->addTurn(consigneValue1);
 			pc.printf("t%lf\n", consigneValue1);
 			break;
 
 		case 'f': //faire Face à un point précis, mais ne pas y aller, juste se tourner
-			scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-			commandManager->addGoToAngle((int64_t) consigneValue1, (int64_t) consigneValue2);
+			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
+			commandManager->addGoToAngle(consigneValue1, consigneValue2);
 			pc.printf("g%lf#%lf\n", consigneValue1, consigneValue2);
+			break;
+
+		case 'g': //Go : va à un point précis
+			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
+			commandManager->addGoTo(consigneValue1, consigneValue2);
+			//printf("g%lf#%lf\n", consigneValue1, consigneValue2);
+			break;
+
+		case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
+			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
+			commandManager->addGoToEnchainement(consigneValue1, consigneValue2);
+			//printf("g%lf#%lf\n", consigneValue1, consigneValue2);
 			break;
 
 		case 'p': //retourne la Position et l'angle courants du robot
@@ -254,7 +269,6 @@ void ecouteSeriePC()
 			{
 				commandManager->calageBordurePetit(sens == '1' ? 1 : 0);
 			}
-
 			//printf("c%c%c", sens, gros);
 		}
 			break;
@@ -319,15 +333,32 @@ void ecouteSeriePC()
 
 		case '+':
 			leftSpeed++;
+			consignController->perform_On(false);
+			commandManager->perform_On(false);
 			consignController->setLeftSpeed(leftSpeed);
-			consignController->setRightSpeed(leftSpeed);
-			pc.printf("+%d ", leftSpeed);
+			pc.printf("LEFT+%d ", leftSpeed);
 			break;
 		case '-':
 			leftSpeed--;
+			consignController->perform_On(false);
+			commandManager->perform_On(false);
 			consignController->setLeftSpeed(leftSpeed);
-			consignController->setRightSpeed(leftSpeed);
-			pc.printf("-%d ", leftSpeed);
+			pc.printf("LEFT-%d ", leftSpeed);
+			break;
+
+		case '*':
+			rightSpeed++;
+			consignController->perform_On(false);
+			commandManager->perform_On(false);
+			consignController->setRightSpeed(rightSpeed);
+			pc.printf("RIGHT+%d ", rightSpeed);
+			break;
+		case '/':
+			rightSpeed--;
+			consignController->perform_On(false);
+			commandManager->perform_On(false);
+			consignController->setRightSpeed(rightSpeed);
+			pc.printf("RIGHT-%d ", rightSpeed);
 			break;
 
 		case '3':
@@ -523,8 +554,9 @@ void initAsserv()
 void stopAsserv()
 {
 	//On arrête le traitement de l'asserv
-	//Live.detach();
-	run = false;
+	run = false; //afin de pouvoir supprimer les objets
+	leftSpeed = 0;
+	rightSpeed = 0;
 
 	// On détruit tout les objets (sauf les moteurs, on s'en fiche de ça)
 	delete odometrie;
@@ -563,9 +595,18 @@ void Live_isr()
 {
 	if (run == false) return;
 
-	if ((led++) % 50 == 0)
+	if ((led++) % 100 == 0)
 	{
 		liveLed = 1 - liveLed;
+
+#ifdef LCD_ACTIVATE
+		//lcd.cls();
+		lcd.locate(0, 10);
+		lcd.printf("x%.1f y%.1f t%.1f  \n",
+				(float) Utils::UOTomm(odometrie, odometrie->getX()),
+						(float) Utils::UOTomm(odometrie, odometrie->getY()),
+								(float) Utils::UOToDeg(odometrie, odometrie->getTheta()));
+#endif
 	}
 
 	odometrie->refresh();

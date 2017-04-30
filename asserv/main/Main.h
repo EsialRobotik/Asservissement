@@ -24,6 +24,7 @@
 #endif
 #ifdef LCD_ACTIVATE
 #include "../../C12832/C12832.h"
+C12832 lcd(p5, p7, p6, p8, p11);
 #endif
 
 //#define ASSERV_PERIOD 0.002 //en s
@@ -32,7 +33,7 @@
 Ticker Live;
 void Live_isr(void);
 
-int leftSpeed;
+int leftSpeed, rightSpeed;
 bool run;
 
 // Méthodes utiles
@@ -50,9 +51,11 @@ Odometrie *odometrie;
 MotorsController *motorController;
 ConsignController *consignController;
 CommandManager *commandManager;
-DigitalOut refLed(LED2);
-DigitalOut liveLed(LED4);
-DigitalOut gotoLed(LED3);
+DigitalOut refLed(LED2); //si allumer
+DigitalOut liveLed(LED4); //clignote si Live_isr est en route
+DigitalOut gotoLed(LED3); //clignote a chaque nouvelle commande
+
+DigitalOut ErrorLed(LED1);
 
 #ifdef DEBUG_UDP
 DigitalOut dataLed(LED1);

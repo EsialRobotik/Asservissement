@@ -31,6 +31,12 @@ int64_t Utils::degToUO(Odometrie *odo, double valeur)
     return (PI * valeur * odo->getDistanceRouesUO()) / 180;
 }
 
+// Conversion  UO en deg
+double Utils::UOToDeg(Odometrie *odo, int64_t valeur)
+{
+    return (valeur * 180.0 / (PI * odo->getDistanceRouesUO()));
+}
+
 // Conversion radians en UO
 int64_t Utils::radToUO(Odometrie *odo, double valeur)
 {

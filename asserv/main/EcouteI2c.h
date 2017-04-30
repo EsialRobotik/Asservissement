@@ -16,14 +16,13 @@ class Odometrie;
 #define COM_I2C_ACTIVATE 1
 #define DEBUG_COM_I2C 1
 
-
 #define I2C_SLAVE_ADDRESS 0x05
+
 
 
 
 //Definitions globales
 #ifdef COM_I2C_ACTIVATE
-
 
 // convert float to byte array  source: http://mbed.org/forum/helloworld/topic/2053/
 union float2bytes_t   // union consists of one variable represented in a number of different ways
@@ -34,6 +33,6 @@ union float2bytes_t   // union consists of one variable represented in a number 
 
 void ecouteI2c(ConsignController *consign, CommandManager *cmd, MotorsController *mot, Odometrie *odo);
 void ecouteI2cConfig();
-#endif
+#endif /* COM_I2C_ACTIVATE */
 
 #endif /* ASSERV_MAIN_ECOUTEI2C_H_ */

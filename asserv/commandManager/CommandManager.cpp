@@ -198,8 +198,8 @@ void CommandManager::computeGoTo()
 	 // La consigne à atteindre en angle est la somme du deltaTheta en UO et de l'accumulateur du régu
 	 int64_t consigne_angle = Utils::radToUO(odometrie, deltaTheta) + cnsgCtrl->getAccuAngle();
 	 cnsgCtrl->set_angle_consigne( consigne_angle ); // On set la consigne*/
-
 	//  Ancienne version, juste au cas où. A virer une fois operationnelle
+
 	// On projette la distance à parcourir sur l'axe X du repaire mobile du robot
 	double projectedDist = deltaDist * cos(deltaTheta);
 	//printf("dd=%lld - rT=%lld - rTUO=%lld - ", deltaDist, Config::returnThreshold, Utils::mmToUO(odometrie, Config::returnThreshold));
@@ -267,7 +267,7 @@ double CommandManager::computeDeltaTheta(double deltaX, double deltaY)
 
 	// On ajuste l'angle à parcourir pour ne pas faire plus d'un demi-tour
 	// Exemple, tourner de 340 degrés est plus chiant que de tourner de -20 degrés
-	if (deltaTheta > PI)
+	if (deltaTheta >= PI)
 	{
 		deltaTheta -= 2.0 * PI;
 	}

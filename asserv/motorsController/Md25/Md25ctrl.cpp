@@ -7,6 +7,12 @@
 
 #include "Md25ctrl.h"
 
+#include <DigitalOut.h>
+#include <cstdio>
+
+#include "../../config/config.h"
+#include "../../main/Main.h"
+
 // Constructeur d'une instance de MD22
 Md25ctrl::Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin) :
 		i2cLink_(I2CsdaPin, I2CsclPin), md_(&i2cLink_, ADDR_MD25), connected_(false)

@@ -123,7 +123,7 @@ std::string Config::dumpConfig() {
     std::ostringstream out;
     for (size_t i = 0; i < sizeof(Config::params) / sizeof(*Config::params); i++) {
         const Parameter *p = &(Config::params[i]);
-        out << p->getName() << " = " << p->toString() << endl;
+        out << p->getName() << " = " << p->toString() << "\r" << endl;
     }
     return out.str();
 }

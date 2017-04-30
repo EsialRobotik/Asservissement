@@ -99,13 +99,13 @@ V_MIN_POS_MOTOR = 1
 V_MIN_NEG_MOTOR = -1
 
 // Inversion du sens du moteur gauche
-inverseMoteurG = false
+inverseMoteurG = true
 
 // Inversion du sens du moteur droit
-inverseMoteurD = false
+inverseMoteurD = true
 
 // Échange des moteurs
-swapMoteurs = false
+swapMoteurs = true
 
 
 //--------------------------//

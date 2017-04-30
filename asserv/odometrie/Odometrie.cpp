@@ -3,14 +3,18 @@
 #include <PinNames.h>
 #include <cmath>
 #include <cstdio>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "../codeurs/CodeursDirects.h"
-#include "../Utils/Utils.h"
+#include "../main/Main.h"
 
 #ifdef DEBUG_UDP
 #include "../debug/DebugUDP.h"
 extern DebugUDP *debugUdp;
+#endif
+
+#ifdef LCD_ACTIVATE
+#include "../../C12832/C12832.h"
 #endif
 
 // Constructeur
@@ -20,7 +24,7 @@ extern DebugUDP *debugUdp;
  */
 Odometrie::Odometrie()
 {
-	//TODO a initiliser
+
 	deltaDist = 0;
 	deltaTheta = 0;
 
@@ -153,6 +157,10 @@ void Odometrie::refresh()
 	else
 	{
 		printf("CG=%ld \t\tCD=%ld\r\n", compteurG, compteurD);
+#ifdef LCD_ACTIVATE
+		lcd.locate(0, 10);
+		lcd.printf("L=%ld R=%ld", compteurG, compteurD);
+#endif
 	}
 
 	//Si le débug est en route

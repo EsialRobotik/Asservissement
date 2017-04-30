@@ -17,6 +17,7 @@ public :
     int64_t static degToUO(Odometrie *odo, double valeur);
     int64_t static radToUO(Odometrie *odo, double valeur);
     double static UOTomm(Odometrie *odo, int64_t valeur);
+    double static UOToDeg(Odometrie *odo, int64_t valeur);
 
 };
 
