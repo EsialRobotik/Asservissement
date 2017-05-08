@@ -7,6 +7,13 @@
 #include "../Utils/Utils.h"
 #include "../config/config.h"
 
+enum CommandStatus {
+    STATUS_IDLE     = 0, // Auncune consigne en cours, en attente...
+    STATUS_RUNNING  = 1, // Commande en cours d'exécution
+    STATUS_HALTED   = 2, // Arrêt d'urgence en cours,
+    STATUS_BLOCKED  = 3, // Commande en cours, mais le robot ne bouge plus!
+};
+
 class CommandManager
 {
 
@@ -26,9 +33,9 @@ public:
     void setEmergencyStop();
     void resetEmergencyStop();
 
-    // Statut de la dernière commande
-    int getLastCommandStatus() { return lastStatus; }
-    void setLastCommandStatus(int s) { lastStatus = s; }
+    // Statut des commandes
+    int getCommandStatus() { return commandStatus; }
+    int getPendingCommandCount();
 
 private:
     CMDList *liste; //File d'attente des commandes
@@ -37,10 +44,7 @@ private:
     CMD currCMD; //commande courante
     CMD nextCMD; //commande suivante
 
-    bool emergencyStop; //arrêt d'urgence : si le robot adverse est dans les parages
-
-    bool currentConsignFinished; //signale si la consigne courante est terminée. Reste à vrai tant qu'une nouvelle consigne n'est pas arrivée.
-    int lastStatus;
+    CommandStatus commandStatus;
 
     double computeDeltaTheta(double deltaX, double deltaY); // Calcul de l'angle à parcourir
     int64_t computeDeltaDist(double deltaX, double deltaY); // Calcul de la distance à parcourir

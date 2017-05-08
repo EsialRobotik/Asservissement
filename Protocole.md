@@ -5,16 +5,40 @@
 L'asservissement envoie à intervalle régulier des infos sur son état.
 Le format du statut est le suivant :
 
-`"#<positionX>;<positionY>;<angle>;<statutConsigne>;<vitesseG>;<vitesseD>\r\n"`
+`"#<positionX>;<positionY>;<angle>;<commandStatus>;<cmdQueueSize>;<vitesseG>;<vitesseD>\r\n"`
 
-| Paramètre      | Type    | Description                       | Unité   |
-|----------------|---------|-----------------------------------|---------|
-| positionX      | int32_t | Coordonnée en X du robot          | mm      |
-| positionY      | int32_t | Coordonnée en Y du robot          | mm      |
-| angle          | double  | Cap du robot                      | radians |
-| statutConsigne | int     | Statut de la consigne courante    | N/A     |
-| vitesseG       | int     | Consigne de vitesse moteur gauche | N/A     |
-| vitesseD       | int     | Consigne de vitesse moteur droit  | N/A     |
+| Paramètre     | Type    | Description                        | Unité   |
+|---------------|---------|------------------------------------|---------|
+| positionX     | int32_t | Coordonnée en X du robot           | mm      |
+| positionY     | int32_t | Coordonnée en Y du robot           | mm      |
+| angle         | double  | Cap du robot                       | radians |
+| commandStatus | int32_t | Statut du gestionnaire de commande | N/A     |
+| cmdQueueSize  | int32_t | Nombre de commandes en attente     | N/A     |
+| vitesseG      | int32_t | Consigne de vitesse moteur gauche  | N/A     |
+| vitesseD      | int32_t | Consigne de vitesse moteur droit   | N/A     |
+
+Les valeurs de `vitesseG` et `vitesseD` sont les consignes directement
+envoyées à la carte de contrôle moteurs. La valeur dépend donc de la
+carte utilisée. Pour la MD22, par exemple, les valeurs vont de -128 à 127.
+
+Les valeurs que peut prendre `commandStatus` sont les suivantes :
+
+| Nom              | Valeur | Description
+|------------------|--------|--------------------------------------------
+| `STATUS_IDLE`    |  0     | Aucune consigne en cours, en attente.
+| `STATUS_RUNNING` |  1     | Une consigne est en cours d'exécution.
+| `STATUS_HALTED`  |  2     | Un arrêt d'urgence a été demandé.
+| `STATUS_BLOCKED` |  3     | Une consigne est en cours, mais le robot semble coincé / ne bouge plus.
+
+> **ATTENTION !**
+> Lors de l'envoi d'une commande, le statut renvoyé peut ne pas passer de
+> `STATUS_IDLE` à `STATUS_RUNNING` immédiatement. Le changement de statut
+> n'est pas synchronisé avec l'ajout de la commande, mais avec son traitement
+> par la boucle d'asservissement. L'IA qui interagit avec l'asservissement
+> peut également lire le statut avec un peu de retard. Pour éviter les
+> problèmes, l'IA devrait attendre d'avoir reçu **deux fois** le statut
+> `STATUS_IDLE` après avoir envoyé une commande pour être sûr que la
+> commande demandée est réellement terminée !
 
 ## Commandes
 

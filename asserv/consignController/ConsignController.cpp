@@ -21,6 +21,9 @@ ConsignController::ConsignController(Odometrie *odo, MotorsController *mot)
     // Les 2 regus sont actifs par défaut
     angle_regu_on = true;
     dist_regu_on = true;
+
+    // On ne commence pas bloqué
+    blocked_ticks = 0;
 }
 
 // Destructeur
@@ -76,6 +79,24 @@ void ConsignController::perform()
     motors->setVitesseG(VmoteurG);
     motors->setVitesseD(VmoteurD);
 
+    // On vérifie si on n'est pas bloqué. Note: on utilise les getters
+    // du MotorsController parce qu'il peut mettre les vitesses à 0
+    // si elles sont trop faibles.
+    if( motors->getVitesseG() != 0 && motors->getVitesseD() != 0
+        && abs(odometrie->getDeltaThetaBrut()) < Config::BLOCK_ANGLE_SPEED_THRESHOLD
+        && abs(odometrie->getDeltaDist()) < Config::BLOCK_DIST_SPEED_THRESHOLD )
+    {
+        // Bloqué !
+        if(blocked_ticks < INT32_MAX) {
+            // On n'incrémente pas en continue pour éviter l'overflow (au bout de 124 jours...)
+            blocked_ticks++;
+        }
+    }
+    else {
+        // Moteurs arrêtés ou robot qui bouge: on n'est pas bloqué
+        blocked_ticks = 0;
+    }
+
     //printf("VG=%d  ", VmoteurG);
     //printf("VD=%d\r\n", VmoteurD);
 }
@@ -90,4 +111,10 @@ void ConsignController::setLowSpeed(bool b)
         dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG);
         dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
     }
+}
+
+bool ConsignController::isBlocked()
+{
+    // Si on est bloqué pendant un certain temps, on le signale
+    return blocked_ticks >= Config::BLOCK_TICK_THRESHOLD;
 }

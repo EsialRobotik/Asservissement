@@ -18,9 +18,7 @@ CommandManager::CommandManager(int capacity , ConsignController *ctrlr, Odometri
     odometrie = odo;
     currCMD.type = CMD_NULL;
     nextCMD.type = CMD_NULL;
-    emergencyStop = false;
-    currentConsignFinished = true;
-    lastStatus = 2;
+    commandStatus = STATUS_IDLE;
 }
 
 CommandManager::~CommandManager()
@@ -34,37 +32,31 @@ CommandManager::~CommandManager()
  */
 bool CommandManager::addStraightLine(int32_t valueInmm)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_GO , Utils::mmToUO(odometrie, valueInmm), 0);
 }
 
 bool CommandManager::addTurn(int32_t angleInDeg)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_TURN , Utils::degToUO(odometrie, angleInDeg) , 0);
 }
 
 bool CommandManager::addGoTo(int32_t posXInmm, int32_t posYInmm)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_GOTO , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
 bool CommandManager::addGoToBack(int32_t posXInmm, int32_t posYInmm)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_GOTO_BACK , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
 bool CommandManager::addGoToEnchainement(int32_t posXInmm, int32_t posYInmm)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_GOTOENCHAIN , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
 bool CommandManager::addGoToAngle(int32_t posXInmm, int32_t posYInmm)
 {
-    lastStatus = 0;
     return liste->enqueue(CMD_GOTOANGLE , Utils::mmToUO(odometrie, posXInmm) , Utils::mmToUO(odometrie, posYInmm));
 }
 
@@ -74,19 +66,13 @@ bool CommandManager::addGoToAngle(int32_t posXInmm, int32_t posYInmm)
  */
 void CommandManager::perform()
 {
-    /*
-    * On demande un arrêt d'urgence, donc on fixe la consigne à atteindre sur la position courante
-    */
-    if (emergencyStop) {
-/*        cnsgCtrl->set_dist_consigne(cnsgCtrl->getAccuDist());
-        cnsgCtrl->set_angle_consigne(cnsgCtrl->getAccuAngle());
-*/
+    // Arrêt d'urgence ! On n'accepte aucune commande.
+    if (commandStatus == STATUS_HALTED) {
         while (currCMD.type != CMD_NULL) { //On s'assure que la liste des commandes est vide
             currCMD = liste->dequeue();
         }
 
         nextCMD.type = CMD_NULL;
-        currentConsignFinished = true; //Du coup, on fait comme si la consigne courante était fini
         return;
     }
 
@@ -95,6 +81,13 @@ void CommandManager::perform()
     * Sinon on attend tranquillement la fin
     */
     if (!cnsgCtrl->areRampsFinished()) {
+        // On est forcément en train d'exécuter une consigne, on vérifie
+        // si on est pas bloqué
+        if(cnsgCtrl->isBlocked()) {
+            commandStatus = STATUS_BLOCKED;
+        } else {
+            commandStatus = STATUS_RUNNING;
+        }
 
         if (currCMD.type == CMD_GO || currCMD.type == CMD_TURN) {  // On avance ou on tourne sur place
             return; //Dans ce cas, on attend simplement d'etre arrive :)
@@ -125,21 +118,13 @@ void CommandManager::perform()
             currCMD = liste->dequeue(); // On prend la consigne suivante immédiatement
         }
 
-        // On vient de terminer la consigne courante, on le signale en haut lieu
-        if (currentConsignFinished == false) {
-            //iaCom.printf("d\n"); //ou iaCom.putc('d');
-//            putchar('d');
-//            putchar('\n');
-            //printf("D sent \n");
-            lastStatus = 1;
-        }
-
-        currentConsignFinished = false;
-
         if (currCMD.type == CMD_NULL) {  // S'il n'y a plus de commande, on est arrivé à bon port
-            currentConsignFinished = true;
+            commandStatus = STATUS_IDLE;
             return; // Il n'y en a pas...
         }
+
+        // On a une consigne à exécuter !
+        commandStatus = STATUS_RUNNING;
 
         if (currCMD.type == CMD_GO) {  // On avance ou on recule de la consigne
             cnsgCtrl->add_dist_consigne(currCMD.value);
@@ -346,7 +331,6 @@ void CommandManager::computeEnchainement()
 
 void CommandManager::setEmergencyStop()   //Gestion d'un éventuel arrêt d'urgence
 {
-    emergencyStop = true;
     cnsgCtrl->set_dist_consigne(cnsgCtrl->getAccuDist());
     cnsgCtrl->set_angle_consigne(cnsgCtrl->getAccuAngle());
 
@@ -354,13 +338,26 @@ void CommandManager::setEmergencyStop()   //Gestion d'un éventuel arrêt d'urge
         currCMD = liste->dequeue();
     }
 
-    currentConsignFinished = true;
-    lastStatus = 2;
+    commandStatus = STATUS_HALTED;
 }
 
 void CommandManager::resetEmergencyStop()
 {
-    emergencyStop = false;
-    //cnsgCtrl->angle_Regu_On(true);
-    //cnsgCtrl->dist_Regu_On(true);
+    if(commandStatus == STATUS_HALTED) {
+        commandStatus = STATUS_IDLE;
+    }
+}
+
+int CommandManager::getPendingCommandCount()
+{
+    // Nombre de commande dans la file d'attente
+    int count = liste->size();
+
+    // On n'oublie pas l'éventuelle commande suivante
+    if(nextCMD.type != CMD_NULL)
+    {
+        count++;
+    }
+
+    return count;
 }
