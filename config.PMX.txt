@@ -37,10 +37,10 @@ disableAngleRegu = false
 //--------------------------//
 
 // Fenêtre de l'angle dans lequel on considère que le GoTo peut commencer à avancer
-angleThreshold = 0.1
+angleThreshold = 0.3
 
 // Distance en dessous de laquelle on revient en marche arriere si on dépasse, sinon demi-tour
-returnThreshold = 10
+returnThreshold = 20
 
 // Distance au point de consigne à partir de laquelle on va essayer d'enchainer la consigne suivante
 enchainThreshold = 2000000
@@ -55,15 +55,15 @@ placementOrigineY = 0
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 21730.0
+frontParMetreCodeurG = 20830.0
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 21730.0
+frontParMetreCodeurD = 20830.0
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-distRoues = 283
+distRoues = 265
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -117,7 +117,7 @@ swapMoteurs = true
 
 
 // Coeff proportionelle
-DIST_KP = 30
+DIST_KP = 20
 
 // Coeff intégrale
 DIST_KI = 0
@@ -139,16 +139,16 @@ DIST_MAX_INTEGRAL = 0
 
 
 // Coeff proportionelle
-ANGLE_KP = 10
+ANGLE_KP = 40
 
 // Coeff intégrale
 ANGLE_KI = 0
 
 // Coeff dérivée
-ANGLE_KD = 400
+ANGLE_KD = 300
 
 // Coeff permettant de diminuer les valeurs du PID
-ANGLE_OUT_RATIO = 0.000001
+ANGLE_OUT_RATIO = 0.0000001
 
 // Valeur de sortie maximum pour le moteur
 ANGLE_MAX_OUTPUT = 125
@@ -160,48 +160,47 @@ ANGLE_MAX_INTEGRAL = 0
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-DIST_QUAD_1ST_POS = 0
+DIST_QUAD_1ST_POS = 5000000
 
 // Vitesse max en marche arrière
-DIST_QUAD_1ST_NEG = 0
+DIST_QUAD_1ST_NEG = 3200000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 0
+DIST_QUAD_AV_2ND_ACC = 20000
 
 // Décélération max en marche avant
-DIST_QUAD_AV_2ND_DEC = 0
+DIST_QUAD_AV_2ND_DEC = 10000
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 0
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 260
 
 // Accélération max en marche arrière
-DIST_QUAD_AR_2ND_ACC = 0
+DIST_QUAD_AR_2ND_ACC = 10000
 
 // Décélération max en marche arrière
-DIST_QUAD_AR_2ND_DEC = 0
+DIST_QUAD_AR_2ND_DEC = 10000
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 0
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 160
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-DIST_TAILLE_FENETRE_ARRIVEE = 0
+DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
 
 // QUADRAMPDerivee (angle)
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 0
+ANGLE_QUAD_1ST_POS = 7000000
 
 // Accélération max en rotation
-ANGLE_QUAD_2ND_ACC = 0
+ANGLE_QUAD_2ND_ACC = 20000
 
 // Décélération max en rotation
-ANGLE_QUAD_2ND_DEC = 0
+ANGLE_QUAD_2ND_DEC = 15000
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 0
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 160
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-ANGLE_TAILLE_FENETRE_ARRIVEE = 0
-
+ANGLE_TAILLE_FENETRE_ARRIVEE = 200000

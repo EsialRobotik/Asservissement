@@ -65,7 +65,13 @@ int main()
 
 	//On est prêt !
 	//printf("\r\nGOGO !");
-	refLed = 1;
+	for(int n=0; n<10;n++)
+	{
+		wait_ms(50);
+		refLed = 1;
+		wait_ms(50);
+		refLed = 0;
+	}
 
 	leftSpeed = 0;
 	rightSpeed = 0;
@@ -194,7 +200,7 @@ void ecouteSeriePC()
 		case 'z':
 			// Go 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
-			consignController->add_dist_consigne(Utils::mmToUO(odometrie, 100));
+			consignController->add_dist_consigne(Utils::mmToUO(odometrie, 300));
 			//consignController->add_angle_consigne(Utils::degToUO(odometrie, 0));
 			//pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
 			break;
@@ -202,7 +208,7 @@ void ecouteSeriePC()
 		case 's':
 			// Backward 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
-			consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 100));
+			consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 300));
 			//pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
 			break;
 
@@ -373,7 +379,7 @@ void ecouteSeriePC()
 	}
 }
 
-void ecouteSerie()
+void ecouteSerie() //TODO Corriger les double/float/int64
 {
 	double consigneValue1 = 0;
 	double consigneValue2 = 0;
@@ -595,18 +601,18 @@ void Live_isr()
 {
 	if (run == false) return;
 
-	if ((led++) % 100 == 0)
+	if ((led++) % 500 == 0)
 	{
 		liveLed = 1 - liveLed;
 
 #ifdef LCD_ACTIVATE
-		//lcd.cls();
 		lcd.locate(0, 10);
 		lcd.printf("x%.1f y%.1f t%.1f  \n",
 				(float) Utils::UOTomm(odometrie, odometrie->getX()),
 						(float) Utils::UOTomm(odometrie, odometrie->getY()),
 								(float) Utils::UOToDeg(odometrie, odometrie->getTheta()));
 #endif
+		printf(" %d",commandManager->getLastCommandStatus());
 	}
 
 	odometrie->refresh();

@@ -48,6 +48,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 	char buf[2]; //I2C_Packet and PACKET_SIZE
 	char cmd[12];
+	char cmd8[8];
+	char cmd4[4];
+
+
 	char ack[1];
 	ack[0] = I2C_SLAVE_ADDRESS;
 	int r = 0;
@@ -309,15 +313,15 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 'v') // v%d\n / aVancer / d : entier, en mm / Fait avancer le robot de d mm, tout droit
 			{
-				if (nbdata != sizeof(cmd))
+				if (nbdata != sizeof(cmd4))
 				{
-					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
-							code);
+					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n",
+							code,nbdata,sizeof(cmd4));
 					ErrorLed = 1;
 				}
 				else
 				{
-					r = slave.read(cmd, sizeof(cmd));
+					r = slave.read(cmd4, sizeof(cmd4));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
 					if (r == 0)
@@ -325,10 +329,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 						gotoLed = !gotoLed;
 						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
 						float2bytes_t mm;
-						mm.bytes[0] = cmd[0];
-						mm.bytes[1] = cmd[1];
-						mm.bytes[2] = cmd[2];
-						mm.bytes[3] = cmd[3];
+						mm.bytes[0] = cmd4[0];
+						mm.bytes[1] = cmd4[1];
+						mm.bytes[2] = cmd4[2];
+						mm.bytes[3] = cmd4[3];
 
 						commandM->addStraightLine(mm.f);
 #ifdef DEBUG_COM_I2C
@@ -353,7 +357,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 't') // t%a\n / Tourner / a : entier, en degrées / Fait tourner le robot de a degrées. Le robot tournera dans le sens trigonométrique : si a est positif, il tourne à gauche, et vice-versa.
 			{
-				if (nbdata != sizeof(cmd))
+				if (nbdata != sizeof(cmd4))
 				{
 					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
 							code);
@@ -361,7 +365,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				}
 				else
 				{
-					r = slave.read(cmd, sizeof(cmd));
+					r = slave.read(cmd4, sizeof(cmd4));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
 					if (r == 0)
@@ -369,10 +373,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 						gotoLed = !gotoLed;
 						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
 						float2bytes_t deg;
-						deg.bytes[0] = cmd[0];
-						deg.bytes[1] = cmd[1];
-						deg.bytes[2] = cmd[2];
-						deg.bytes[3] = cmd[3];
+						deg.bytes[0] = cmd4[0];
+						deg.bytes[1] = cmd4[1];
+						deg.bytes[2] = cmd4[2];
+						deg.bytes[3] = cmd4[3];
 
 						commandM->addTurn(deg.f);
 #ifdef DEBUG_COM_I2C
@@ -397,7 +401,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 'f') // f%x%y / faire Face / x, y : entiers, en mm / Fait tourner le robot pour être en face du point de coordonnées (x, y). En gros, ça réalise la première partie d'un Goto : on se tourne vers le point cible, mais on avance pas.
 			{
-				if (nbdata != sizeof(cmd))
+				if (nbdata != sizeof(cmd8))
 				{
 					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
 							code);
@@ -405,7 +409,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				}
 				else
 				{
-					r = slave.read(cmd, sizeof(cmd));
+					r = slave.read(cmd8, sizeof(cmd8));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
 					if (r == 0)
@@ -413,15 +417,15 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 						gotoLed = !gotoLed;
 						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
 						float2bytes_t x;
-						x.bytes[0] = cmd[0];
-						x.bytes[1] = cmd[1];
-						x.bytes[2] = cmd[2];
-						x.bytes[3] = cmd[3];
+						x.bytes[0] = cmd8[0];
+						x.bytes[1] = cmd8[1];
+						x.bytes[2] = cmd8[2];
+						x.bytes[3] = cmd8[3];
 						float2bytes_t y;
-						y.bytes[0] = cmd[4];
-						y.bytes[1] = cmd[5];
-						y.bytes[2] = cmd[6];
-						y.bytes[3] = cmd[7];
+						y.bytes[0] = cmd8[4];
+						y.bytes[1] = cmd8[5];
+						y.bytes[2] = cmd8[6];
+						y.bytes[3] = cmd8[7];
 
 						commandManager->addGoToAngle(x.f, y.f);
 #ifdef DEBUG_COM_I2C
@@ -446,7 +450,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 'g') //  g%x#%y\n / Goto / x, y : entiers, en mm /Le robot se déplace au point de coordonnée (x, y). Il tourne vers le point, puis avance en ligne droite. L'angle est sans cesse corrigé pour bien viser le point voulu.
 			{
-				if (nbdata != sizeof(cmd))
+				if (nbdata != sizeof(cmd8))
 				{
 					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
 							code);
@@ -454,7 +458,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				}
 				else
 				{
-					r = slave.read(cmd, sizeof(cmd));
+					r = slave.read(cmd8, sizeof(cmd8));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
 					if (r == 0)
@@ -462,15 +466,15 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 						gotoLed = !gotoLed;
 						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
 						float2bytes_t x;
-						x.bytes[0] = cmd[0];
-						x.bytes[1] = cmd[1];
-						x.bytes[2] = cmd[2];
-						x.bytes[3] = cmd[3];
+						x.bytes[0] = cmd8[0];
+						x.bytes[1] = cmd8[1];
+						x.bytes[2] = cmd8[2];
+						x.bytes[3] = cmd8[3];
 						float2bytes_t y;
-						y.bytes[0] = cmd[4];
-						y.bytes[1] = cmd[5];
-						y.bytes[2] = cmd[6];
-						y.bytes[3] = cmd[7];
+						y.bytes[0] = cmd8[4];
+						y.bytes[1] = cmd8[5];
+						y.bytes[2] = cmd8[6];
+						y.bytes[3] = cmd8[7];
 
 						commandManager->addGoTo(x.f, y.f);
 #ifdef DEBUG_COM_I2C
@@ -495,7 +499,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 'e') //  e%x#%y\n / goto Enchaîné / x, y : entiers, en mm / Idem que le Goto, sauf que lorsque le robot est proche du point d'arrivée (x, y), on s'autorise à enchaîner directement la consigne suivante si c'est un Goto ou un Goto enchaîné, sans marquer d'arrêt.
 			{
-				if (nbdata != sizeof(cmd))
+				if (nbdata != sizeof(cmd8))
 				{
 					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
 							code);
@@ -503,7 +507,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				}
 				else
 				{
-					r = slave.read(cmd, sizeof(cmd));
+					r = slave.read(cmd8, sizeof(cmd8));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
 					if (r == 0)
@@ -511,15 +515,15 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 						gotoLed = !gotoLed;
 						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
 						float2bytes_t x;
-						x.bytes[0] = cmd[0];
-						x.bytes[1] = cmd[1];
-						x.bytes[2] = cmd[2];
-						x.bytes[3] = cmd[3];
+						x.bytes[0] = cmd8[0];
+						x.bytes[1] = cmd8[1];
+						x.bytes[2] = cmd8[2];
+						x.bytes[3] = cmd8[3];
 						float2bytes_t y;
-						y.bytes[0] = cmd[4];
-						y.bytes[1] = cmd[5];
-						y.bytes[2] = cmd[6];
-						y.bytes[3] = cmd[7];
+						y.bytes[0] = cmd8[4];
+						y.bytes[1] = cmd8[5];
+						y.bytes[2] = cmd8[6];
+						y.bytes[3] = cmd8[7];
 
 						commandManager->addGoToEnchainement(x.f, y.f);
 #ifdef DEBUG_COM_I2C

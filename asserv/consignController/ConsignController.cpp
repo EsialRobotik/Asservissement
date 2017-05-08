@@ -56,7 +56,6 @@ void ConsignController::set_dist_consigne(int64_t consigneUO)
 // On recalcule la consigne à appliquer aux moteurs et on leur envoie l'ordre
 void ConsignController::perform()
 {
-
 	if (perform_on)
 	{
 
@@ -73,6 +72,7 @@ void ConsignController::perform()
 		// Si le régu de distance est actif, il doit calculer la consigne de distance en fonction de la moyenne des tics codeurs (variation de distance en UO)
 		if (dist_regu_on && !Config::disableDistanceRegu)
 		{
+
 			dist_output = dist_regu.manage(dist_consigne,
 					odometrie->getDeltaDist());
 		}

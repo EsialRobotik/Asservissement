@@ -32,6 +32,8 @@ QuadRampDerivee::QuadRampDerivee(bool isDistance)
         gainAnticipation_av = Config::DIST_QUAD_AV_ANTICIPATION_GAIN_COEF;
         gainAnticipation_ar = Config::DIST_QUAD_AR_ANTICIPATION_GAIN_COEF;
 
+
+
         //Pour éviter les vibrations à l'arrivée
         tailleFenetreArrivee = Config::DIST_TAILLE_FENETRE_ARRIVEE;
     } else {
@@ -96,6 +98,8 @@ int64_t QuadRampDerivee::filtre(int64_t consigne, int64_t position_actuelle , in
     consigneVitesse = Utils::constrain(consigneVitesse, -derivee_1ier_neg, derivee_1ier_pos);
     // On stocke la nouvelle consigne pour l'itération suivante
     prevConsigneVitesse = consigneVitesse;
+
+    //printf("consigne=%lld position_pivot=%lld\r\n", consigne, position_pivot);
 
     //Du debug
 #ifdef DEBUG_UDP
