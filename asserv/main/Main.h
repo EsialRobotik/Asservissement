@@ -9,8 +9,8 @@
 #include "../consignController/ConsignController.h"
 #include "../commandManager/CommandManager.h"
 
-#define LCD_ACTIVATE 1
-#define COM_SERIEPC_ACTIVATE 1
+//#define LCD_ACTIVATE 1
+//#define COM_SERIEPC_ACTIVATE 1
 
 #include "mbed.h"
 #include "../config/config.h"
@@ -34,13 +34,13 @@ Ticker Live;
 void Live_isr(void);
 
 int leftSpeed, rightSpeed;
-bool run;
+bool run = false;
 
 // Méthodes utiles
 int main();
 void startAsserv();
-void stopAsserv();
-void initAsserv();
+void stopAsserv(bool *prun);
+void initAsserv(bool *prun);
 void resetAsserv();
 void ecouteSeriePC();
 

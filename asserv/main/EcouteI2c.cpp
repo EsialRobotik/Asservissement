@@ -13,10 +13,9 @@
 #include <wait_api.h>
 #include <cstdio>
 
-#include "../motorsController/Md25/Md25ctrl.h"
+#include "../commandManager/CommandManager.h"
+#include "../consignController/ConsignController.h"
 #include "../odometrie/Odometrie.h"
-#include "../Utils/Utils.h"
-#include "Main.h"
 
 #ifdef LCD_ACTIVATE
 #include "../../C12832/C12832.h"
@@ -30,27 +29,39 @@ I2CSlave slave(p9, p10);
 #ifdef COM_I2C_ACTIVATE
 void ecouteI2cConfig()
 {
-	slave.frequency(400000);
-	slave.address(I2C_SLAVE_ADDRESS << 1); //We shift it left because mbed takes in 8 bit addreses
+	slave.frequency(400000); //i2c freq 400khz
+	slave.address(I2C_SLAVE_ADDRESS << 1); //We shift it left because mbed takes in 8 bit addresses
 
 }
 
-//Name		Permissions	DataAddress	ReadResponse	WriteAction
-//Whoami		R		0x00		Device ID		N/A
-//TODO
+//Name				Permissions	writeCODE		ReadResponse			WriteAction
+//Whoami			R			0x00			Device ID				N/A
+//Set position 		W			'S' + 12		N/A						float/float/float write position x,y,t
+//Get position		WR			'p' + 13		float/float/float/byte
+//init asserv		W			'I'	+ 0x00
+//stop asserv		W			'!' + 0x00
+//stop managers 	W			'K' + 0x00
+//start managers	W			'J' + 0x00
+//emergency stop	W			'h' + 0x00
+//reset emerg stop 	W			'r' + 0x00
+//aVance			WR			'v' + 4
+//Tourne			WR			't' + 4
+//faire face		WR			'f' + 8
+//Goto 				WR			'g' + 8
+//Enchainement		WR			'e' + 8
 
-int code = 0;
-int nbdata = 0;
 
 void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsController *motorsC,
-		Odometrie *odo)
+		Odometrie *odo, bool *prun)
 {
+	bool run = *prun;
+
 
 	char buf[2]; //I2C_Packet and PACKET_SIZE
 	char cmd[12];
+	char cmd13[13];
 	char cmd8[8];
 	char cmd4[4];
-
 
 	char ack[1];
 	ack[0] = I2C_SLAVE_ADDRESS;
@@ -69,9 +80,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 #endif
 		}
 
-		if (code == 'P')
+		if (code == 'p')
 		{
-			if (nbdata != sizeof(cmd))
+			if (nbdata != sizeof(cmd13))
 			{
 				printf("ERROR I2CSlave::ReadAddressed (code=%c) ; bad nbdata and sizeof(cmd) !\r\n",
 						code);
@@ -83,35 +94,37 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 				float2bytes_t x;
 				x.f = odo->getXmm();
-				cmd[0] = x.bytes[0];
-				cmd[1] = x.bytes[1];
-				cmd[2] = x.bytes[2];
-				cmd[3] = x.bytes[3];
-				//printf("      Write : %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+				cmd13[0] = x.bytes[0];
+				cmd13[1] = x.bytes[1];
+				cmd13[2] = x.bytes[2];
+				cmd13[3] = x.bytes[3];
+				//printf("      Write : %d %d %d %d\r\n", cmd13[0], cmd13[1], cmd13[2], cmd13[3]);
 				float2bytes_t y;
 				y.f = odo->getYmm();
-				cmd[4] = y.bytes[0];
-				cmd[5] = y.bytes[1];
-				cmd[6] = y.bytes[2];
-				cmd[7] = y.bytes[3];
-				//printf("      Write : %d %d %d %d\r\n", cmd[4], cmd[5], cmd[6], cmd[7]);
+				cmd13[4] = y.bytes[0];
+				cmd13[5] = y.bytes[1];
+				cmd13[6] = y.bytes[2];
+				cmd13[7] = y.bytes[3];
+				//printf("      Write : %d %d %d %d\r\n", cmd13[4], cmd13[5], cmd13[6], cmd13[7]);
 				float2bytes_t t;
 				t.f = odo->getTheta();
-				cmd[8] = t.bytes[0];
-				cmd[9] = t.bytes[1];
-				cmd[10] = t.bytes[2];
-				cmd[11] = t.bytes[3];
-				//printf("      Write : %d %d %d %d\r\n", cmd[8], cmd[9], cmd[10], cmd[11]);
-				r = slave.write(cmd, sizeof(cmd));
+				cmd13[8] = t.bytes[0];
+				cmd13[9] = t.bytes[1];
+				cmd13[10] = t.bytes[2];
+				cmd13[11] = t.bytes[3];
+				//printf("      Write : %d %d %d %d\r\n", cmd13[8], cmd13[9], cmd13[10], cmd13[11]);
+				cmd13[12] = commandM->getLastCommandStatus();
+				r = slave.write(cmd13, sizeof(cmd13));
 				if (r == 0)
 				{
 #ifdef DEBUG_COM_I2C
-					printf("P12 x=%f  y=%f  t=%f\r\n", x.f, y.f, t.f);
+					printf("p13 x=%f  y=%f  t=%f  s=%d\r\n", x.f, y.f, t.f,
+							commandM->getLastCommandStatus());
 #endif
 #ifdef LCD_ACTIVATE
 					lcd.cls();
 					lcd.locate(0, 0);
-					lcd.printf("P12 x%.1f y%.1f t%.1f", x.f, y.f, t.f);
+					lcd.printf("p13 x%.1f y%.1f t%.1f", x.f, y.f, t.f);
 #endif
 				}
 				else
@@ -159,7 +172,8 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 			if (code == 'I') 		//------ I / Active les actions dans la boucle d'asservissement
 			{
-				initAsserv();
+				initAsserv(prun);
+				run = *prun;
 #ifdef DEBUG_COM_I2C
 				printf("%c -- initAsserv\r\n", code);
 #endif
@@ -173,7 +187,8 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == '!') // !  Stoppes actions dans la boucle d'asservissement et supprime les objets
 			{
-				stopAsserv();
+				stopAsserv(prun);
+				run = *prun;
 #ifdef DEBUG_COM_I2C
 				printf("%c -- stopAsserv\r\n", code);
 #endif
@@ -187,48 +202,57 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			}
 			else if (code == 'K')  	// K / desactive le consignController et le commandManager
 			{
-				//uniquement odométrie active
-				consignC->perform_On(false);
-				commandM->perform_On(false);
+				if (run)
+				{
+					//uniquement odométrie active
+					consignC->perform_On(false);
+					commandM->perform_On(false);
 #ifdef DEBUG_COM_I2C
-				printf("%c -- stop consignC & commandM\r\n", code);
+					printf("%c -- stop consignC & commandM\r\n", code);
 #endif
 #ifdef LCD_ACTIVATE
-				lcd.cls();
-				lcd.locate(0, 0);
-				lcd.printf("K0 STOP MANAGERS");
+					lcd.cls();
+					lcd.locate(0, 0);
+					lcd.printf("K0 STOP MANAGERS");
 #endif
+				}
 				code = 0;
 				nbdata = 0;
 			}
 			else if (code == 'J') 	// J / reactive le consignController et le commandManager
 			{
-				//uniquement odométrie active
-				consignC->perform_On(true);
-				commandM->perform_On(true);
+				if (run)
+				{
+					//uniquement odométrie active
+					consignC->perform_On(true);
+					commandM->perform_On(true);
 #ifdef DEBUG_COM_I2C
-				printf("%c -- activate consignC & commandM\r\n", code);
+					printf("%c -- activate consignC & commandM\r\n", code);
 #endif
 #ifdef LCD_ACTIVATE
-				lcd.cls();
-				lcd.locate(0, 0);
-				lcd.printf("J0 ACTIV MANAGERS");
+					lcd.cls();
+					lcd.locate(0, 0);
+					lcd.printf("J0 ACTIV MANAGERS");
 #endif
+				}
 				code = 0;
 				nbdata = 0;
 			}
 			else if (code == 'h') // h / Halte ! / Arrêt d'urgence ! Le robot est ensuite systématiquement asservi à sa position actuelle.
 								  //Cela devrait suffire à arrêter le robot correctement. La seule commande acceptée par la suite sera un Reset de l'arrêt d'urgence : toute autre commande sera ignorée.
 			{
-				commandM->setEmergencyStop();
+				if (run)
+				{
+					commandM->setEmergencyStop();
 #ifdef DEBUG_COM_I2C
-				printf("%c -- EmergencyStop\r\n", code);
+					printf("%c -- EmergencyStop\r\n", code);
 #endif
 #ifdef LCD_ACTIVATE
-				lcd.cls();
-				lcd.locate(0, 0);
-				lcd.printf("h0 EmergencyStop");
+					lcd.cls();
+					lcd.locate(0, 0);
+					lcd.printf("h0 EmergencyStop");
 #endif
+				}
 				code = 0;
 				nbdata = 0;
 			}
@@ -236,15 +260,18 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 								  //	Les commandes en cours au moment de l'arrêt d'urgence NE sont PAS reprises. Si le robot n'est pas en arrêt d'urgence, cette commande n'a aucun effet.
 
 			{
-				commandM->resetEmergencyStop();
+				if (run)
+				{
+					commandM->resetEmergencyStop();
 #ifdef DEBUG_COM_I2C
-				printf("%c -- resetEmergencyStop\r\n", code);
+					printf("%c -- resetEmergencyStop\r\n", code);
 #endif
 #ifdef LCD_ACTIVATE
-				lcd.cls();
-				lcd.locate(0, 0);
-				lcd.printf("h0 EmergencyReset");
+					lcd.cls();
+					lcd.locate(0, 0);
+					lcd.printf("h0 EmergencyReset");
 #endif
+				}
 				code = 0;
 				nbdata = 0;
 			}
@@ -261,6 +288,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				}
 				else
 				{
+
 					r = slave.read(cmd, sizeof(cmd)); //12 bytes => 2.5ms environ
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
 
@@ -315,8 +343,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 			{
 				if (nbdata != sizeof(cmd4))
 				{
-					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n",
-							code,nbdata,sizeof(cmd4));
+					printf(
+							"ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n",
+							code, nbdata, sizeof(cmd4));
 					ErrorLed = 1;
 				}
 				else
@@ -326,23 +355,26 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 					if (r == 0)
 					{
-						gotoLed = !gotoLed;
-						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
-						float2bytes_t mm;
-						mm.bytes[0] = cmd4[0];
-						mm.bytes[1] = cmd4[1];
-						mm.bytes[2] = cmd4[2];
-						mm.bytes[3] = cmd4[3];
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+							float2bytes_t mm;
+							mm.bytes[0] = cmd4[0];
+							mm.bytes[1] = cmd4[1];
+							mm.bytes[2] = cmd4[2];
+							mm.bytes[3] = cmd4[3];
 
-						commandM->addStraightLine(mm.f);
+							commandM->addStraightLine(mm.f);
 #ifdef DEBUG_COM_I2C
-						printf("v4 dist=%f \r\n", mm.f);
+							printf("v4 dist=%f \r\n", mm.f);
 #endif
 #ifdef LCD_ACTIVATE
-						lcd.cls();
-						lcd.locate(0, 0);
-						lcd.printf("v4 dist=%.1f\n", mm.f);
+							lcd.cls();
+							lcd.locate(0, 0);
+							lcd.printf("v4 dist=%.1f\n", mm.f);
 #endif
+						}
 					}
 					else
 					{
@@ -370,23 +402,26 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 					if (r == 0)
 					{
-						gotoLed = !gotoLed;
-						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
-						float2bytes_t deg;
-						deg.bytes[0] = cmd4[0];
-						deg.bytes[1] = cmd4[1];
-						deg.bytes[2] = cmd4[2];
-						deg.bytes[3] = cmd4[3];
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+							float2bytes_t deg;
+							deg.bytes[0] = cmd4[0];
+							deg.bytes[1] = cmd4[1];
+							deg.bytes[2] = cmd4[2];
+							deg.bytes[3] = cmd4[3];
 
-						commandM->addTurn(deg.f);
+							commandM->addTurn(deg.f);
 #ifdef DEBUG_COM_I2C
-						printf("t4 degrees=%f \r\n", deg.f);
+							printf("t4 degrees=%f \r\n", deg.f);
 #endif
 #ifdef LCD_ACTIVATE
-						lcd.cls();
-						lcd.locate(0, 0);
-						lcd.printf("t4 deg=%0.1f\n", deg.f);
+							lcd.cls();
+							lcd.locate(0, 0);
+							lcd.printf("t4 deg=%0.1f\n", deg.f);
 #endif
+						}
 					}
 					else
 					{
@@ -414,28 +449,31 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
 					if (r == 0)
 					{
-						gotoLed = !gotoLed;
-						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
-						float2bytes_t x;
-						x.bytes[0] = cmd8[0];
-						x.bytes[1] = cmd8[1];
-						x.bytes[2] = cmd8[2];
-						x.bytes[3] = cmd8[3];
-						float2bytes_t y;
-						y.bytes[0] = cmd8[4];
-						y.bytes[1] = cmd8[5];
-						y.bytes[2] = cmd8[6];
-						y.bytes[3] = cmd8[7];
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+							float2bytes_t x;
+							x.bytes[0] = cmd8[0];
+							x.bytes[1] = cmd8[1];
+							x.bytes[2] = cmd8[2];
+							x.bytes[3] = cmd8[3];
+							float2bytes_t y;
+							y.bytes[0] = cmd8[4];
+							y.bytes[1] = cmd8[5];
+							y.bytes[2] = cmd8[6];
+							y.bytes[3] = cmd8[7];
 
-						commandManager->addGoToAngle(x.f, y.f);
+							commandM->addGoToAngle(x.f, y.f);
 #ifdef DEBUG_COM_I2C
-						printf("f8 x=%f y=%f\r\n", x.f, y.f);
+							printf("f8 x=%f y=%f\r\n", x.f, y.f);
 #endif
 #ifdef LCD_ACTIVATE
-						lcd.cls();
-						lcd.locate(0, 0);
-						lcd.printf("f8 x=%.1f y=%.1f\n", x.f, y.f);
+							lcd.cls();
+							lcd.locate(0, 0);
+							lcd.printf("f8 x=%.1f y=%.1f\n", x.f, y.f);
 #endif
+						}
 					}
 					else
 					{
@@ -460,31 +498,33 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				{
 					r = slave.read(cmd8, sizeof(cmd8));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
-
 					if (r == 0)
 					{
-						gotoLed = !gotoLed;
-						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
-						float2bytes_t x;
-						x.bytes[0] = cmd8[0];
-						x.bytes[1] = cmd8[1];
-						x.bytes[2] = cmd8[2];
-						x.bytes[3] = cmd8[3];
-						float2bytes_t y;
-						y.bytes[0] = cmd8[4];
-						y.bytes[1] = cmd8[5];
-						y.bytes[2] = cmd8[6];
-						y.bytes[3] = cmd8[7];
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+							float2bytes_t x;
+							x.bytes[0] = cmd8[0];
+							x.bytes[1] = cmd8[1];
+							x.bytes[2] = cmd8[2];
+							x.bytes[3] = cmd8[3];
+							float2bytes_t y;
+							y.bytes[0] = cmd8[4];
+							y.bytes[1] = cmd8[5];
+							y.bytes[2] = cmd8[6];
+							y.bytes[3] = cmd8[7];
 
-						commandManager->addGoTo(x.f, y.f);
+							commandM->addGoTo(x.f, y.f);
 #ifdef DEBUG_COM_I2C
-						printf("g8 x=%f y=%f\r\n", x.f, y.f);
+							printf("g8 x=%f y=%f\r\n", x.f, y.f);
 #endif
 #ifdef LCD_ACTIVATE
-						lcd.cls();
-						lcd.locate(0, 0);
-						lcd.printf("g8 x=%.1f y=%.1f\n", x.f, y.f);
+							lcd.cls();
+							lcd.locate(0, 0);
+							lcd.printf("g8 x=%.1f y=%.1f\n", x.f, y.f);
 #endif
+						}
 					}
 					else
 					{
@@ -509,31 +549,33 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				{
 					r = slave.read(cmd8, sizeof(cmd8));
 					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
-
 					if (r == 0)
 					{
-						gotoLed = !gotoLed;
-						//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
-						float2bytes_t x;
-						x.bytes[0] = cmd8[0];
-						x.bytes[1] = cmd8[1];
-						x.bytes[2] = cmd8[2];
-						x.bytes[3] = cmd8[3];
-						float2bytes_t y;
-						y.bytes[0] = cmd8[4];
-						y.bytes[1] = cmd8[5];
-						y.bytes[2] = cmd8[6];
-						y.bytes[3] = cmd8[7];
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							//printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+							float2bytes_t x;
+							x.bytes[0] = cmd8[0];
+							x.bytes[1] = cmd8[1];
+							x.bytes[2] = cmd8[2];
+							x.bytes[3] = cmd8[3];
+							float2bytes_t y;
+							y.bytes[0] = cmd8[4];
+							y.bytes[1] = cmd8[5];
+							y.bytes[2] = cmd8[6];
+							y.bytes[3] = cmd8[7];
 
-						commandManager->addGoToEnchainement(x.f, y.f);
+							commandM->addGoToEnchainement(x.f, y.f);
 #ifdef DEBUG_COM_I2C
-						printf("e8 x=%f y=%f\r\n", x.f, y.f);
+							printf("e8 x=%f y=%f\r\n", x.f, y.f);
 #endif
 #ifdef LCD_ACTIVATE
-						lcd.cls();
-						lcd.locate(0, 0);
-						lcd.printf("e8 x=%.1f y=%.1f\n", x.f, y.f);
+							lcd.cls();
+							lcd.locate(0, 0);
+							lcd.printf("e8 x=%.1f y=%.1f\n", x.f, y.f);
 #endif
+						}
 					}
 					else
 					{

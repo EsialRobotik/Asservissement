@@ -47,6 +47,11 @@ public:
 		perform_on = enable;
 	}
 
+	bool on()
+	{
+		return perform_on;
+	}
+
 	/*
 	 * Permet d'activer ou de désactiver les QuadRampDerivee
 	 */

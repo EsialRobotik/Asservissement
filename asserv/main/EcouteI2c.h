@@ -11,15 +11,17 @@ class CommandManager;
 class ConsignController;
 class MotorsController;
 class Odometrie;
+#include "Main.h"
 
 
 #define COM_I2C_ACTIVATE 1
-#define DEBUG_COM_I2C 1
+//#define DEBUG_COM_I2C 1
 
 #define I2C_SLAVE_ADDRESS 0x05
 
 
-
+int code = 0;
+int nbdata = 0;
 
 //Definitions globales
 #ifdef COM_I2C_ACTIVATE
@@ -31,7 +33,7 @@ union float2bytes_t   // union consists of one variable represented in a number 
 	unsigned char bytes[sizeof(float)];
 };
 
-void ecouteI2c(ConsignController *consign, CommandManager *cmd, MotorsController *mot, Odometrie *odo);
+void ecouteI2c(ConsignController *consign, CommandManager *cmd, MotorsController *mot, Odometrie *odo, bool *run);
 void ecouteI2cConfig();
 #endif /* COM_I2C_ACTIVATE */
 

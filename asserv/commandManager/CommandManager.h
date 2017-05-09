@@ -40,6 +40,10 @@ public:
 	{
 		perform_on = enable;
 	}
+	bool on()
+	{
+		return perform_on;
+	}
 
 private:
 	CMDList *liste; //File d'attente des commandes

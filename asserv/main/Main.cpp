@@ -37,7 +37,6 @@ int main()
 {
 	ErrorLed = 0;
 
-	//pc.baud(9600);
 	pc.baud(230400);
 	// Initialisation du port série par défaut (utilisé par printf & co)
 	//    serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
@@ -53,7 +52,7 @@ int main()
 	startAsserv();
 
 	// Et on reinitialise les objets
-	initAsserv();
+	//initAsserv();
 
 	gotoLed = 0;
 #ifdef DEBUG_UDP
@@ -101,7 +100,7 @@ int main()
 #endif
 
 #ifdef COM_I2C_ACTIVATE
-		ecouteI2c(consignController, commandManager, motorController, odometrie);
+		ecouteI2c(consignController, commandManager, motorController, odometrie, &run);
 #endif
 
 		wait_us(5); //permet une meilleure detection par l'USBPC
@@ -126,7 +125,6 @@ void startAsserv()
 		{
 			printf("pb avec la valeur de periode de l'asserv dans la config : %lf!!\r\n", period);
 			ErrorLed = 1;
-			//Live.attach(Live_isr, ASSERV_PERIOD);
 		}
 	}
 }
@@ -146,7 +144,7 @@ void ecouteSeriePC()
 	 f%x#%y\n / faire Face / x, y : entiers, en mm / Fait tourner le robot pour être en face du point de coordonnées (x, y). En gros, ça réalise la première partie d'un Goto : on se tourne vers le point cible, mais on avance pas.
 	 h / Halte ! / Arrêt d'urgence ! Le robot est ensuite systématiquement asservi à sa position actuelle. Cela devrait suffire à arrêter le robot correctement. La seule commande acceptée par la suite sera un Reset de l'arrêt d'urgence : toute autre commande sera ignorée.
 	 r / Reset de l'arrêt d'urgence / Remet le robot dans son fonctionnement normal après un arrêt d'urgence. Les commandes en cours au moment de l'arrêt d'urgence NE sont PAS reprises. Si le robot n'est pas en arrêt d'urgence, cette commande n'a aucun effet.
-	 c%s%r / Calage bordure / s : sens du calage bordure, r : robot ('g' : gros ; 'p' : petit) / Effectue un calage bordure. Le robot doit être dans sa zone de départ au début du calage, dirigé vers la case de départ adverse en face de la table. Il doit être assez proche de la bordure derrière lui, et pas trop proche de la bordure sur le côté. A la fin du calage, le robot est prêt à partir pour un match dans sa case de départ.
+	 --c%s%r / Calage bordure / s : sens du calage bordure, r : robot ('g' : gros ; 'p' : petit) / Effectue un calage bordure. Le robot doit être dans sa zone de départ au début du calage, dirigé vers la case de départ adverse en face de la table. Il doit être assez proche de la bordure derrière lui, et pas trop proche de la bordure sur le côté. A la fin du calage, le robot est prêt à partir pour un match dans sa case de départ.
 	 Le choix du robot est possible, si on veut que deux robots asservis concourent en même temps sur la même table, pour qu'ils puissent faire un calage bordure en même temps sans se rentrer dedans.
 
 	 p / get Position / Récupère la position et le cap du robot sur la connexion i2c, sous la forme de 3 types float (3 * 4 bytes), avec x, y, et a les coordonnées et l'angle du robot.
@@ -157,7 +155,7 @@ void ecouteSeriePC()
 	 q / tourne de 45° (gauche)
 	 d / tourne de -45° (droite)
 
-	 c / calage bordure
+	 --c / calage bordure
 
 	 M / modifie la valeur d'un paramètre / name, value
 	 R / réinitialiser l'asserv
@@ -188,24 +186,28 @@ void ecouteSeriePC()
 
 		switch (pc.getc())
 		{
+
 		case 'h': //Arrêt d'urgence
+			if(!run) break;
 			commandManager->setEmergencyStop();
 			pc.printf("Arrêt d'urgence ! ");
 			break;
 
 		case 'r': //Reset de l'arrêt d'urgence
+			if(!run) break;
 			commandManager->resetEmergencyStop();
 			break;
 
 		case 'z':
+			if(!run || !consignController->on()) break;
 			// Go 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
 			consignController->add_dist_consigne(Utils::mmToUO(odometrie, 300));
-			//consignController->add_angle_consigne(Utils::degToUO(odometrie, 0));
 			//pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
 			break;
 
 		case 's':
+			if(!run || !consignController->on()) break;
 			// Backward 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
 			consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 300));
@@ -213,51 +215,59 @@ void ecouteSeriePC()
 			break;
 
 		case 'q':
+			if(!run || !consignController->on()) break;
 			// Left 45
 			consignController->add_angle_consigne(Utils::degToUO(odometrie, 45));
 			break;
 
 		case 'd':
+			if(!run || !consignController->on()) break;
 			// Right 45
 			consignController->add_angle_consigne(-Utils::degToUO(odometrie, 45));
 			break;
 
 		case 'v': //aVance d'un certain nombre de mm
+			if(!run || !commandManager->on()) break;
 			pc.scanf("%lf", &consigneValue1);
 			commandManager->addStraightLine(consigneValue1);
 			pc.printf("v%lf\r\n", consigneValue1);
 			break;
 
 		case 't': //Tourne d'un certain angle en degrés
+			if(!run || !commandManager->on()) break;
 			pc.scanf("%lf", &consigneValue1);
 			commandManager->addTurn(consigneValue1);
 			pc.printf("t%lf\n", consigneValue1);
 			break;
 
 		case 'f': //faire Face à un point précis, mais ne pas y aller, juste se tourner
+			if(!run || !commandManager->on()) break;
 			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
 			commandManager->addGoToAngle(consigneValue1, consigneValue2);
 			pc.printf("g%lf#%lf\n", consigneValue1, consigneValue2);
 			break;
 
 		case 'g': //Go : va à un point précis
+			if(!run || !commandManager->on()) break;
 			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
 			commandManager->addGoTo(consigneValue1, consigneValue2);
 			//printf("g%lf#%lf\n", consigneValue1, consigneValue2);
 			break;
 
 		case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
+			if(!run || !commandManager->on()) break;
 			pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
 			commandManager->addGoToEnchainement(consigneValue1, consigneValue2);
 			//printf("g%lf#%lf\n", consigneValue1, consigneValue2);
 			break;
 
 		case 'p': //retourne la Position et l'angle courants du robot
-			printf("x%lfy%lfa%lf\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
-					(double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta());
+			printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
+					(double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),commandManager->getLastCommandStatus());
 			break;
 
 		case 'c':
+			if(!run || !commandManager->on()) break;
 		{ //calage bordure
 			char sens = getchar(); // si 0, y vers l'intérieur de la table, si 1, y vers l'extérieur de la table
 			char gros = getchar(); // g pour le Gros, p pour le petit
@@ -280,19 +290,23 @@ void ecouteSeriePC()
 			break;
 
 		case 'I': // start l'asserv
-			initAsserv();
+			initAsserv(&run);
 			break;
 		case '!': // stop/quit l'asserv
-			stopAsserv();
+			stopAsserv(&run);
 			break;
+
 		case 'R': // réinitialiser l'asserv
+			if(!run) break;
 			resetAsserv();
 			break;
 		case 'K': //uniquement odométrie active
+			if(!run) break;
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
 			break;
 		case 'J':
+			if(!run) break;
 			consignController->perform_On(true);
 			commandManager->perform_On(true);
 			break;
@@ -338,6 +352,7 @@ void ecouteSeriePC()
 			break;
 
 		case '+':
+			if(!run) break;
 			leftSpeed++;
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
@@ -345,6 +360,7 @@ void ecouteSeriePC()
 			pc.printf("LEFT+%d ", leftSpeed);
 			break;
 		case '-':
+			if(!run) break;
 			leftSpeed--;
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
@@ -353,6 +369,7 @@ void ecouteSeriePC()
 			break;
 
 		case '*':
+			if(!run) break;
 			rightSpeed++;
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
@@ -360,6 +377,7 @@ void ecouteSeriePC()
 			pc.printf("RIGHT+%d ", rightSpeed);
 			break;
 		case '/':
+			if(!run) break;
 			rightSpeed--;
 			consignController->perform_On(false);
 			commandManager->perform_On(false);
@@ -461,8 +479,8 @@ void ecouteSerie() //TODO Corriger les double/float/int64
 		break;
 
 	case 'p': //retourne la Position et l'angle courants du robot
-		printf("x%lfy%lfa%lf\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
-				(double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta());
+		printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
+				(double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(), commandManager->getLastCommandStatus());
 		break;
 
 	case 'c':
@@ -536,9 +554,9 @@ void ecouteSerie() //TODO Corriger les double/float/int64
 	}
 }
 
-void initAsserv()
+void initAsserv(bool *prun)
 {
-	run = false; //pour etre sûr que isr ne fait rien
+	*prun = false; //pour etre sûr que isr ne fait rien
 	printf("Creation des objets si necessaire... \r\n");
 	fflush(stdout);
 
@@ -553,14 +571,17 @@ void initAsserv()
 	if (commandManager == NULL)
 		commandManager = new CommandManager(50, consignController, odometrie);
 
-	run = true;
+	*prun = true;
+
 	//printf("ok\r\n");
 }
 
-void stopAsserv()
+void stopAsserv(bool *prun)
 {
+
 	//On arrête le traitement de l'asserv
-	run = false; //afin de pouvoir supprimer les objets
+	*prun = false; //afin de pouvoir supprimer les objets
+
 	leftSpeed = 0;
 	rightSpeed = 0;
 
@@ -582,14 +603,14 @@ void stopAsserv()
 void resetAsserv()
 {
 	printf("Réinitialisation de l'asserv...\r\n");
-	stopAsserv();
+	stopAsserv(&run);
 
 #ifdef DEBUG_UDP
 	debugUdp->setNewObjectPointers(commandManager, odometrie);
 #endif
 
 	//On reprend l'asserv
-	initAsserv();
+	initAsserv(&run);
 }
 #ifdef COM_SERIE_ACTIVATE
 static int mod = 0;
@@ -612,7 +633,7 @@ void Live_isr()
 						(float) Utils::UOTomm(odometrie, odometrie->getY()),
 								(float) Utils::UOToDeg(odometrie, odometrie->getTheta()));
 #endif
-		printf(" %d",commandManager->getLastCommandStatus());
+
 	}
 
 	odometrie->refresh();

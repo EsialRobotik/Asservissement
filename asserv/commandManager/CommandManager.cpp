@@ -150,7 +150,7 @@ void CommandManager::perform()
 
 		if (currCMD.type == CMD_GO)
 		{  // On avance ou on recule de la consigne
-printf("--CMD_GO--%lld\r\n", currCMD.value);
+//printf("--CMD_GO--%lld\r\n", currCMD.value);
 			cnsgCtrl->add_dist_consigne(currCMD.value);
 		}
 		else if (currCMD.type == CMD_TURN)
