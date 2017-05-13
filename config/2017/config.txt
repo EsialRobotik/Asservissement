@@ -4,7 +4,7 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2017050801
+configVersion = 2017051302
 
 //--------------------------//
 //     Modes de réglage     //
@@ -46,16 +46,16 @@ enchainThreshold = 2000000
 //--------------------------//
 
 // Distance entre le point asservit (centre des deux roues) et l'arrière du robot pour mettre le (0,0) au coin de la table
-placementOrigineX = 0
-placementOrigineY = 0
+placementOrigineX = 150
+placementOrigineY = 100
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 25650.333
+frontParMetreCodeurG = 17912
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 25659.0
+frontParMetreCodeurD = 17880
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -89,10 +89,10 @@ V_MAX_NEG_MOTOR = -128
 // envoyer de jus dans des moteurs qui ne tournent pas
 
 // MD22 : 1 a 127
-V_MIN_POS_MOTOR = 10
+V_MIN_POS_MOTOR = 5
 
 // MD22 : -1 a -128
-V_MIN_NEG_MOTOR = -10
+V_MIN_NEG_MOTOR = -5
 
 // Inversion du sens du moteur gauche
 inverseMoteurG = true
@@ -101,7 +101,7 @@ inverseMoteurG = true
 inverseMoteurD = false
 
 // Échange des moteurs
-swapMoteurs = true
+swapMoteurs = false
 
 
 //--------------------------//
@@ -113,19 +113,19 @@ swapMoteurs = true
 
 
 // Coeff proportionelle
-DIST_KP = 65
+DIST_KP = 40
 
 // Coeff intégrale
 DIST_KI = 0
 
 // Coeff dérivée
-DIST_KD = 900
+DIST_KD = 300
 
 // Coeff permettant de diminuer les valeurs du PID
 DIST_OUT_RATIO = 0.00001
 
 // Valeur de sortie maximum pour le moteur
-DIST_MAX_OUTPUT = 127
+DIST_MAX_OUTPUT = 30
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 DIST_MAX_INTEGRAL = 0
@@ -135,19 +135,19 @@ DIST_MAX_INTEGRAL = 0
 
 
 // Coeff proportionelle
-ANGLE_KP = 80
+ANGLE_KP = 30
 
 // Coeff intégrale
 ANGLE_KI = 0
 
 // Coeff dérivée
-ANGLE_KD = 800
+ANGLE_KD = 200
 
 // Coeff permettant de diminuer les valeurs du PID
 ANGLE_OUT_RATIO = 0.000005
 
 // Valeur de sortie maximum pour le moteur
-ANGLE_MAX_OUTPUT = 127
+ANGLE_MAX_OUTPUT = 20
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 ANGLE_MAX_INTEGRAL = 0
@@ -200,4 +200,3 @@ ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 35
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 ANGLE_TAILLE_FENETRE_ARRIVEE = 100000
-
