@@ -189,6 +189,7 @@ void CommandManager::computeGoTo()
 	// La différence entre le thetaCible (= cap à atteindre) et le theta (= cap actuel du robot) donne l'angle à parcourir
 	double deltaTheta = computeDeltaTheta(deltaX, deltaY);
 
+	//TODO ajouter dans la config un parametre cap_enabled ?
 	/*//TODO à tester en conditions réelles et extrêmes de mauvaises utilisations
 	 if ( fabs(deltaTheta) < Config::angleThreshold ) { // Si on est dans la fenêtre de départ en angle
 	 // La consigne est la somme de la distance à parcourir et de notre position dans l'accu

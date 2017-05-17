@@ -10,7 +10,8 @@
 #include "../commandManager/CommandManager.h"
 
 //#define LCD_ACTIVATE 1
-//#define COM_SERIEPC_ACTIVATE 1
+#define COM_SERIEPC_ACTIVATE 1
+
 
 #include "mbed.h"
 #include "../config/config.h"

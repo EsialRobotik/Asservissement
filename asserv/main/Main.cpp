@@ -202,7 +202,7 @@ void ecouteSeriePC()
 			if(!run || !consignController->on()) break;
 			// Go 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
-			consignController->add_dist_consigne(Utils::mmToUO(odometrie, 300));
+			consignController->add_dist_consigne(Utils::mmToUO(odometrie, 200));
 			//pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
 			break;
 
@@ -210,7 +210,7 @@ void ecouteSeriePC()
 			if(!run || !consignController->on()) break;
 			// Backward 10cm
 			//printf("consigne avant : %d\n", consignController->getDistConsigne());
-			consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 300));
+			consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 200));
 			//pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
 			break;
 
@@ -609,6 +609,7 @@ void resetAsserv()
 	debugUdp->setNewObjectPointers(commandManager, odometrie);
 #endif
 
+	ErrorLed = 0;
 	//On reprend l'asserv
 	initAsserv(&run);
 }

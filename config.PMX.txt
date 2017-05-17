@@ -160,19 +160,19 @@ ANGLE_MAX_INTEGRAL = 0
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-DIST_QUAD_1ST_POS = 5000000
+DIST_QUAD_1ST_POS = 3200000
 
 // Vitesse max en marche arrière
 DIST_QUAD_1ST_NEG = 3200000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 20000
+DIST_QUAD_AV_2ND_ACC = 10000
 
 // Décélération max en marche avant
 DIST_QUAD_AV_2ND_DEC = 10000
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 260
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 160
 
 // Accélération max en marche arrière
 DIST_QUAD_AR_2ND_ACC = 10000

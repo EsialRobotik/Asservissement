@@ -15,7 +15,7 @@ class Odometrie;
 
 
 #define COM_I2C_ACTIVATE 1
-//#define DEBUG_COM_I2C 1
+#define DEBUG_COM_I2C 1
 
 #define I2C_SLAVE_ADDRESS 0x05
 

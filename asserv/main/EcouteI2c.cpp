@@ -118,8 +118,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				if (r == 0)
 				{
 #ifdef DEBUG_COM_I2C
-					printf("p13 x=%f  y=%f  t=%f  s=%d\r\n", x.f, y.f, t.f,
-							commandM->getLastCommandStatus());
+					//printf("p13 x=%f  y=%f  t=%f  s=%d\r\n", x.f, y.f, t.f,	commandM->getLastCommandStatus());
 #endif
 #ifdef LCD_ACTIVATE
 					lcd.cls();
@@ -398,7 +397,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 				else
 				{
 					r = slave.read(cmd4, sizeof(cmd4));
-					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
+					printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd4), r);
 
 					if (r == 0)
 					{
