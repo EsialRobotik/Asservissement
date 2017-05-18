@@ -63,7 +63,7 @@ frontParMetreCodeurD = 20830.0
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-distRoues = 265
+distRoues = 256
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -163,16 +163,16 @@ ANGLE_MAX_INTEGRAL = 0
 DIST_QUAD_1ST_POS = 3200000
 
 // Vitesse max en marche arrière
-DIST_QUAD_1ST_NEG = 3200000
+DIST_QUAD_1ST_NEG = 3000000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 10000
+DIST_QUAD_AV_2ND_ACC = 12000
 
 // Décélération max en marche avant
 DIST_QUAD_AV_2ND_DEC = 10000
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 160
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 200
 
 // Accélération max en marche arrière
 DIST_QUAD_AR_2ND_ACC = 10000
@@ -181,7 +181,7 @@ DIST_QUAD_AR_2ND_ACC = 10000
 DIST_QUAD_AR_2ND_DEC = 10000
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 160
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 200
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
@@ -191,16 +191,16 @@ DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 7000000
+ANGLE_QUAD_1ST_POS = 6200000
 
 // Accélération max en rotation
 ANGLE_QUAD_2ND_ACC = 20000
 
 // Décélération max en rotation
-ANGLE_QUAD_2ND_DEC = 15000
+ANGLE_QUAD_2ND_DEC = 12000
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 160
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 150
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 ANGLE_TAILLE_FENETRE_ARRIVEE = 200000

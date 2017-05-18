@@ -49,7 +49,7 @@ void ecouteI2cConfig()
 //faire face		WR			'f' + 8
 //Goto 				WR			'g' + 8
 //Enchainement		WR			'e' + 8
-
+//Set low Speed 	W			'l' + 1 (true/false)
 
 void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsController *motorsC,
 		Odometrie *odo, bool *prun)
@@ -574,6 +574,41 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 							lcd.locate(0, 0);
 							lcd.printf("e8 x=%.1f y=%.1f\n", x.f, y.f);
 #endif
+						}
+					}
+					else
+					{
+						printf(
+								"ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n",
+								r);
+						ErrorLed = 1;
+					}
+				}
+				code = 0;
+				nbdata = 0;
+			}else if (code == 'l') // set low speed or not
+			{
+				if (nbdata != sizeof(cmd4))
+				{
+					printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n",
+							code);
+					ErrorLed = 1;
+				}
+				else
+				{
+					r = slave.read(cmd4, sizeof(cmd4));
+					//printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd4), r);
+					if (r == 0)
+					{
+						if (run)
+						{
+							gotoLed = !gotoLed;
+							printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
+							bool lowSpeedActivated = cmd4[0];
+							unsigned char back = cmd4[1];
+							unsigned char forward = cmd4[2];
+
+							consignC->setLowSpeedWithParam(lowSpeedActivated, back, forward);
 						}
 					}
 					else

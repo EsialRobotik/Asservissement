@@ -114,3 +114,18 @@ void ConsignController::setLowSpeed(bool b)
 		dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
 	}
 }
+
+void ConsignController::setLowSpeedWithParam(bool b, unsigned char factor_div_back, unsigned char factor_div_forward)
+{
+	if (b)
+	{
+		printf("BACK=%d  \tFORW=%d\r\n", factor_div_back, factor_div_forward);
+		dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG / factor_div_back);
+		dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS / factor_div_forward);
+	}
+	else
+	{
+		dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG);
+		dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
+	}
+}
