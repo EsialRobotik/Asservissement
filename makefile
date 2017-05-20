@@ -21,11 +21,14 @@ NEWLIB_NANO=0
 
 include $(GCC4MBED_DIR)/build/gcc4mbed.mk
 
-configs: $(wildcard config.*.txt)
-config.%.txt: asserv/config/params.h
+CONFIGS:=$(shell find config -name "*.txt")
+
+configs: $(CONFIGS)
+$(CONFIGS): asserv/config/params.h
 	@echo Regénération $@
 	$(Q) $(PYTHON) gen_config.py $< $@
 
+# TODO les règles "deploy" ne marchent plus avec le dossier de config
 deploy-default:
 	$(Q) $(subst PROJECT.bin,config.default.txt,$(LPC_DEPLOY))
 
