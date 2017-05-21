@@ -177,8 +177,8 @@ void Live_isr()
                 (double) odometrie->getTheta(),
                 (int32_t) commandManager->getCommandStatus(),
                 (int32_t) commandManager->getPendingCommandCount(),
-                (int32_t) motorController->getVitesseG(),
-                (int32_t) motorController->getVitesseD());
+                (int32_t) motorController->getVitesseG() * (Config::inverseMoteurG ? -1 : 1),
+                (int32_t) motorController->getVitesseD() * (Config::inverseMoteurD ? -1 : 1));
     }
 #ifdef DEBUG
     temps++;
