@@ -126,7 +126,7 @@ DIST_KD = 300
 DIST_OUT_RATIO = 0.00001
 
 // Valeur de sortie maximum pour le moteur
-DIST_MAX_OUTPUT = 30
+DIST_MAX_OUTPUT = 127
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 DIST_MAX_INTEGRAL = 0
@@ -148,7 +148,7 @@ ANGLE_KD = 200
 ANGLE_OUT_RATIO = 0.000005
 
 // Valeur de sortie maximum pour le moteur
-ANGLE_MAX_OUTPUT = 20
+ANGLE_MAX_OUTPUT = 100
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 ANGLE_MAX_INTEGRAL = 0
@@ -157,28 +157,28 @@ ANGLE_MAX_INTEGRAL = 0
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-DIST_QUAD_1ST_POS = 800000
+DIST_QUAD_1ST_POS = 400000
 
 // Vitesse max en marche arrière
-DIST_QUAD_1ST_NEG = 800000
+DIST_QUAD_1ST_NEG = 400000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 5000
+DIST_QUAD_AV_2ND_ACC = 2500
 
 // Décélération max en marche avant
-DIST_QUAD_AV_2ND_DEC = 2000
+DIST_QUAD_AV_2ND_DEC = 2500
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 110
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 70
 
 // Accélération max en marche arrière
 DIST_QUAD_AR_2ND_ACC = 3000
 
 // Décélération max en marche arrière
-DIST_QUAD_AR_2ND_DEC = 1000
+DIST_QUAD_AR_2ND_DEC = 2500
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 110
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 80
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
@@ -188,7 +188,7 @@ DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 300000
+ANGLE_QUAD_1ST_POS = 400000
 
 // Accélération max en rotation
 ANGLE_QUAD_2ND_ACC = 6000
@@ -208,11 +208,11 @@ ANGLE_TAILLE_FENETRE_ARRIVEE = 100000
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-BLOCK_DIST_SPEED_THRESHOLD = 0
+BLOCK_DIST_SPEED_THRESHOLD = 1024
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-BLOCK_ANGLE_SPEED_THRESHOLD = 0
+BLOCK_ANGLE_SPEED_THRESHOLD = 1024
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
-BLOCK_TICK_THRESHOLD = 0
+BLOCK_TICK_THRESHOLD = 500
 
