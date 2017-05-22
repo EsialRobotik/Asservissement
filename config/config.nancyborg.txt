@@ -183,6 +183,11 @@ DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 95
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
+// Diviseur pour la vitesse faible en marche avant
+DIST_QUAD_AV_LOW_DIV = 8
+
+// Diviseur pour la vitesse faible en marche arrière
+DIST_QUAD_AR_LOW_DIV = 8
 
 // QUADRAMPDerivee (angle)
 

@@ -230,6 +230,11 @@ PARAM(int64_t, DIST_QUAD_AR_ANTICIPATION_GAIN_COEF)
 // Largeur de la zone où l'on considère être arrivé (UO)
 PARAM(int64_t, DIST_TAILLE_FENETRE_ARRIVEE)
 
+// Diviseur pour la vitesse faible en marche avant
+PARAM(int64_t, DIST_QUAD_AV_LOW_DIV)
+
+// Diviseur pour la vitesse faible en marche arrière
+PARAM(int64_t, DIST_QUAD_AR_LOW_DIV)
 
 // QUADRAMPDerivee (angle)
 
