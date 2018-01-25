@@ -5,7 +5,7 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2015051101
+configVersion = 2017051302
 
 //--------------------------//
 //     Modes de réglage     //
@@ -47,33 +47,33 @@ enchainThreshold = 2000000
 //--------------------------//
 
 // Distance entre le point asservit (centre des deux roues) et l'arrière du robot pour mettre le (0,0) au coin de la table
-placementOrigineX = 0
-placementOrigineY = 0
+placementOrigineX = 150
+placementOrigineY = 100
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 25650.333
+frontParMetreCodeurG = 17900
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 25659.0
+frontParMetreCodeurD = 17900
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-distRoues = 220
+distRoues = 266.45
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
 uOParFront = 512
 
 // Inversion du sens du codeur gauche
-inverseCodeurG = false
+inverseCodeurG = true
 
 // Inversion du sens du codeur droit
-inverseCodeurD = true
+inverseCodeurD = false
 
 // Échange des codeurs
-swapCodeurs = true
+swapCodeurs = false
 
 //--------------------------//
 //         Moteurs          //
@@ -90,10 +90,10 @@ V_MAX_NEG_MOTOR = -128
 // envoyer de jus dans des moteurs qui ne tournent pas
 
 // MD22 : 1 a 127
-V_MIN_POS_MOTOR = 10
+V_MIN_POS_MOTOR = 5
 
 // MD22 : -1 a -128
-V_MIN_NEG_MOTOR = -10
+V_MIN_NEG_MOTOR = -5
 
 // Inversion du sens du moteur gauche
 inverseMoteurG = true
@@ -114,13 +114,13 @@ swapMoteurs = false
 
 
 // Coeff proportionelle
-DIST_KP = 20
+DIST_KP = 40
 
 // Coeff intégrale
 DIST_KI = 0
 
 // Coeff dérivée
-DIST_KD = 400
+DIST_KD = 300
 
 // Coeff permettant de diminuer les valeurs du PID
 DIST_OUT_RATIO = 0.00001
@@ -136,19 +136,19 @@ DIST_MAX_INTEGRAL = 0
 
 
 // Coeff proportionelle
-ANGLE_KP = 80
+ANGLE_KP = 30
 
 // Coeff intégrale
 ANGLE_KI = 0
 
 // Coeff dérivée
-ANGLE_KD = 800
+ANGLE_KD = 200
 
 // Coeff permettant de diminuer les valeurs du PID
 ANGLE_OUT_RATIO = 0.000005
 
 // Valeur de sortie maximum pour le moteur
-ANGLE_MAX_OUTPUT = 127
+ANGLE_MAX_OUTPUT = 100
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
 ANGLE_MAX_INTEGRAL = 0
@@ -157,50 +157,55 @@ ANGLE_MAX_INTEGRAL = 0
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-DIST_QUAD_1ST_POS = 1600000
+DIST_QUAD_1ST_POS = 400000
 
 // Vitesse max en marche arrière
-DIST_QUAD_1ST_NEG = 1600000
+DIST_QUAD_1ST_NEG = 400000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 8000
+DIST_QUAD_AV_2ND_ACC = 2500
 
 // Décélération max en marche avant
-DIST_QUAD_AV_2ND_DEC = 3000
+DIST_QUAD_AV_2ND_DEC = 2500
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 130
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 70
 
 // Accélération max en marche arrière
-DIST_QUAD_AR_2ND_ACC = 4500
+DIST_QUAD_AR_2ND_ACC = 3000
 
 // Décélération max en marche arrière
-DIST_QUAD_AR_2ND_DEC = 1500
+DIST_QUAD_AR_2ND_DEC = 2500
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 130
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 80
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
+// Diviseur pour la vitesse faible en marche avant
+DIST_QUAD_AV_LOW_DIV = 4
+
+// Diviseur pour la vitesse faible en marche arrière
+DIST_QUAD_AR_LOW_DIV = 8
 
 // QUADRAMPDerivee (angle)
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 600000
+ANGLE_QUAD_1ST_POS = 400000
 
 // Accélération max en rotation
-ANGLE_QUAD_2ND_ACC = 10000
+ANGLE_QUAD_2ND_ACC = 6000
 
 // Décélération max en rotation
 ANGLE_QUAD_2ND_DEC = 4000
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 50
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 35
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-ANGLE_TAILLE_FENETRE_ARRIVEE = 50000
+ANGLE_TAILLE_FENETRE_ARRIVEE = 100000
 
 
 //--------------------------//
@@ -208,11 +213,11 @@ ANGLE_TAILLE_FENETRE_ARRIVEE = 50000
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-BLOCK_DIST_SPEED_THRESHOLD = 0
+BLOCK_DIST_SPEED_THRESHOLD = 1024
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-BLOCK_ANGLE_SPEED_THRESHOLD = 0
+BLOCK_ANGLE_SPEED_THRESHOLD = 1024
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
-BLOCK_TICK_THRESHOLD = 0
+BLOCK_TICK_THRESHOLD = 500
 
