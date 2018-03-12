@@ -18,10 +18,8 @@ Serial pc(USBTX, USBRX);
 
 int main()
 {
-    pc.baud(230400);
-    // Initialisation du port série par défaut (utilisé par printf & co)
-/*    serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-    serial_baud(&stdio_uart, 230400); // GaG va être content*/
+    // Initialisation du port série sur USB (utilisé par printf & co)
+    pc.baud(115200);
 
     printf("--- Asservissement Nancyborg ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
