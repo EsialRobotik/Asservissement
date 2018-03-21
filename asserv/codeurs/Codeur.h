@@ -11,7 +11,7 @@ class Codeur
 
 public:
 
-    Codeur(PinName pinChanA , PinName pinChanB);
+    Codeur(PinName pinChanA, PinName pinChanB);
     ~Codeur();
     long getCount();
     void reset();
@@ -24,7 +24,6 @@ private:
     volatile long count;
     InterruptIn pinChannelA;
     InterruptIn pinChannelB;
-
 
 };
 

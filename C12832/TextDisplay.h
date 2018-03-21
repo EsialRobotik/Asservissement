@@ -18,11 +18,12 @@
 
 #include "mbed.h"
 
-class TextDisplay : public Stream {
+class TextDisplay: public Stream
+{
 public:
 
-  // functions needing implementation in derived implementation class
-  /** Create a TextDisplay interface
+    // functions needing implementation in derived implementation class
+    /** Create a TextDisplay interface
      *
      * @param name The name used in the path to access the strean through the filesystem
      */
@@ -42,26 +43,26 @@ public:
     virtual int rows() = 0;
 
     /** return number if columns on TextDisplay
-    * @result number of rows
-    */
+     * @result number of rows
+     */
     virtual int columns() = 0;
-    
+
     // functions that come for free, but can be overwritten
 
     /** redirect output from a stream (stoud, sterr) to  display
-    * @param stream stream that shall be redirected to the TextDisplay
-    */
-    virtual bool claim (FILE *stream);
+     * @param stream stream that shall be redirected to the TextDisplay
+     */
+    virtual bool claim(FILE *stream);
 
     /** clear screen
-    */
+     */
     virtual void cls();
     virtual void locate(int column, int row);
     virtual void foreground(uint16_t colour);
     virtual void background(uint16_t colour);
     // putc (from Stream)
     // printf (from Stream)
-    
+
 protected:
 
     virtual int _putc(int value);

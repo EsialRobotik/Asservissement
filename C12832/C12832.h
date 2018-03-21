@@ -18,10 +18,9 @@
 #include "mbed.h"
 #include "GraphicsDisplay.h"
 
-
 /** optional Defines :
-  * #define debug_lcd  1  enable infos to PC_USB
-  */
+ * #define debug_lcd  1  enable infos to PC_USB
+ */
 
 // some defines for the DMA use
 #define DMA_CHANNEL_ENABLE      1
@@ -36,36 +35,39 @@
 #define DMA_DEST_SSP0_TX        (0UL << 6)
 
 /** Draw mode
-  * NORMAl
-  * XOR set pixel by xor the screen
-  */
-enum {NORMAL,XOR};
+ * NORMAl
+ * XOR set pixel by xor the screen
+ */
+enum
+{
+    NORMAL, XOR
+};
 
 /** Bitmap
  */
-struct Bitmap{
+struct Bitmap
+{
     int xSize;
     int ySize;
     int Byte_in_Line;
     char* data;
-    };
+};
 
-class C12832 : public GraphicsDisplay
+class C12832: public GraphicsDisplay
 {
 public:
     /** Create a C12832 object connected to SPI1
-      *
-      */
+     *
+     */
 
     C12832(PinName mosi, PinName sck, PinName reset, PinName a0, PinName ncs, const char* name = "LCD");
 
-
     /** Get the width of the screen in pixel
-      *
-      * @param
-      * @returns width of screen in pixel
-      *
-      */
+     *
+     * @param
+     * @returns width of screen in pixel
+     *
+     */
     virtual int width();
 
     /** Get the height of the screen in pixel
@@ -81,15 +83,15 @@ public:
      * @param y vertical position
      * @param colour ,1 set pixel ,0 erase pixel
      */
-    virtual void pixel(int x, int y,int colour);
+    virtual void pixel(int x, int y, int colour);
 
     /** draw a circle
-      *
-      * @param x0,y0 center
-      * @param r radius
-      * @param colour ,1 set pixel ,0 erase pixel
-      *
-      */
+     *
+     * @param x0,y0 center
+     * @param r radius
+     * @param colour ,1 set pixel ,0 erase pixel
+     *
+     */
     void circle(int x, int y, int r, int colour);
 
     /** draw a filled circle
@@ -104,66 +106,64 @@ public:
     void fillcircle(int x, int y, int r, int colour);
 
     /** draw a 1 pixel line
-      *
-      * @param x0,y0 start point
-      * @param x1,y1 stop point
-      * @param color ,1 set pixel ,0 erase pixel
-      *
-      */
+     *
+     * @param x0,y0 start point
+     * @param x1,y1 stop point
+     * @param color ,1 set pixel ,0 erase pixel
+     *
+     */
     void line(int x0, int y0, int x1, int y1, int colour);
 
     /** draw a rect
-    *
-    * @param x0,y0 top left corner
-    * @param x1,y1 down right corner
-    * @param color 1 set pixel ,0 erase pixel
-    *                                                   *
-    */
+     *
+     * @param x0,y0 top left corner
+     * @param x1,y1 down right corner
+     * @param color 1 set pixel ,0 erase pixel
+     *                                                   *
+     */
     void rect(int x0, int y0, int x1, int y1, int colour);
 
     /** draw a filled rect
-      *
-      * @param x0,y0 top left corner
-      * @param x1,y1 down right corner
-      * @param color 1 set pixel ,0 erase pixel
-      *
-      */
+     *
+     * @param x0,y0 top left corner
+     * @param x1,y1 down right corner
+     * @param color 1 set pixel ,0 erase pixel
+     *
+     */
     void fillrect(int x0, int y0, int x1, int y1, int colour);
 
     /** copy display buffer to lcd
-      *
-      */
+     *
+     */
 
     void copy_to_lcd(void);
 
     /** set the orientation of the screen
-      *
-      */
-
+     *
+     */
 
     void set_contrast(unsigned int o);
 
     /** read the contrast level
-      *
-      */
+     *
+     */
     unsigned int get_contrast(void);
 
-
     /** invert the screen
-      *
-      * @param o = 0 normal, 1 invert
-      */
+     *
+     * @param o = 0 normal, 1 invert
+     */
     void invert(unsigned int o);
 
     /** clear the screen
-       *
-       */
+     *
+     */
     virtual void cls(void);
 
     /** set the drawing mode
-      *
-      * @param mode NORMAl or XOR
-      */
+     *
+     * @param mode NORMAl or XOR
+     */
 
     void setmode(int mode);
 
@@ -200,19 +200,19 @@ public:
      * @param y y-position
      */
     virtual void locate(int x, int y);
-    
+
     /** setup auto update of screen 
-      *
-      * @param up 1 = on , 0 = off
-      * if switched off the program has to call copy_to_lcd() 
-      * to update screen from framebuffer
-      */
+     *
+     * @param up 1 = on , 0 = off
+     * if switched off the program has to call copy_to_lcd()
+     * to update screen from framebuffer
+     */
     void set_auto_up(unsigned int up);
 
     /** get status of the auto update function
-      *
-      *  @returns if auto update is on
-      */
+     *
+     *  @returns if auto update is on
+     */
     unsigned int get_auto_up(void);
 
     /** Vars     */
@@ -223,42 +223,41 @@ public:
     unsigned char* font;
     unsigned int draw_mode;
 
-
     /** select the font to use
-      *
-      * @param f pointer to font array
-      *
-      *   font array can created with GLCD Font Creator from http://www.mikroe.com
-      *   you have to add 4 parameter at the beginning of the font array to use:
-      *   - the number of byte / char
-      *   - the vertial size in pixel
-      *   - the horizontal size in pixel
-      *   - the number of byte per vertical line
-      *   you also have to change the array to char[]
-      *
-      */
+     *
+     * @param f pointer to font array
+     *
+     *   font array can created with GLCD Font Creator from http://www.mikroe.com
+     *   you have to add 4 parameter at the beginning of the font array to use:
+     *   - the number of byte / char
+     *   - the vertial size in pixel
+     *   - the horizontal size in pixel
+     *   - the number of byte per vertical line
+     *   you also have to change the array to char[]
+     *
+     */
     void set_font(unsigned char* f);
-    
+
     /** print bitmap to buffer
-      *
-      * @param bm Bitmap in flash
-      * @param x  x start
-      * @param y  y start 
-      *
-      */
+     *
+     * @param bm Bitmap in flash
+     * @param x  x start
+     * @param y  y start
+     *
+     */
 
     void print_bm(Bitmap bm, int x, int y);
 
 protected:
 
     /** draw a horizontal line
-      *
-      * @param x0 horizontal start
-      * @param x1 horizontal stop
-      * @param y vertical position
-      * @param ,1 set pixel ,0 erase pixel
-      *
-      */
+     *
+     * @param x0 horizontal start
+     * @param x1 horizontal stop
+     * @param y vertical position
+     * @param ,1 set pixel ,0 erase pixel
+     *
+     */
     void hline(int x0, int x1, int y, int colour);
 
     /** draw a vertical line
@@ -283,10 +282,10 @@ protected:
     void wr_dat(unsigned char value);
 
     /** Write a command the LCD controller
-      *
-      * @param cmd: command to be written
-      *
-      */
+     *
+     * @param cmd: command to be written
+     *
+     */
     void wr_cmd(unsigned char value);
 
     void wr_cnt(unsigned char cmd);
@@ -299,8 +298,5 @@ protected:
     unsigned int auto_up;
 
 };
-
-
-
 
 #endif

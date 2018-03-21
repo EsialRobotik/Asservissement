@@ -23,14 +23,14 @@ class DebugUDP
 public:
     DebugUDP(CommandManager* c, Odometrie* o);
     void addData(char* name, double value); // ajoute une valeur au paquet courant
-    void addData(char* name, int64_t value); // ajoute une valeur entière au paquet courant
-    void sendData(); // envoie le paquet de données sur l'ethernet
-    void dropCurrentData(); //vire les données courantes du buffer
+    void addData(char* name, int64_t value);// ajoute une valeur entière au paquet courant
+    void sendData();// envoie le paquet de données sur l'ethernet
+    void dropCurrentData();//vire les données courantes du buffer
 
-    void setNewObjectPointers(CommandManager* c, Odometrie* o); //Reparamétrage des pointeurs
+    void setNewObjectPointers(CommandManager* c, Odometrie* o);//Reparamétrage des pointeurs
 
-    void setDebugSend(bool b); //Paramètre l'envoi des données de debug
-    bool getDebugSend(); //Doit-on envoyer les données ?
+    void setDebugSend(bool b);//Paramètre l'envoi des données de debug
+    bool getDebugSend();//Doit-on envoyer les données ?
     Host* getDebuggerHost() {
         return debuggerHost;
     }

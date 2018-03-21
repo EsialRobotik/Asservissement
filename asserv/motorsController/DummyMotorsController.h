@@ -3,12 +3,18 @@
 
 #include "MotorsController.h"
 
-class DummyMotorsController : public MotorsController
+class DummyMotorsController: public MotorsController
 {
-public :
-    void vitesseG(int vitMoteurG) { }
-    void vitesseD(int vitMoteurD) { }
-    ~DummyMotorsController() { }
+public:
+    void vitesseG(int vitMoteurG)
+    {
+    }
+    void vitesseD(int vitMoteurD)
+    {
+    }
+    ~DummyMotorsController()
+    {
+    }
 };
 
 #endif

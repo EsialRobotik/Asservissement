@@ -8,7 +8,7 @@
 
 //Deux codeurs, branchés directement sur la Mbed
 
-class CodeursDirects : public CodeursInterface
+class CodeursDirects: public CodeursInterface
 {
 
 public:

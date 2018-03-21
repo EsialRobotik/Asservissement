@@ -57,7 +57,8 @@
 #define I2C_WRITE_BIT               0x00    // Add this to I2C address to perform a write.
 #define I2C_READ_BIT                0x01    // Add this to I2C address to perform a read.
 
-class MD25 {
+class MD25
+{
 private:
     /* Communication */
     I2C *i2c_interface;
@@ -106,7 +107,5 @@ public:
 
     int software_rev_num_get();             // Returns the software revision in the PIC16F873 controller.
 };
-
-
 
 #endif /* ASSERV_MOTORSCONTROLLER_MD25_MD25_H_ */

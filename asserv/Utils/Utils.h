@@ -7,10 +7,10 @@ class Odometrie;
 
 class Utils
 {
-public :
+public:
 
     //Limitation d'une valeur à un intervalle [valeurMin , valeurMax]
-    int64_t static constrain(int64_t value , int64_t min , int64_t max);
+    int64_t static constrain(int64_t value, int64_t min, int64_t max);
 
     // Conversions
     int64_t static mmToUO(Odometrie *odo, double valeur);
