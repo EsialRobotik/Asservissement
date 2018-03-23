@@ -35,21 +35,27 @@ void ecouteI2cConfig()
 }
 
 //Name				Permissions	writeCODE		ReadResponse			WriteAction
-//Whoami			R			0x00			Device ID				N/A
-//Set position 		W			'S' + 12		N/A						float/float/float write position x,y,t
+//Whoami			R			0x00		Device ID			          N/A
+//Set position 		W			'S' + 12		N/A				float/float/float write position x,y,t
 //Get position		WR			'p' + 13		float/float/float/byte
-//init asserv		W			'I'	+ 0x00
+//init asserv		W			'I' + 0x00
 //stop asserv		W			'!' + 0x00
-//stop managers 	W			'K' + 0x00
-//start managers	W			'J' + 0x00
-//emergency stop	W			'h' + 0x00
-//reset emerg stop 	W			'r' + 0x00
+//stop managers 	W			          'K' + 0x00
+//start managers	W			          'J' + 0x00
+//emergency stop	W			          'h' + 0x00
+//reset emerg stop 	W			          'r' + 0x00
+
+//add_dist_consigne           WR                            'V' + 4                                                     float
+
 //aVance			WR			'v' + 4
 //Tourne			WR			't' + 4
 //faire face		WR			'f' + 8
-//Goto 				WR			'g' + 8
+//Goto 			WR		          'g' + 8
 //Enchainement		WR			'e' + 8
-//Set low Speed 	W			'l' + 1 (true/false)
+//Set low Speed 	          WR		          'l' + 1 (true/false)
+//set angle regu              WR                            'A' + 1 (true/false)
+//set dist  regu              WR                            'D' + 1 (true/false)
+//reset regu                  WR                            'R' + 1 (1=dist/0=angle)
 
 void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsController *motorsC, Odometrie *odo, bool *prun)
 {
@@ -336,6 +342,42 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 }
                 code = 0;
                 nbdata = 0;
+            } else if (code == 'V') // V%d\n / aVancer / d : entier, en mm / Fait avancer le robot de d mm, juste avec la consigne
+                    {
+                if (nbdata != sizeof(cmd4)) {
+                    printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n", code, nbdata, sizeof(cmd4));
+                    ErrorLed = 1;
+                } else {
+                    r = slave.read(cmd4, sizeof(cmd4));
+                    //printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd), r);
+
+                    if (r == 0) {
+                        if (run) {
+                            gotoLed = !gotoLed;
+                            //printf("      Read CMD: %d %d %d %d\r\n", cmd[0], cmd[1], cmd[2], cmd[3]);
+                            float2bytes_t mm;
+                            mm.bytes[0] = cmd4[0];
+                            mm.bytes[1] = cmd4[1];
+                            mm.bytes[2] = cmd4[2];
+                            mm.bytes[3] = cmd4[3];
+
+                            consignC->add_dist_consigne(Utils::mmToUO(odo, mm.f));
+#ifdef DEBUG_COM_I2C
+                            printf("V4 dist=%f \r\n", mm.f);
+#endif
+#ifdef LCD_ACTIVATE
+                            lcd.cls();
+                            lcd.locate(0, 0);
+                            lcd.printf("V4 dist=%.1f\n", mm.f);
+#endif
+                        }
+                    } else {
+                        printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
+                        ErrorLed = 1;
+                    }
+                }
+                code = 0;
+                nbdata = 0;
             } else if (code == 't') // t%a\n / Tourner / a : entier, en degrées / Fait tourner le robot de a degrées. Le robot tournera dans le sens trigonométrique : si a est positif, il tourne à gauche, et vice-versa.
                     {
                 if (nbdata != sizeof(cmd4)) {
@@ -510,6 +552,81 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             unsigned char forward = cmd4[2];
 
                             consignC->setLowSpeedWithParam(lowSpeedActivated, back, forward);
+                        }
+                    } else {
+                        printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
+                        ErrorLed = 1;
+                    }
+                }
+                code = 0;
+                nbdata = 0;
+            } else if (code == 'A') // set angle regu
+                    {
+                if (nbdata != sizeof(cmd4)) {
+                    printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
+                    ErrorLed = 1;
+                } else {
+                    r = slave.read(cmd4, sizeof(cmd4));
+                    //printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd4), r);
+                    if (r == 0) {
+                        if (run) {
+                            gotoLed = !gotoLed;
+                            printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
+                            bool activated = cmd4[0];
+                            if (activated)
+                                consignC->angle_Regu_On(true);
+                            else
+                                consignC->angle_Regu_On(false);
+                        }
+                    } else {
+                        printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
+                        ErrorLed = 1;
+                    }
+                }
+                code = 0;
+                nbdata = 0;
+            } else if (code == 'D') // set dist regu
+                    {
+                if (nbdata != sizeof(cmd4)) {
+                    printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
+                    ErrorLed = 1;
+                } else {
+                    r = slave.read(cmd4, sizeof(cmd4));
+                    //printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd4), r);
+                    if (r == 0) {
+                        if (run) {
+                            gotoLed = !gotoLed;
+                            printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
+                            bool activated = cmd4[0];
+                            if (activated)
+                                consignC->dist_Regu_On(true);
+                            else
+                                consignC->dist_Regu_On(false);
+                        }
+                    } else {
+                        printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
+                        ErrorLed = 1;
+                    }
+                }
+                code = 0;
+                nbdata = 0;
+            } else if (code == 'R') // reset regu
+                    {
+                if (nbdata != sizeof(cmd4)) {
+                    printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
+                    ErrorLed = 1;
+                } else {
+                    r = slave.read(cmd4, sizeof(cmd4));
+                    //printf("I2CSlave::WriteAddressed: %c%d  %d\r\n", code, sizeof(cmd4), r);
+                    if (r == 0) {
+                        if (run) {
+                            gotoLed = !gotoLed;
+                            printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
+                            int activated = cmd4[0];
+                            if (activated == 0)
+                                consignC->reset_regu_angle();
+                            else
+                                consignC->reset_regu_dist();
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);

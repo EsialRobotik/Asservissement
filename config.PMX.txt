@@ -5,7 +5,7 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2017031201
+configVersion = 2018032101
 
 //--------------------------//
 //     Modes de réglage     //
@@ -61,9 +61,9 @@ frontParMetreCodeurG = 20830.0
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
 frontParMetreCodeurD = 20830.0
 
-// Distance entre les roues codeuses en mm
+// Distance entre les roues codeuses en mm //258 en 2017!
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-distRoues = 256
+distRoues = 258
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -166,22 +166,22 @@ DIST_QUAD_1ST_POS = 3200000
 DIST_QUAD_1ST_NEG = 3000000
 
 // Accélération max en marche avant
-DIST_QUAD_AV_2ND_ACC = 12000
+DIST_QUAD_AV_2ND_ACC = 8000
 
 // Décélération max en marche avant
-DIST_QUAD_AV_2ND_DEC = 10000
+DIST_QUAD_AV_2ND_DEC = 5000
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 200
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 270
 
 // Accélération max en marche arrière
-DIST_QUAD_AR_2ND_ACC = 10000
+DIST_QUAD_AR_2ND_ACC = 8000
 
 // Décélération max en marche arrière
-DIST_QUAD_AR_2ND_DEC = 10000
+DIST_QUAD_AR_2ND_DEC = 5000
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 200
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 270
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
@@ -191,7 +191,7 @@ DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
 
 // Vitesse max en rotation
-ANGLE_QUAD_1ST_POS = 6200000
+ANGLE_QUAD_1ST_POS = 6400000
 
 // Accélération max en rotation
 ANGLE_QUAD_2ND_ACC = 20000
@@ -200,7 +200,7 @@ ANGLE_QUAD_2ND_ACC = 20000
 ANGLE_QUAD_2ND_DEC = 12000
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 150
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 270
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 ANGLE_TAILLE_FENETRE_ARRIVEE = 200000
