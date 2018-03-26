@@ -38,7 +38,7 @@ struct Parameter {
         std::stringstream out;
         switch (type) {
             case INT32:
-                out << get<int64_t>();
+                out << get<int32_t>();
                 break;
 
             case BOOL:

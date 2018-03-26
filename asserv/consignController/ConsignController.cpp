@@ -107,12 +107,12 @@ void ConsignController::perform()
 
 void ConsignController::setLeftSpeed(int vit)
 {
-    motors->vitesseG(vit);
+    motors->setVitesseG(vit);
 }
 
 void ConsignController::setRightSpeed(int vit)
 {
-    motors->vitesseD(vit);
+    motors->setVitesseD(vit);
 }
 
 void ConsignController::setLowSpeed(bool b)

@@ -15,12 +15,7 @@
 //#define LCD_ACTIVATE 1
 #define COM_SERIEPC_ACTIVATE 1
 
-#include "../config/config.h"
-#include "../odometrie/Odometrie.h"
-#include "../motorsController/Md25/Md25ctrl.h"
-#include "../motorsController/DummyMotorsController.h"
-#include "../consignController/ConsignController.h"
-#include "../commandManager/CommandManager.h"
+
 #ifdef DEBUG_UDP
 #include "../debug/DebugUDP.h"
 #endif

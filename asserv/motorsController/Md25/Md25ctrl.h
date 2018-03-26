@@ -23,11 +23,11 @@ public:
     // Constructeur
     Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin);
     // Destructeur
-    ~Md25ctrl();
+    virtual ~Md25ctrl();
 
     // Paramétrage des vitesses
-    virtual void vitesseG(int);
-    virtual void vitesseD(int);
+    virtual void setVitesseG(int);
+    virtual void setVitesseD(int);
     virtual int getVitesseG()
     {
         return vitMoteurG_;

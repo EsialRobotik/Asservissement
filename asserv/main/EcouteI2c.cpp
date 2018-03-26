@@ -110,7 +110,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 cmd13[10] = t.bytes[2];
                 cmd13[11] = t.bytes[3];
                 //printf("      Write : %d %d %d %d\r\n", cmd13[8], cmd13[9], cmd13[10], cmd13[11]);
-                cmd13[12] = commandM->getLastCommandStatus();
+                cmd13[12] = commandM->getCommandStatus();
                 r = slave.write(cmd13, sizeof(cmd13));
                 if (r == 0) {
 #ifdef DEBUG_COM_I2C
@@ -286,9 +286,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                         t.bytes[3] = cmd[11];
 
                         // set position
-                        odo->resetX(x.f); //mm
-                        odo->resetY(y.f);
-                        odo->resetTheta(t.f);
+                        odo->setX(x.f); //mm
+                        odo->setY(y.f);
+                        odo->setTheta(t.f);
 
 #ifdef DEBUG_COM_I2C
                         printf("S12 x=%f  y=%f  t=%f \r\n", odo->getXmm(), odo->getYmm(), odo->getTheta());

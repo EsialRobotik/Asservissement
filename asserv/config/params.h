@@ -234,10 +234,10 @@ PARAM(int32_t, DIST_QUAD_AR_ANTICIPATION_GAIN_COEF)
 PARAM(int32_t, DIST_TAILLE_FENETRE_ARRIVEE)
 
 // Diviseur pour la vitesse faible en marche avant
-PARAM(int64_t, DIST_QUAD_AV_LOW_DIV)
+PARAM(int32_t, DIST_QUAD_AV_LOW_DIV)
 
 // Diviseur pour la vitesse faible en marche arrière
-PARAM(int64_t, DIST_QUAD_AR_LOW_DIV)
+PARAM(int32_t, DIST_QUAD_AR_LOW_DIV)
 
 // QUADRAMPDerivee (angle)
 
@@ -263,12 +263,12 @@ PARAM(int32_t, ANGLE_TAILLE_FENETRE_ARRIVEE)
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-PARAM(int64_t, BLOCK_DIST_SPEED_THRESHOLD)
+PARAM(int32_t, BLOCK_DIST_SPEED_THRESHOLD)
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-PARAM(int64_t, BLOCK_ANGLE_SPEED_THRESHOLD)
+PARAM(int32_t, BLOCK_ANGLE_SPEED_THRESHOLD)
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
-PARAM(int64_t, BLOCK_TICK_THRESHOLD)
+PARAM(int32_t, BLOCK_TICK_THRESHOLD)
 
 #undef PARAM

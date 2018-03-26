@@ -74,12 +74,12 @@ Md25ctrl::Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin) :
 Md25ctrl::~Md25ctrl()
 {
     // On arrête les moteurs à la destruction
-    vitesseG(0);
-    vitesseD(0);
+    setVitesseG(0);
+    setVitesseD(0);
     i2cLink_.stop();
 }
 
-void Md25ctrl::vitesseG(int vitMoteurG)
+void Md25ctrl::setVitesseG(int vitMoteurG)
 {
     if (!connected_)
         return;
@@ -111,7 +111,7 @@ void Md25ctrl::vitesseG(int vitMoteurG)
     this->vitMoteurG_ = vitMoteurG;
 }
 
-void Md25ctrl::vitesseD(int vitMoteurD)
+void Md25ctrl::setVitesseD(int vitMoteurD)
 {
     if (!connected_)
         return;

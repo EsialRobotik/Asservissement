@@ -11,7 +11,7 @@ public:
     // Constructeur
     Md22(PinName I2CsdaPin , PinName I2CsclPin);
     // Destructeur
-    ~Md22();
+    virtual ~Md22();
 
     // Paramétrage des vitesses
     virtual void setVitesseG(int vitMoteurG);
