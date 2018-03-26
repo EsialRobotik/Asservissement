@@ -20,9 +20,8 @@ private:
     Codeur codeurG;
     Codeur codeurD;
 
-    int32_t lastCountD_;
-    int32_t lastCountG_;
-
+    int32_t lastCountD;
+    int32_t lastCountG;
 };
 
 #endif

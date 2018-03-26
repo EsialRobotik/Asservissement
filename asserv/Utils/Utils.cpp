@@ -14,19 +14,19 @@ int64_t Utils::constrain(int64_t value, int64_t valeurMin, int64_t valeurMax)
 }
 
 // Conversion mm vers UO
-int64_t Utils::mmToUO(Odometrie *odo, double valeur)
+int64_t Utils::mmToUO(Odometrie *odo, int32_t valeur)
 {
     return (int64_t)((valeur * (odo->getFrontParMetre()) * Config::uOParFront * 1.0) / 1000.0);
 }
 
 // Conversion U0 vers mm
-double Utils::UOTomm(Odometrie *odo, int64_t valeur)
+int32_t Utils::UOTomm(Odometrie *odo, int64_t valeur)
 {
     return (double) ((valeur * 1.0 / (odo->getFrontParMetre() * Config::uOParFront)) * 1000.0);
 }
 
 // Conversion degres en UO
-int64_t Utils::degToUO(Odometrie *odo, double valeur)
+int64_t Utils::degToUO(Odometrie *odo, int32_t valeur)
 {
     return (PI * valeur * odo->getDistanceRouesUO()) / 180;
 }

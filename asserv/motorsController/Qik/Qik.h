@@ -11,8 +11,8 @@ public :
     Qik(PinName txPinToQik, PinName rxPinToQik);
     ~Qik();
 
-    virtual void vitesseG(int vitMoteurG);
-    virtual void vitesseD(int vitMoteurD);
+    virtual void setVitesseG(int vitMoteurG);
+    virtual void setVitesseD(int vitMoteurD);
 
 private :
 

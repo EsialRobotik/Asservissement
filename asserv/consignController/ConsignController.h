@@ -115,6 +115,9 @@ public:
     void setLeftSpeed(int vit);
     void setRightSpeed(int vit);
 
+    // Vérification du blocage
+    bool isBlocked();
+
 private:
 
     //Moteurs
@@ -140,6 +143,8 @@ private:
     int64_t angle_consigne;
     int64_t dist_consigne;
 
+    // Compteur de blocage
+    int32_t blocked_ticks;
 };
 
 #endif

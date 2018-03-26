@@ -7,6 +7,7 @@
 
 #include "../codeurs/CodeursDirects.h"
 #include "../main/Main.h"
+#include <cinttypes>
 
 #ifdef DEBUG_UDP
 #include "../debug/DebugUDP.h"
@@ -75,19 +76,18 @@ Odometrie::~Odometrie()
     delete codeurs;
 }
 
-void Odometrie::resetX(float xval)
+void Odometrie::setX(int64_t xval)
 {
-    x = Utils::mmToUO(this, xval);
+    x = xval;
 }
 
-void Odometrie::resetY(float yval)
+void Odometrie::setY(int64_t yval)
 {
-    y = Utils::mmToUO(this, yval);
+    y = yval;
 }
 
-void Odometrie::resetTheta(float tval)
-{
-    theta = tval;
+void Odometrie::setTheta(double thetaVal) {
+    theta = thetaVal;
 }
 
 // Mise à jour de la position du robot
@@ -138,6 +138,7 @@ void Odometrie::refresh()
             }
         }
     } else {
+        // TODO Vérifier qu'on ne perd pas l'accumulation dans ce mode
         printf("CG=%ld \t\tCD=%ld\r\n", compteurG, compteurD);
 #ifdef LCD_ACTIVATE
         lcd.locate(0, 10);

@@ -13,7 +13,7 @@ public:
 
     Codeur(PinName pinChanA, PinName pinChanB);
     ~Codeur();
-    long getCount();
+    int32_t getCount();
     void reset();
 
 private:
@@ -21,7 +21,7 @@ private:
     void handleInterruptA();
     void handleInterruptB();
 
-    volatile long count;
+    volatile int32_t count;
     InterruptIn pinChannelA;
     InterruptIn pinChannelB;
 

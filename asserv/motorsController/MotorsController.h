@@ -10,13 +10,11 @@ class MotorsController
 {
 
 public:
-    virtual void vitesseG(int vitMoteurG) = 0;
-    virtual void vitesseD(int vitMoteurD) = 0;
-    virtual int getVitesseG() = 0;
-    virtual int getVitesseD() = 0;
-    virtual ~MotorsController()
-    {
-    }
+    virtual void setVitesseG(int vitMoteurG) = 0;
+    virtual void setVitesseD(int vitMoteurD) = 0;
+    virtual int getVitesseG(void) = 0;
+    virtual int getVitesseD(void) = 0;
+    virtual ~MotorsController() { }
 
     void inverseMoteurDroit()
     {

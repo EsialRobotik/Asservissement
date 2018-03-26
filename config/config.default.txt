@@ -1,50 +1,3 @@
-/* Ce fichier définit les différents paramètres de l'asservissement.
- *
- * Il est utilisé pour permettre de changer dynamiquement ces options
- * à partir de leur nom (utile pour les fichiers de configuration)
- *
- * Il est inclut à plusieurs endroit du code :
- *  - une première fois pour déclarer (dans la classe Config) un
- *    attribut associé à chaque paramètre (config.h)
- *
- *  - une seconde pour le définir (config.cpp)
- *
- *  - une troisième fois pour construire un tableau d'objets Parameter
- *    permettant d'accéder dynamiquement aux différents paramètres
- *    (association nom <-> pointeur) (config.cpp)
- *
- * Grâce à cet artifice, on évite de dupliquer la liste des paramètres.
- * La syntaxe un peu barbare fait appel à une macro dont la définition
- * est différente selon ce que l'on veut en faire
- *
- * Prenons par exemple la ligne :
- *
- *     PARAM(int64_t, maProperiete)
- *
- * Si avant l'inclusion de ce fichier, on définit la macro PARAM comme suit :
- *
- *     #define PARAM(type, nom) static type nom;
- *
- * Alors cette ligne sera remplacée par :
- *
- *     int64_t maPropriete;
- *
- * De même, si PARAM est définie comme suit :
- *
- *     #define PARAM(type, nom) Parameter(#nom, &Config::nom),
- *
- * La ligne sera alors remplacée par
- *
- *     Parameter("maPropriete", &Config::maPropriete),
- *
- * On notera que la syntaxe '#nom' donne "maPropriete" alors que 'nom' seul
- * donnera maPropriete (sans les guillemets).
- * C'est une fonctionnalité bien utile des macros !
- *
- * ----- Définition des paramètres -----
- * Toutes les lignes commençant par // seront incluses lors de la génération
- * du fichier texte de configuration.
- */
 
 //--------------------------//
 //         Général          //
@@ -52,107 +5,107 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-PARAM(int32_t, configVersion)
+configVersion = 0
 
 //--------------------------//
 //     Modes de réglage     //
 //--------------------------//
 
 //Période de l'asservissement en sec : T=1/f
-PARAM(double, asservPeriod)
+asservPeriod = 0.002
 
 // Désactivation du command manager (le robot n'est plus asservi mais l'odométrie est toujours active)
-PARAM(bool, disableAsserv)
+disableAsserv = false
 
 // Réglage des codeurs (on affiche simplement les valeurs des codeurs et on desactive le calcul odometrique)
-PARAM(bool, reglageCodeurs)
+reglageCodeurs = false
 
 // Désactiver la QuadRampDérivée en distance
-PARAM(bool, disableDistanceQuad)
+disableDistanceQuad = false
 
 // Désactiver la QuadRampDérivée en angle
-PARAM(bool, disableAngleQuad)
+disableAngleQuad = false
 
 // Désactiver le régulateur de distance
-PARAM(bool, disableDistanceRegu)
+disableDistanceRegu = false
 
 // Désactiver le régulateur d'angle
-PARAM(bool, disableAngleRegu)
+disableAngleRegu = false
 
 //--------------------------//
 //       CommandManager     //
 //--------------------------//
 
 // Fenêtre de l'angle dans lequel on considère que le GoTo peut commencer à avancer
-PARAM(double, angleThreshold)
+angleThreshold = 0
 
 // Distance en dessous de laquelle on revient en marche arriere si on dépasse, sinon demi-tour
-PARAM(int32_t, returnThreshold)
+returnThreshold = 0
 
 // Distance au point de consigne à partir de laquelle on va essayer d'enchainer la consigne suivante
-PARAM(int32_t, enchainThreshold)
+enchainThreshold = 0
 
 //--------------------------//
 //        Odométrie         //
 //--------------------------//
 
 // Distance entre le point asservit (centre des deux roues) et l'arrière du robot pour mettre le (0,0) au coin de la table
-PARAM(int32_t, placementOrigineX)
-PARAM(int32_t, placementOrigineY)
+placementOrigineX = 0
+placementOrigineY = 0
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-PARAM(double, frontParMetreCodeurG)
+frontParMetreCodeurG = 0
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-PARAM(double, frontParMetreCodeurD)
+frontParMetreCodeurD = 0
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-PARAM(int32_t, distRoues)
+distRoues = 0
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-PARAM(int32_t, uOParFront)
+uOParFront = 0
 
 // Inversion du sens du codeur gauche
-PARAM(bool, inverseCodeurG)
+inverseCodeurG = 0
 
 // Inversion du sens du codeur droit
-PARAM(bool, inverseCodeurD)
+inverseCodeurD = 0
 
 // Échange des codeurs
-PARAM(bool, swapCodeurs)
+swapCodeurs = 0
 
 //--------------------------//
 //         Moteurs          //
 //--------------------------//
 
 // Vitesse maximum en sens positif (MD22 : 1 à 127)
-PARAM(int32_t, V_MAX_POS_MOTOR)
+V_MAX_POS_MOTOR = 0
 
 // Vitesse maximum en sens négatif (MD22 : 1 à 127)
-PARAM(int32_t, V_MAX_NEG_MOTOR)
+V_MAX_NEG_MOTOR = 0
 
 
 // Vitesses à partir desquelles le robot commence à bouger, pour ne pas
 // envoyer de jus dans des moteurs qui ne tournent pas
 
 // MD22 : 1 a 127
-PARAM(int32_t, V_MIN_POS_MOTOR)
+V_MIN_POS_MOTOR = 0
 
 // MD22 : -1 a -128
-PARAM(int32_t, V_MIN_NEG_MOTOR)
+V_MIN_NEG_MOTOR = 0
 
 // Inversion du sens du moteur gauche
-PARAM(bool, inverseMoteurG)
+inverseMoteurG = 0
 
 // Inversion du sens du moteur droit
-PARAM(bool, inverseMoteurD)
+inverseMoteurD = 0
 
 // Échange des moteurs
-PARAM(bool, swapMoteurs)
+swapMoteurs = 0
 
 
 //--------------------------//
@@ -164,98 +117,98 @@ PARAM(bool, swapMoteurs)
 
 
 // Coeff proportionelle
-PARAM(int32_t, DIST_KP)
+DIST_KP = 0
 
 // Coeff intégrale
-PARAM(int32_t, DIST_KI)
+DIST_KI = 0
 
 // Coeff dérivée
-PARAM(int32_t, DIST_KD)
+DIST_KD = 0
 
 // Coeff permettant de diminuer les valeurs du PID
-PARAM(double, DIST_OUT_RATIO)
+DIST_OUT_RATIO = 0
 
 // Valeur de sortie maximum pour le moteur
-PARAM(int32_t, DIST_MAX_OUTPUT)
+DIST_MAX_OUTPUT = 0
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
-PARAM(int32_t, DIST_MAX_INTEGRAL)
+DIST_MAX_INTEGRAL = 0
 
 
 // PID en angle
 
 
 // Coeff proportionelle
-PARAM(int32_t, ANGLE_KP)
+ANGLE_KP = 0
 
 // Coeff intégrale
-PARAM(int32_t, ANGLE_KI)
+ANGLE_KI = 0
 
 // Coeff dérivée
-PARAM(int32_t, ANGLE_KD)
+ANGLE_KD = 0
 
 // Coeff permettant de diminuer les valeurs du PID
-PARAM(double, ANGLE_OUT_RATIO)
+ANGLE_OUT_RATIO = 0
 
 // Valeur de sortie maximum pour le moteur
-PARAM(int32_t, ANGLE_MAX_OUTPUT)
+ANGLE_MAX_OUTPUT = 0
 
 // Valeur maximum de l'intégrale (0 = filtre PD)
-PARAM(int32_t, ANGLE_MAX_INTEGRAL)
+ANGLE_MAX_INTEGRAL = 0
 
 
 // QUADRAMPDerivee (distance)
 
 // Vitesse max en marche avant
-PARAM(int32_t, DIST_QUAD_1ST_POS)
+DIST_QUAD_1ST_POS = 0
 
 // Vitesse max en marche arrière
-PARAM(int32_t, DIST_QUAD_1ST_NEG)
+DIST_QUAD_1ST_NEG = 0
 
 // Accélération max en marche avant
-PARAM(int32_t, DIST_QUAD_AV_2ND_ACC)
+DIST_QUAD_AV_2ND_ACC = 0
 
 // Décélération max en marche avant
-PARAM(int32_t, DIST_QUAD_AV_2ND_DEC)
+DIST_QUAD_AV_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en marche avant
-PARAM(int32_t, DIST_QUAD_AV_ANTICIPATION_GAIN_COEF)
+DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 0
 
 // Accélération max en marche arrière
-PARAM(int32_t, DIST_QUAD_AR_2ND_ACC)
+DIST_QUAD_AR_2ND_ACC = 0
 
 // Décélération max en marche arrière
-PARAM(int32_t, DIST_QUAD_AR_2ND_DEC)
+DIST_QUAD_AR_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en marche arrière
-PARAM(int32_t, DIST_QUAD_AR_ANTICIPATION_GAIN_COEF)
+DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 0
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-PARAM(int32_t, DIST_TAILLE_FENETRE_ARRIVEE)
+DIST_TAILLE_FENETRE_ARRIVEE = 0
 
 // Diviseur pour la vitesse faible en marche avant
-PARAM(int64_t, DIST_QUAD_AV_LOW_DIV)
+DIST_QUAD_AV_LOW_DIV = 0
 
 // Diviseur pour la vitesse faible en marche arrière
-PARAM(int64_t, DIST_QUAD_AR_LOW_DIV)
+DIST_QUAD_AR_LOW_DIV = 0
 
 // QUADRAMPDerivee (angle)
 
 
 // Vitesse max en rotation
-PARAM(int32_t, ANGLE_QUAD_1ST_POS)
+ANGLE_QUAD_1ST_POS = 0
 
 // Accélération max en rotation
-PARAM(int32_t, ANGLE_QUAD_2ND_ACC)
+ANGLE_QUAD_2ND_ACC = 0
 
 // Décélération max en rotation
-PARAM(int32_t, ANGLE_QUAD_2ND_DEC)
+ANGLE_QUAD_2ND_DEC = 0
 
 // Coeff déterminant le début de la rampe de décélération en rotation
-PARAM(int32_t, ANGLE_QUAD_ANTICIPATION_GAIN_COEF)
+ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 0
 
 // Largeur de la zone où l'on considère être arrivé (UO)
-PARAM(int32_t, ANGLE_TAILLE_FENETRE_ARRIVEE)
+ANGLE_TAILLE_FENETRE_ARRIVEE = 0
 
 
 //--------------------------//
@@ -263,12 +216,11 @@ PARAM(int32_t, ANGLE_TAILLE_FENETRE_ARRIVEE)
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-PARAM(int64_t, BLOCK_DIST_SPEED_THRESHOLD)
+BLOCK_DIST_SPEED_THRESHOLD = 0
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-PARAM(int64_t, BLOCK_ANGLE_SPEED_THRESHOLD)
+BLOCK_ANGLE_SPEED_THRESHOLD = 0
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
-PARAM(int64_t, BLOCK_TICK_THRESHOLD)
+BLOCK_TICK_THRESHOLD = 0
 
-#undef PARAM
