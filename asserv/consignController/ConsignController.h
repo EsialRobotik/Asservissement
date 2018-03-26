@@ -110,7 +110,7 @@ public:
 
     //Méthode permettant de réduire la vitesse du robot, en cas de calage bordure par exemple
     void setLowSpeed(bool b);
-    void setLowSpeedWithParam(bool b, unsigned char factor_div_back, unsigned char factor_div_forward);
+    void setLowSpeed(bool b, unsigned char factor_div_back, unsigned char factor_div_forward);
 
     void setLeftSpeed(int vit);
     void setRightSpeed(int vit);

@@ -14,9 +14,14 @@
 
 #include "../config/parameter.h"
 #include "../Utils/Utils.h"
-#include "EcouteI2c.h"
 
-//extern serial_t stdio_uart;
+#ifdef COM_I2C_ACTIVATE
+#include "EcouteI2c.h"
+#endif
+
+#ifdef COM_SERIE_ACTIVATE
+extern serial_t stdio_uart; //Verifier si util ?
+#endif
 
 extern "C" void HardFault_Handler()
 {
@@ -42,7 +47,7 @@ int main()
     //    serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
     // serial_baud(&stdio_uart, 230400); // GaG va être content
 
-    printf("--- Asservissement PMX ---\r\n");
+    printf("--- Asservissement ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
     LocalFileSystem local("local");
@@ -63,7 +68,6 @@ int main()
 #endif
 
     //On est prêt !
-    //printf("\r\nGOGO !");
     for (int n = 0; n < 10; n++) {
         wait_ms(50);
         refLed = 1;

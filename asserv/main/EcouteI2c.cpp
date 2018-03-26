@@ -551,7 +551,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             unsigned char back = cmd4[1];
                             unsigned char forward = cmd4[2];
 
-                            consignC->setLowSpeedWithParam(lowSpeedActivated, back, forward);
+                            consignC->setLowSpeed(lowSpeedActivated, back, forward);
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);

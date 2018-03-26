@@ -5,6 +5,9 @@
 #include "../config/config.h"
 #include "../odometrie/Odometrie.h"
 #include "../motorsController/Md25/Md25ctrl.h"
+//#include "../motorsController/Md22/Md22.h"
+//#include "../motorsController/Qik/Qik.h"
+//#include "../motorsController/PololuSMCs/PololuSMCs.h"
 #include "../motorsController/DummyMotorsController.h"
 #include "../consignController/ConsignController.h"
 #include "../commandManager/CommandManager.h"
@@ -12,7 +15,6 @@
 //#define LCD_ACTIVATE 1
 #define COM_SERIEPC_ACTIVATE 1
 
-#include "mbed.h"
 #include "../config/config.h"
 #include "../odometrie/Odometrie.h"
 #include "../motorsController/Md25/Md25ctrl.h"

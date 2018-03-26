@@ -5,8 +5,8 @@
 
 #include "../config/config.h"
 #include "../Utils/Utils.h"
+#include "../codeurs/CodeursInterface.h"
 
-class CodeursInterface;
 
 class Odometrie
 {
@@ -40,7 +40,7 @@ public:
     {
         return y;   // Renvoie la position en Y en UO par rapport au point de départ
     }
-    float getTheta()
+    double getTheta()
     {
         return theta;   // Renvoie l'angle en radians par rapport au cap de départ
     }
@@ -55,7 +55,7 @@ public:
     }
 
     // Variation de la position depuis la derniàre mise à jour
-    float getDeltaTheta()
+    double getDeltaTheta()
     {
         return deltaTheta;    // Variation du cap du robot
     }
@@ -102,11 +102,11 @@ private:
 
     // Position actuelle
     int64_t x, y; //En UO
-    float theta; //En radian
+    double theta; //En radian
 
     // Variation pour la mise a jour en cours
     int64_t deltaDist; // En UO
-    float deltaTheta; //En radian
+    double deltaTheta; //En radian
     int32_t compteurG; // Nombre de tics codeur G depuis dernier refresh
     int32_t compteurD; // Nombre de tics codeur D depuis dernier refresh
 
