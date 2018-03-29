@@ -6,7 +6,7 @@ extern DebugUDP *debugUdp;
 #endif
 
 // Constructeur
-Regulateur::Regulateur(bool isDistance) : filtreQuadRampDerivee(isDistance), filtrePid(isDistance)
+Regulateur::Regulateur(bool isDistance) : filtreQuadRampDerivee(isDistance), filtrePid(isDistance), erreurFiltreePrev(0)
 {
     filtreQuadRampDeriveeON = true;
     accumulateur = 0;
@@ -49,6 +49,11 @@ int64_t Regulateur::manage(int64_t consigne, int64_t feedback_odometrie)
     // On obtient alors la vitesse à envoyer aux moteurs pour corriger l'erreur courante
     int64_t erreurFiltree = filtrePid.filtre(erreur, feedback_odometrie);
 
+
+    int64_t deltaErreurFiltree = erreurFiltree-erreurFiltreePrev;
+    Utils::constrain(deltaErreurFiltree , -20 , +20);
+    erreurFiltree = erreurFiltreePrev + deltaErreurFiltree;
+
     //débug
 #ifdef DEBUG
 
@@ -75,6 +80,8 @@ int64_t Regulateur::manage(int64_t consigne, int64_t feedback_odometrie)
     debugUdp->addData(name, (double) erreurFiltree);
 
 #endif
+
+    erreurFiltreePrev = erreurFiltree;
 
     return erreurFiltree;
 }

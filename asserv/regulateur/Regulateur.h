@@ -60,6 +60,8 @@ private:
     bool filtreQuadRampDeriveeON;
 
     bool isDistance; //permet de savoir si cette instance de régulateur est utilisée pour la régulation de distance
+
+    int64_t erreurFiltreePrev; // valeur précedente de l'erreur filtrée.
 };
 
 
