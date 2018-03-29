@@ -8,7 +8,7 @@ extern DebugUDP *debugUdp;
 // Constructeur
 Regulateur::Regulateur(bool isDistance) : filtreQuadRampDerivee(isDistance), filtrePid(isDistance), erreurFiltreePrev(0)
 {
-    filtreQuadRampDeriveeON = true;
+    filtreQuadRampDeriveeON = false;
     accumulateur = 0;
     this->isDistance = isDistance;
 }
