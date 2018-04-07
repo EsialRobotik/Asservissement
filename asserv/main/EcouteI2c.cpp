@@ -90,14 +90,14 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 gotoLed = !gotoLed;
 
                 float2bytes_t x;
-                x.f = odo->getXmm();
+                x.f = (float) odo->getXmm();
                 cmd13[0] = x.bytes[0];
                 cmd13[1] = x.bytes[1];
                 cmd13[2] = x.bytes[2];
                 cmd13[3] = x.bytes[3];
                 //printf("      Write : %d %d %d %d\r\n", cmd13[0], cmd13[1], cmd13[2], cmd13[3]);
                 float2bytes_t y;
-                y.f = odo->getYmm();
+                y.f = (float) odo->getYmm();
                 cmd13[4] = y.bytes[0];
                 cmd13[5] = y.bytes[1];
                 cmd13[6] = y.bytes[2];
@@ -291,12 +291,12 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                         odo->setTheta(t.f);
 
 #ifdef DEBUG_COM_I2C
-                        printf("S12 x=%f  y=%f  t=%f \r\n", odo->getXmm(), odo->getYmm(), odo->getTheta());
+                        printf("S12 x=%f  y=%f  t=%f \r\n", (float) odo->getXmm(), (float) odo->getYmm(), odo->getTheta());
 #endif
 #ifdef LCD_ACTIVATE
                         lcd.cls();
                         lcd.locate(0, 0);
-                        lcd.printf("S12 x%.1f y%.1f t%.1f\n", odo->getXmm(), odo->getYmm(),
+                        lcd.printf("S12 x%.1f y%.1f t%.1f\n", (float) odo->getXmm(), (float) odo->getYmm(),
                                 odo->getTheta());
 #endif
                     } else {

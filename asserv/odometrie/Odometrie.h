@@ -45,13 +45,13 @@ public:
         return theta;   // Renvoie l'angle en radians par rapport au cap de départ
     }
 
-    float getXmm()
+    int32_t getXmm()
     {
-        return (float) Utils::UOTomm(this, x); // Renvoie la position en X en mm par rapport au point de départ
+        return Utils::UOTomm(this, x); // Renvoie la position en X en mm par rapport au point de départ
     }
-    float getYmm()
+    int32_t getYmm()
     {
-        return (float) Utils::UOTomm(this, y);   // Renvoie la position en Y en mm par rapport au point de départ
+        return Utils::UOTomm(this, y);   // Renvoie la position en Y en mm par rapport au point de départ
     }
 
     // Variation de la position depuis la derniàre mise à jour
@@ -59,11 +59,11 @@ public:
     {
         return deltaTheta;    // Variation du cap du robot
     }
-    int32_t getDeltaDist()
+    int64_t getDeltaDist()
     {
         return deltaDist;    // Variation de la distance du robot
     }
-    int32_t getDeltaThetaBrut()
+    int64_t getDeltaThetaBrut()
     {
         return compteurD - compteurG; // Variation d'angle en UO donnée par la différence de compte entre les codeurs
     }
@@ -73,7 +73,7 @@ public:
     {
         return frontParMetre;
     }
-    double getDistanceRouesUO()
+    int64_t getDistanceRouesUO()
     {
         return distanceRouesUO;
     }
@@ -93,8 +93,8 @@ private:
     // Variation pour la mise a jour en cours
     int64_t deltaDist; // En UO
     double deltaTheta; //En radian
-    int32_t compteurG; // Nombre de tics codeur G depuis dernier refresh
-    int32_t compteurD; // Nombre de tics codeur D depuis dernier refresh
+    int64_t compteurG; // Nombre de tics codeur G depuis dernier refresh * UO par front
+    int64_t compteurD; // Nombre de tics codeur D depuis dernier refresh * UO par front
 
     //Codeurs
     CodeursInterface* codeurs;
