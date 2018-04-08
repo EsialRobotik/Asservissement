@@ -7,3 +7,4 @@ LPC1768/*
 .cproject
 .settings/*
 
+build_config/build_config.mk

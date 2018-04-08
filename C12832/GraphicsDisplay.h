@@ -6,10 +6,12 @@
  * To port a new display, derive from this class and implement
  * the constructor (setup the display), pixel (put a pixel
  * at a location), width and height functions. Everything else
- * (locate, printf, putc, cls, window, putp, fill, blit, blitbit) 
+ * (locate, printf, putc, cls, window, putp, fill, blit, blitbit)
  * will come for free. You can also provide a specialised implementation
  * of window and putp to speed up the results
  */
+
+#if CONFIG_LCD_ACTIVATE
 
 #ifndef MBED_GRAPHICSDISPLAY_H
 #define MBED_GRAPHICSDISPLAY_H
@@ -53,4 +55,6 @@ protected:
 
 };
 
-#endif
+#endif /* MBED_GRAPHICSDISPLAY_H */
+
+#endif /* CONFIG_LCD_ACTIVATE */

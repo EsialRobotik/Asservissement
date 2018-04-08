@@ -5,6 +5,8 @@
  *      Author: pmx
  */
 
+#if CONFIG_COM_I2C_ACTIVATE
+
 #include "EcouteI2c.h"
 
 #include <DigitalOut.h>
@@ -17,16 +19,13 @@
 #include "../consignController/ConsignController.h"
 #include "../odometrie/Odometrie.h"
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 #endif
 
 //Definitions globales
-#ifdef COM_I2C_ACTIVATE
 I2CSlave slave(p9, p10);
-#endif
 
-#ifdef COM_I2C_ACTIVATE
 void ecouteI2cConfig()
 {
     slave.frequency(400000); //i2c freq 400khz
@@ -77,7 +76,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
         if (code == 0) {
             slave.write(ack, 1);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
             printf("\r\nI2CSlave::ReadAddressed ACK\r\n");
 #endif
         }
@@ -113,10 +112,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 cmd13[12] = commandM->getCommandStatus();
                 r = slave.write(cmd13, sizeof(cmd13));
                 if (r == 0) {
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                     //printf("p13 x=%f  y=%f  t=%f  s=%d\r\n", x.f, y.f, t.f,	commandM->getLastCommandStatus());
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                     lcd.cls();
                     lcd.locate(0, 0);
                     lcd.printf("p13 x%.1f y%.1f t%.1f", x.f, y.f, t.f);
@@ -144,7 +143,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
             if (r == 0)					//uniquement si ok.
                     {
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                 printf("I2CSlave::WriteAddressed: %c%d\r\n", buf[0], (int) buf[1]);
 #endif
                 code = buf[0];
@@ -162,10 +161,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     {
                 initAsserv(prun);
                 run = *prun;
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                 printf("%c -- initAsserv\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                 lcd.cls();
                 lcd.locate(0, 0);
                 lcd.printf("I0 INIT");
@@ -176,10 +175,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     {
                 stopAsserv(prun);
                 run = *prun;
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                 printf("%c -- stopAsserv\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                 lcd.cls();
                 lcd.locate(0, 0);
                 lcd.printf("!0 STOP ASSERV");
@@ -192,10 +191,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     //uniquement odométrie active
                     consignC->perform_On(false);
                     commandM->perform_On(false);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                     printf("%c -- stop consignC & commandM\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                     lcd.cls();
                     lcd.locate(0, 0);
                     lcd.printf("K0 STOP MANAGERS");
@@ -209,10 +208,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     //uniquement odométrie active
                     consignC->perform_On(true);
                     commandM->perform_On(true);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                     printf("%c -- activate consignC & commandM\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                     lcd.cls();
                     lcd.locate(0, 0);
                     lcd.printf("J0 ACTIV MANAGERS");
@@ -225,10 +224,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     {
                 if (run) {
                     commandM->setEmergencyStop();
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                     printf("%c -- EmergencyStop\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                     lcd.cls();
                     lcd.locate(0, 0);
                     lcd.printf("h0 EmergencyStop");
@@ -242,10 +241,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                     {
                 if (run) {
                     commandM->resetEmergencyStop();
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                     printf("%c -- resetEmergencyStop\r\n", code);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                     lcd.cls();
                     lcd.locate(0, 0);
                     lcd.printf("h0 EmergencyReset");
@@ -290,10 +289,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                         odo->setY(y.f);
                         odo->setTheta(t.f);
 
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                         printf("S12 x=%f  y=%f  t=%f \r\n", (float) odo->getXmm(), (float) odo->getYmm(), odo->getTheta());
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                         lcd.cls();
                         lcd.locate(0, 0);
                         lcd.printf("S12 x%.1f y%.1f t%.1f\n", (float) odo->getXmm(), (float) odo->getYmm(),
@@ -326,10 +325,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             mm.bytes[3] = cmd4[3];
 
                             commandM->addStraightLine(mm.f);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("v4 dist=%f \r\n", mm.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("v4 dist=%.1f\n", mm.f);
@@ -362,10 +361,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             mm.bytes[3] = cmd4[3];
 
                             consignC->add_dist_consigne(Utils::mmToUO(odo, mm.f));
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("V4 dist=%f \r\n", mm.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("V4 dist=%.1f\n", mm.f);
@@ -398,10 +397,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             deg.bytes[3] = cmd4[3];
 
                             commandM->addTurn(deg.f);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("t4 degrees=%f \r\n", deg.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("t4 deg=%0.1f\n", deg.f);
@@ -439,10 +438,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             y.bytes[3] = cmd8[7];
 
                             commandM->addGoToAngle(x.f, y.f);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("f8 x=%f y=%f\r\n", x.f, y.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("f8 x=%.1f y=%.1f\n", x.f, y.f);
@@ -479,10 +478,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             y.bytes[3] = cmd8[7];
 
                             commandM->addGoTo(x.f, y.f);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("g8 x=%f y=%f\r\n", x.f, y.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("g8 x=%.1f y=%.1f\n", x.f, y.f);
@@ -519,10 +518,10 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             y.bytes[3] = cmd8[7];
 
                             commandM->addGoToEnchainement(x.f, y.f);
-#ifdef DEBUG_COM_I2C
+#if CONFIG_DEBUG_COM_I2C
                             printf("e8 x=%f y=%f\r\n", x.f, y.f);
 #endif
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
                             lcd.cls();
                             lcd.locate(0, 0);
                             lcd.printf("e8 x=%.1f y=%.1f\n", x.f, y.f);
@@ -647,5 +646,5 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
     wait_us(5); //permet d'être détecté par USBPC !
 }
-#endif
 
+#endif /* CONFIG_COM_I2C_ACTIVATE */

@@ -11,6 +11,8 @@
  *              http://www.robot-electronics.co.uk/htm/md25i2c.htm
  *******************************************************************/
 
+#if CONFIG_MOTORCTRL_MD25
+
 /* Includes */
 #include "MD25.h"
 
@@ -638,3 +640,5 @@ int MD25::software_rev_num_get()
     /* Return software revision number */
     return data;
 }
+
+#endif /* CONFIG_MOTORCTRL_MD25 */

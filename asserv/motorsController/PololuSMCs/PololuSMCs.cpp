@@ -1,5 +1,5 @@
+#if CONFIG_MOTORCTRL_POLOLU_SMCS
 
-/*
 #include "../config/config.h"
 
 #include "PololuSMCs.h"
@@ -59,4 +59,4 @@ void PololuSMCs::vitesseD(int speed) {
     }
 }
 
-*/
+#endif /* CONFIG_MOTORCTRL_POLOLU_SMCS */

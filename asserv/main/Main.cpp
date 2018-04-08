@@ -16,12 +16,8 @@
 #include "../config/parameter.h"
 #include "../Utils/Utils.h"
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
 #include "EcouteI2c.h"
-#endif
-
-#ifdef COM_SERIE_ACTIVATE
-extern serial_t stdio_uart; //Verifier si util ?
 #endif
 
 extern "C" void HardFault_Handler()
@@ -71,11 +67,11 @@ int main()
     leftSpeed = 0;
     rightSpeed = 0;
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
     ecouteI2cConfig();
 #endif
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 
     lcd.cls();
     //lcd.invert(0);
@@ -86,15 +82,15 @@ int main()
 #endif
 
     while (1) {
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
         ecouteSerie();
 #endif
 
-#ifdef COM_SERIEPC_ACTIVATE
+#if CONFIG_COM_SERIEPC_ACTIVATE
         ecouteSeriePC();
 #endif
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
         ecouteI2c(consignController, commandManager, motorController, odometrie, &run);
 #endif
 
@@ -454,10 +450,19 @@ void initAsserv(bool *prun)
     if (odometrie == NULL)
         odometrie = new Odometrie();
     if (motorController == NULL)
+    {
+#   if CONFIG_MOTORCTRL_MD25
         motorController = new Md25ctrl(p28, p27);
-    //motorController = new Md22(p9, p10);
-    //motorController = new Qik(p9, p10);
-    //motorController = new PololuSMCs(p13, p14, p28, p27);
+#   elif CONFIG_MOTORCTRL_MD22
+        motorController = new Md22(p9, p10);
+#   elif CONFIG_MOTORCTRL_QIK
+        motorController = new Qik(p9, p10);
+#   elif CONFIG_MOTORCTRL_POLOLU_SMCS
+        motorController = new PololuSMCs(p13, p14, p28, p27);
+#   else
+#       error "Undefined motor controller; check build configuration"
+#   endif
+    }
 
     if (consignController == NULL)
         consignController = new ConsignController(odometrie, motorController);
@@ -502,7 +507,7 @@ void resetAsserv()
     //On reprend l'asserv
     initAsserv(&run);
 }
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
 static int mod = 0;
 #endif
 static int led = 0;
@@ -516,7 +521,7 @@ void Live_isr()
     if ((led++) % 500 == 0) {
         liveLed = 1 - liveLed;
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
         lcd.locate(0, 10);
         lcd.printf("x%.1f y%.1f t%.1f  \n",
                 (float) Utils::UOTomm(odometrie, odometrie->getX()),
@@ -535,7 +540,7 @@ void Live_isr()
 
     liveLed = 1 - liveLed;
 
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
     if ((mod++) % 20 == 0) {
         printf("#%" PRIi32 ";%" PRIi32 ";%lf;%" PRIi32 ";%" PRIi32 ";%" PRIi32 ";%" PRIi32 "\r\n",
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),

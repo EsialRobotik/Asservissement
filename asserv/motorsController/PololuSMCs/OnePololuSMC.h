@@ -1,6 +1,8 @@
+#if CONFIG_MOTORCTRL_POLOLU_SMCS
+
 #ifndef ONE_POLOLU_SMC
 #define ONE_POLOLU_SMC
-/*
+
 #include "../config/config.h"
 
 #include "mbed.h"
@@ -21,5 +23,7 @@ class OnePololuSMC {
   Serial* smcSerial;
 
 };
-*/
-#endif
+
+#endif /* ONE_POLOLU_SMC */
+
+#endif /* CONFIG_MOTORCTRL_POLOLU_SMCS */

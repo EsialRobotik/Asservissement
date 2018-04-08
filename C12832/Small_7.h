@@ -1,3 +1,5 @@
+#if CONFIG_LCD_ACTIVATE
+
 #ifndef small_7
 #define small_7
 
@@ -100,4 +102,6 @@ const unsigned char Small_7[] = { 19, 9, 9, 2,                                  
         0x03, 0xFE, 0x01, 0x02, 0x01, 0xFE, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00   // Code for char 
         };
 
-#endif        
+#endif /* small_7 */
+
+#endif /* CONFIG_LCD_ACTIVATE */

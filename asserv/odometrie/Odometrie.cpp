@@ -9,7 +9,7 @@
 #include "../main/Main.h"
 #include <cinttypes>
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 #endif
 
@@ -136,7 +136,7 @@ void Odometrie::refresh()
     } else {
         // TODO Vérifier qu'on ne perd pas l'accumulation dans ce mode
         printf("CG=%ld \t\tCD=%ld\r\n", compteurBrutG, compteurBrutD);
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
         lcd.locate(0, 10);
         lcd.printf("L=%ld R=%ld", compteurBrutG, compteurBrutD);
 #endif

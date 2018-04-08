@@ -12,6 +12,8 @@
  * THE SOFTWARE.
  */
 
+#if CONFIG_LCD_ACTIVATE
+
 // 13.10.12    initial design
 // 25.10.12    add autorefresh of screen
 // 25.10.12    add standart font
@@ -569,3 +571,4 @@ void C12832::print_bm(Bitmap bm, int x, int y)
 
 }
 
+#endif /* CONFIG_LCD_ACTIVATE */

@@ -5,23 +5,17 @@
 #include "../config/config.h"
 #include "../odometrie/Odometrie.h"
 #include "../motorsController/Md25/Md25ctrl.h"
-//#include "../motorsController/Md22/Md22.h"
-//#include "../motorsController/Qik/Qik.h"
-//#include "../motorsController/PololuSMCs/PololuSMCs.h"
+#include "../motorsController/Md22/Md22.h"
+#include "../motorsController/Qik/Qik.h"
+#include "../motorsController/PololuSMCs/PololuSMCs.h"
 #include "../motorsController/DummyMotorsController.h"
 #include "../consignController/ConsignController.h"
 #include "../commandManager/CommandManager.h"
 
-//#define LCD_ACTIVATE 1
-#define COM_SERIEPC_ACTIVATE 1
-
-
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 C12832 lcd(p5, p7, p6, p8, p11);
 #endif
-
-//#define ASSERV_PERIOD 0.002 //en s
 
 // Ticker pour l'interruption de la boucle d'asserv
 Ticker Live;

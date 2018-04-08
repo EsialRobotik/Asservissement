@@ -1,3 +1,5 @@
+#if CONFIG_MOTORCTRL_QIK
+
 #ifndef QIK
 #define QIK
 
@@ -20,4 +22,6 @@ private :
 
 };
 
-#endif
+#endif /* QIK */
+
+#endif /* CONFIG_MOTORCTRL_QIK */

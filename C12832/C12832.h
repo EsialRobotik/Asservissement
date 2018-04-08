@@ -12,6 +12,8 @@
  * THE SOFTWARE.
  */
 
+#if CONFIG_LCD_ACTIVATE
+
 #ifndef C12832_H
 #define C12832_H
 
@@ -201,7 +203,7 @@ public:
      */
     virtual void locate(int x, int y);
 
-    /** setup auto update of screen 
+    /** setup auto update of screen
      *
      * @param up 1 = on , 0 = off
      * if switched off the program has to call copy_to_lcd()
@@ -299,4 +301,6 @@ protected:
 
 };
 
-#endif
+#endif /* C12832_H */
+
+#endif /* CONFIG_LCD_ACTIVATE */
