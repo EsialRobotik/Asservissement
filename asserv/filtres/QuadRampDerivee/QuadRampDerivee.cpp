@@ -1,20 +1,10 @@
 #include "QuadRampDerivee.h"
 
-#ifdef DEBUG_UDP
-#include "../../debug/DebugUDP.h"
-extern DebugUDP *debugUdp;
-#endif
-
 //--------------------------------------------------------
 //                      QUADRAMPm
 //-------------------------------------------------------
 QuadRampDerivee::QuadRampDerivee(bool isDistance)
 {
-
-#ifdef DEBUG_UDP
-    this->isDistance = isDistance;
-#endif
-
     if (isDistance) {
         // Dérivées premières de la consigne ( dans notre cas, la vitesse )
         derivee_1ier_pos = Config::DIST_QUAD_1ST_POS;
@@ -100,23 +90,6 @@ int64_t QuadRampDerivee::filtre(int64_t consigne, int64_t position_actuelle , in
     prevConsigneVitesse = consigneVitesse;
 
     //printf("consigne=%lld position_pivot=%lld\r\n", consigne, position_pivot);
-
-    //Du debug
-#ifdef DEBUG_UDP
-
-    char name[32];
-
-    strcpy(name, "pivot");
-    name[5] = (isDistance ? 'D' : 'A');
-    name[6] = 0;
-    debugUdp->addData(name, (double) position_pivot);
-
-    strcpy(name, "consigneVitesse");
-    name[15] = (isDistance ? 'D' : 'A');
-    name[16] = 0;
-    debugUdp->addData(name, (double) consigneVitesse);
-
-#endif
 
     // On vérifie si on est dans la fenêtre d'arrivée et si oui, on est arrivé à la fin de la rampe
     if (llabs(consigne - position_actuelle) < tailleFenetreArrivee) {

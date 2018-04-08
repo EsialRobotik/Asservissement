@@ -1,10 +1,5 @@
 #include "ConsignController.h"
 
-//#define DEBUG
-#ifdef DEBUG_UDP
-#include "../debug/DebugUDP.h"
-#endif
-
 // Constructeur prenant deux objets initialisé avec l'asserv en paramètre
 ConsignController::ConsignController(Odometrie *odo, MotorsController *mot) :
         angle_regu(false), dist_regu(true)

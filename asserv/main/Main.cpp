@@ -59,12 +59,6 @@ int main()
     //initAsserv();
 
     gotoLed = 0;
-#ifdef DEBUG_UDP
-    debugUdp = new DebugUDP(commandManager, odometrie);
-    dataLed = 0;
-    receiveLed = 0;
-    liveLed = 0;
-#endif
 
     //On est prêt !
     for (int n = 0; n < 10; n++) {
@@ -504,10 +498,6 @@ void resetAsserv()
     printf("Réinitialisation de l'asserv...\r\n");
     stopAsserv(&run);
 
-#ifdef DEBUG_UDP
-    debugUdp->setNewObjectPointers(commandManager, odometrie);
-#endif
-
     ErrorLed = 0;
     //On reprend l'asserv
     initAsserv(&run);
@@ -555,30 +545,6 @@ void Live_isr()
                 (int32_t) commandManager->getPendingCommandCount(),
                 (int32_t) motorController->getVitesseG() * (Config::inverseMoteurG ? -1 : 1),
                 (int32_t) motorController->getVitesseD() * (Config::inverseMoteurD ? -1 : 1));
-    }
-#endif
-
-#ifdef DEBUG_UDP
-    temps++;
-    static int refreshPeriod = 0;
-
-    if (refreshPeriod++ == 10)
-    {
-        Net::poll();
-
-        if (debugUdp->getDebugSend())
-        {
-            debugUdp->addData("t", (double)(temps * 0.05));
-            debugUdp->sendData();
-            dataLed = 1 - dataLed;
-        }
-
-        refreshPeriod = 0;
-    }
-    else
-    {
-        dataLed = 0;
-        debugUdp->dropCurrentData();
     }
 #endif
 }

@@ -9,11 +9,6 @@
 #include "../main/Main.h"
 #include <cinttypes>
 
-#ifdef DEBUG_UDP
-#include "../debug/DebugUDP.h"
-extern DebugUDP *debugUdp;
-#endif
-
 #ifdef LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 #endif
@@ -146,28 +141,4 @@ void Odometrie::refresh()
         lcd.printf("L=%ld R=%ld", compteurBrutG, compteurBrutD);
 #endif
     }
-
-    //Si le débug est en route
-#ifdef DEBUG_UDP
-
-    if (debugUdp->getDebugSend())
-    {
-        /* on ajoute les valeurs et on les envoie */
-        //uint64_t XMM =  this->getXmm();
-        //uint64_t YMM =  this->getYmm();
-        debugUdp->addData("X", (double) x);
-        debugUdp->addData("Y", (double) y);
-        debugUdp->addData("Theta", (double) theta);
-        debugUdp->addData("deltaDist", (double) deltaDist);
-        debugUdp->addData("deltaTheta", (double) deltaTheta);
-        /*    udp_data_add("X",XMM);
-         udp_data_add("Y", YMM);
-         udp_data_add("T", this->getThetaDeg() );
-         udp_data_add("Vl", deltaDist/(frontParMetre*Config::uOParFront)*1000 );
-         udp_data_add("Va", deltaTheta*180/PI );
-         */
-    }
-
-#endif
-
 }

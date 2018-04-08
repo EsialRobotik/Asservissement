@@ -16,9 +16,6 @@
 #define COM_SERIEPC_ACTIVATE 1
 
 
-#ifdef DEBUG_UDP
-#include "../debug/DebugUDP.h"
-#endif
 #ifdef LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 C12832 lcd(p5, p7, p6, p8, p11);
@@ -58,13 +55,5 @@ DigitalOut liveLed(LED4); //clignote si Live_isr est en route
 DigitalOut gotoLed(LED3); //clignote a chaque nouvelle commande
 
 DigitalOut ErrorLed(LED1);
-
-#ifdef DEBUG_UDP
-DigitalOut dataLed(LED1);
-char debugLedStatus;
-DebugUDP *debugUdp;
-UDPSocket udp;
-uint64_t temps;
-#endif
 
 #endif
