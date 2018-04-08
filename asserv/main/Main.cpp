@@ -393,6 +393,10 @@ void ecouteSerie() //TODO Corriger les double/float/int64
     switch (c) {
     //Commandes basiques
 
+    case 'I': // start l'asserv
+        initAsserv(&run);
+        break;
+
     case 'h': //Arrêt d'urgence
         commandManager->setEmergencyStop();
 
