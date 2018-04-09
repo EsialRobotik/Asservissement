@@ -54,6 +54,20 @@
 // Exemple : 2013030801 : révision 01 le 08/03/2013
 PARAM(int32_t, configVersion)
 
+//----------------------------------//
+//  Configuration des branchements  //
+//----------------------------------//
+
+// Pin pour le codeur (direct) gauche, channel A
+PARAM(int32_t, pinCodeurGchA)
+// Pin pour le codeur (direct) gauche, channel B
+PARAM(int32_t, pinCodeurGchB)
+
+// Pin pour le codeur (direct) droit, channel A
+PARAM(int32_t, pinCodeurDchA)
+// Pin pour le codeur (direct) droit, channel B
+PARAM(int32_t, pinCodeurDchB)
+
 //--------------------------//
 //     Modes de réglage     //
 //--------------------------//

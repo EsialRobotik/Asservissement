@@ -7,6 +7,20 @@
 // Exemple : 2013030801 : révision 01 le 08/03/2013
 configVersion = 0
 
+//----------------------------------//
+//  Configuration des branchements  //
+//----------------------------------//
+
+// Pin pour le codeur (direct) gauche, channel A
+pinCodeurGchA = 0
+// Pin pour le codeur (direct) gauche, channel B
+pinCodeurGchB = 0
+
+// Pin pour le codeur (direct) droit, channel A
+pinCodeurDchA = 0
+// Pin pour le codeur (direct) droit, channel B
+pinCodeurDchB = 0
+
 //--------------------------//
 //     Modes de réglage     //
 //--------------------------//

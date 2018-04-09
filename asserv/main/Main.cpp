@@ -447,8 +447,25 @@ void initAsserv(bool *prun)
     printf("Creation des objets si necessaire... \r\n");
     fflush (stdout);
 
+    if(codeurs == NULL)
+    {
+#   if CONFIG_CODEUR_DIRECTS
+        // Avec des codeurs branchés directement sur la Mbed
+        codeurs = new CodeursDirects(Config::pinNameList[Config::pinCodeurGchA],
+                                     Config::pinNameList[Config::pinCodeurGchB],
+                                     Config::pinNameList[Config::pinCodeurDchA],
+                                     Config::pinNameList[Config::pinCodeurDchB]);
+#   elif CONFIG_CODEUR_AVR
+        // Avec des codeurs branchés sur un AVR avec lequel on communique en SPI
+        codeurs = new CodeursAVR(p5, p6, p7, p8);
+#   else
+#       error "Undefined encoder interface; check build configuration"
+#   endif
+    }
+
     if (odometrie == NULL)
-        odometrie = new Odometrie();
+        odometrie = new Odometrie(codeurs);
+
     if (motorController == NULL)
     {
 #   if CONFIG_MOTORCTRL_MD25
@@ -483,9 +500,12 @@ void stopAsserv(bool *prun)
     leftSpeed = 0;
     rightSpeed = 0;
 
-    // On détruit tout les objets (sauf les moteurs, on s'en fiche de ça)
+    // On détruit tout les objets
     delete odometrie;
     odometrie = NULL;
+
+    delete codeurs;
+    codeurs = NULL;
 
     delete consignController;
     consignController = NULL;

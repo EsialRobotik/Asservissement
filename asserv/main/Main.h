@@ -3,6 +3,8 @@
 
 #include "mbed.h"
 #include "../config/config.h"
+#include "../codeurs/CodeursDirects.h"
+#include "../codeurs/CodeursAVR.h"
 #include "../odometrie/Odometrie.h"
 #include "../motorsController/Md25/Md25ctrl.h"
 #include "../motorsController/Md22/Md22.h"
@@ -40,6 +42,7 @@ void parseCommandeConfig(void);
 
 
 // Objets qui vont bien pour asservir le bestiau
+CodeursInterface *codeurs;
 Odometrie *odometrie;
 MotorsController *motorController;
 ConsignController *consignController;

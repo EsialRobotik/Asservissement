@@ -5,7 +5,21 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2017031201
+configVersion = 2018040901
+
+//----------------------------------//
+//  Configuration des branchements  //
+//----------------------------------//
+
+// Pin pour le codeur (direct) gauche, channel A
+pinCodeurGchA = 22
+// Pin pour le codeur (direct) gauche, channel B
+pinCodeurGchB = 21
+
+// Pin pour le codeur (direct) droit, channel A
+pinCodeurDchA = 17
+// Pin pour le codeur (direct) droit, channel B
+pinCodeurDchB = 18
 
 //--------------------------//
 //     Modes de réglage     //
@@ -216,11 +230,11 @@ ANGLE_TAILLE_FENETRE_ARRIVEE = 200000
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-BLOCK_DIST_SPEED_THRESHOLD = 0
+BLOCK_DIST_SPEED_THRESHOLD = 1024
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-BLOCK_ANGLE_SPEED_THRESHOLD = 0
+BLOCK_ANGLE_SPEED_THRESHOLD = 1024
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
-BLOCK_TICK_THRESHOLD = 0
+BLOCK_TICK_THRESHOLD = 500
 

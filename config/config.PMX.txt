@@ -5,7 +5,21 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2018032101
+configVersion = 2018040901
+
+//----------------------------------//
+//  Configuration des branchements  //
+//----------------------------------//
+
+// Pin pour le codeur (direct) gauche, channel A
+pinCodeurGchA = 22
+// Pin pour le codeur (direct) gauche, channel B
+pinCodeurGchB = 21
+
+// Pin pour le codeur (direct) droit, channel A
+pinCodeurDchA = 17
+// Pin pour le codeur (direct) droit, channel B
+pinCodeurDchB = 18
 
 //--------------------------//
 //     Modes de réglage     //
@@ -61,7 +75,7 @@ frontParMetreCodeurG = 20830.0
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
 frontParMetreCodeurD = 20830.0
 
-// Distance entre les roues codeuses en mm //258 en 2017!
+// Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
 distRoues = 258
 
@@ -186,6 +200,11 @@ DIST_QUAD_AR_ANTICIPATION_GAIN_COEF = 270
 // Largeur de la zone où l'on considère être arrivé (UO)
 DIST_TAILLE_FENETRE_ARRIVEE = 200000
 
+// Diviseur pour la vitesse faible en marche avant
+DIST_QUAD_AV_LOW_DIV = 0
+
+// Diviseur pour la vitesse faible en marche arrière
+DIST_QUAD_AR_LOW_DIV = 0
 
 // QUADRAMPDerivee (angle)
 
@@ -204,3 +223,18 @@ ANGLE_QUAD_ANTICIPATION_GAIN_COEF = 270
 
 // Largeur de la zone où l'on considère être arrivé (UO)
 ANGLE_TAILLE_FENETRE_ARRIVEE = 200000
+
+
+//--------------------------//
+//   Detection de blocage   //
+//--------------------------//
+
+// Seuil de détection du blocage pour la distance (en UO/tick)
+BLOCK_DIST_SPEED_THRESHOLD = 1024
+
+// Seuil de détection du blocage pour l'angle (en UO/tick)
+BLOCK_ANGLE_SPEED_THRESHOLD = 1024
+
+// Si on ne bouge pas pendant ce nombre de tick, on signale l'info
+BLOCK_TICK_THRESHOLD = 500
+

@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "../codeurs/CodeursDirects.h"
 #include "../main/Main.h"
 #include <cinttypes>
 
@@ -18,16 +17,13 @@
  * Lors de la création de l'objet, on calcul la distance entre les roues en UO et le nombre d'UO par front
  * Les infos nécessaires au calcul sont dans config.h
  */
-Odometrie::Odometrie()
+Odometrie::Odometrie(CodeursInterface *cdrs)
 {
-
     deltaDist = 0;
     deltaTheta = 0;
 
-    //Instanciation des codeurs
-    //codeurs = new CodeursDirects(p25, p26, p15, p16); //Avec des codeurs branchés directement sur la Mbed
-    //PMX TODO a mettre en fichier de config ?
-    codeurs = new CodeursDirects(p22, p21, p17, p18); //Avec des codeurs branchés directement sur la Mbed version PMX
+    // On récupère les codeurs
+    codeurs = cdrs;
 
     // Initialisation des compteurs
     compteurG = 0;
@@ -62,14 +58,10 @@ Odometrie::Odometrie()
 
     // Calcul de la distance entre les roues en UO
     distanceRouesUO = Config::distRoues * frontParMetre * Config::uOParFront / 1000.0;
-
 }
 
 // Destructeur
-Odometrie::~Odometrie()
-{
-    delete codeurs;
-}
+Odometrie::~Odometrie() { }
 
 void Odometrie::setX(int64_t xval)
 {

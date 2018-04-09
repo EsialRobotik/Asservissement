@@ -17,7 +17,7 @@ public:
      * Lors de la création de l'objet, on calcul la distance entre les roues en UO et le nombre d'UO par front
      * Les infos nécessaires au calcul sont dans config.h
      */
-    Odometrie();
+    Odometrie(CodeursInterface *cdrs);
     ~Odometrie();
 
     // Paramétrage de la position du robot
