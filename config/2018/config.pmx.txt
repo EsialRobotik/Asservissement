@@ -5,7 +5,7 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2018040901
+configVersion = 2018042801
 
 //----------------------------------//
 //  Configuration des branchements  //

@@ -138,12 +138,10 @@ void ecouteSeriePC()
      p / get Position / Récupère la position et le cap du robot sur la connexion i2c, sous la forme de 3 types float (3 * 4 bytes), avec x, y, et a les coordonnées et l'angle du robot.
      S / set Position / applique la nouvelle position du robot
 
-     z / avance de 10 cm
-     s / recule de 10 cm
+     z / avance de 20 cm
+     s / recule de 20 cm
      q / tourne de 45° (gauche)
      d / tourne de -45° (droite)
-
-     --c / calage bordure
 
      M / modifie la valeur d'un paramètre / name, value
      R / réinitialiser l'asserv
@@ -153,7 +151,7 @@ void ecouteSeriePC()
      W / sauvegarde la config courante  config~1.txt = config.default.txt
 
      I / Active les actions dans la boucle d'asservissement (odo + managers)
-     ! / Stoppes actions dans la boucle d'asservissement
+     ! / Stoppe actions dans la boucle d'asservissement
      K / desactive le consignController et le commandManager
      J / reactive le consignController et le commandManager
 
@@ -189,7 +187,7 @@ void ecouteSeriePC()
         case 'z':
             if (!run || !consignController->on())
                 break;
-            // Go 10cm
+            // Go 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(Utils::mmToUO(odometrie, 200));
             //pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
@@ -198,7 +196,7 @@ void ecouteSeriePC()
         case 's':
             if (!run || !consignController->on())
                 break;
-            // Backward 10cm
+            // Backward 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 200));
             //pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
@@ -264,9 +262,11 @@ void ecouteSeriePC()
             break;
 
         case 'I': // start l'asserv
+            pc.printf("I start Asserv");
             initAsserv(&run);
             break;
         case '!': // stop/quit l'asserv
+            pc.printf("! stop Asserv");
             stopAsserv(&run);
             break;
 
@@ -459,7 +459,7 @@ void initAsserv(bool *prun)
         // Avec des codeurs branchés sur un AVR avec lequel on communique en SPI
         codeurs = new CodeursAVR(p5, p6, p7, p8);
 #   else
-#       error "Undefined encoder interface; check build configuration"
+//#       error "Undefined encoder interface; check build configuration"
 #   endif
     }
 
@@ -477,7 +477,7 @@ void initAsserv(bool *prun)
 #   elif CONFIG_MOTORCTRL_POLOLU_SMCS
         motorController = new PololuSMCs(p13, p14, p28, p27);
 #   else
-#       error "Undefined motor controller; check build configuration"
+//#       error "Undefined motor controller; check build configuration"
 #   endif
     }
 

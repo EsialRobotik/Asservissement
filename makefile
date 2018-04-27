@@ -32,16 +32,7 @@ configs: $(CONFIGS)
 $(CONFIGS): asserv/config/params.h
 	@echo Regénération $@
 	$(Q) $(PYTHON) gen_config.py $< $@
-
-# TODO les règles "deploy" ne marchent plus avec le dossier de config
-deploy-default:
-	$(Q) $(subst PROJECT.bin,config.default.txt,$(LPC_DEPLOY))
-
-deploy-%:
-	$(Q) $(eval DIR=$(shell mktemp -d))
-	$(Q) cp config.$(subst deploy-,,$@).txt $(DIR)/config.txt
-	$(Q) $(subst PROJECT.bin,$(DIR)/config.txt,$(LPC_DEPLOY))
-	$(Q) rm -rf $(DIR)
+	
 
 all: $(DEVICES) configs build_config/build_config.mk
 term:

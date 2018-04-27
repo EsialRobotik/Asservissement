@@ -20,9 +20,8 @@ class Odometrie;
 int code = 0;
 int nbdata = 0;
 
-
 // convert float to byte array  source: http://mbed.org/forum/helloworld/topic/2053/
-union float2bytes_t   // union consists of one variable represented in a number of different ways
+union float2bytes_t// union consists of one variable represented in a number of different ways
 {
     float f;
     unsigned char bytes[sizeof(float)];

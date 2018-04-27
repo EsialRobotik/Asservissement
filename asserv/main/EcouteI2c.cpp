@@ -29,7 +29,7 @@ I2CSlave slave(p9, p10);
 void ecouteI2cConfig()
 {
     slave.frequency(400000); //i2c freq 400khz
-    slave.address(I2C_SLAVE_ADDRESS << 1); //We shift it left because mbed takes in 8 bit addresses
+    slave.address(I2C_SLAVE_ADDRESS << 1);//We shift it left because mbed takes in 8 bit addresses
 
 }
 
@@ -72,7 +72,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
     int i = slave.receive();
     switch (i) {
-    case I2CSlave::ReadAddressed:
+        case I2CSlave::ReadAddressed:
 
         if (code == 0) {
             slave.write(ack, 1);
@@ -103,7 +103,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 cmd13[7] = y.bytes[3];
                 //printf("      Write : %d %d %d %d\r\n", cmd13[4], cmd13[5], cmd13[6], cmd13[7]);
                 float2bytes_t t;
-                t.f = odo->getTheta();
+                t.f = (float) odo->getTheta();
                 cmd13[8] = t.bytes[0];
                 cmd13[9] = t.bytes[1];
                 cmd13[10] = t.bytes[2];
@@ -132,17 +132,17 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
         break;
 
-    case I2CSlave::WriteGeneral:
+        case I2CSlave::WriteGeneral:
         //slave.read(buf, sizeof(buf));
         //printf("Read G: %s\r\n", buf);
         break;
 
-    case I2CSlave::WriteAddressed:
+        case I2CSlave::WriteAddressed:
         if (code == 0) {
             r = slave.read(buf, 2); //2 bytes => 0.5ms
 
-            if (r == 0)					//uniquement si ok.
-                    {
+            if (r == 0)//uniquement si ok.
+            {
 #if CONFIG_DEBUG_COM_I2C
                 printf("I2CSlave::WriteAddressed: %c%d\r\n", buf[0], (int) buf[1]);
 #endif
@@ -157,8 +157,8 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
             //cas des commandes sans parametre
 
-            if (code == 'I') 		//------ I / Active les actions dans la boucle d'asservissement
-                    {
+            if (code == 'I')//------ I / Active les actions dans la boucle d'asservissement
+            {
                 initAsserv(prun);
                 run = *prun;
 #if CONFIG_DEBUG_COM_I2C
@@ -172,7 +172,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == '!') // !  Stoppes actions dans la boucle d'asservissement et supprime les objets
-                    {
+            {
                 stopAsserv(prun);
                 run = *prun;
 #if CONFIG_DEBUG_COM_I2C
@@ -186,7 +186,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'K')  	// K / desactive le consignController et le commandManager
-                    {
+            {
                 if (run) {
                     //uniquement odométrie active
                     consignC->perform_On(false);
@@ -203,7 +203,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'J') 	// J / reactive le consignController et le commandManager
-                    {
+            {
                 if (run) {
                     //uniquement odométrie active
                     consignC->perform_On(true);
@@ -221,7 +221,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 nbdata = 0;
             } else if (code == 'h') // h / Halte ! / Arrêt d'urgence ! Le robot est ensuite systématiquement asservi à sa position actuelle.
                                     //Cela devrait suffire à arrêter le robot correctement. La seule commande acceptée par la suite sera un Reset de l'arrêt d'urgence : toute autre commande sera ignorée.
-                    {
+            {
                 if (run) {
                     commandM->setEmergencyStop();
 #if CONFIG_DEBUG_COM_I2C
@@ -238,7 +238,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
             } else if (code == 'r') // r / Reset de l'arrêt d'urgence / Remet le robot dans son fonctionnement normal après un arrêt d'urgence.
                                     //	Les commandes en cours au moment de l'arrêt d'urgence NE sont PAS reprises. Si le robot n'est pas en arrêt d'urgence, cette commande n'a aucun effet.
 
-                    {
+            {
                 if (run) {
                     commandM->resetEmergencyStop();
 #if CONFIG_DEBUG_COM_I2C
@@ -256,7 +256,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
         } else //cas des parametres uniquement s'il y en a
         {
             if (code == 'S') 		// S / set Position / applique la nouvelle position du robot
-                    {
+            {
                 if (nbdata != sizeof(cmd)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -285,18 +285,17 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                         t.bytes[3] = cmd[11];
 
                         // set position
-                        odo->setX(x.f); //mm
+                        odo->setX(x.f);//mm
                         odo->setY(y.f);
                         odo->setTheta(t.f);
 
 #if CONFIG_DEBUG_COM_I2C
-                        printf("S12 x=%f  y=%f  t=%f \r\n", (float) odo->getXmm(), (float) odo->getYmm(), odo->getTheta());
+                        printf("S12 x=%f  y=%f  t=%f \r\n", (float) odo->getXmm(), (float) odo->getYmm(), (float) odo->getTheta());
 #endif
 #if CONFIG_LCD_ACTIVATE
                         lcd.cls();
                         lcd.locate(0, 0);
-                        lcd.printf("S12 x%.1f y%.1f t%.1f\n", (float) odo->getXmm(), (float) odo->getYmm(),
-                                odo->getTheta());
+                        lcd.printf("S12 x%.1f y%.1f t%.1f\n", (float) odo->getXmm(), (float) odo->getYmm(), (float) odo->getTheta());
 #endif
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
@@ -306,7 +305,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'v') // v%d\n / aVancer / d : entier, en mm / Fait avancer le robot de d mm, tout droit
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n", code, nbdata, sizeof(cmd4));
                     ErrorLed = 1;
@@ -342,7 +341,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'V') // V%d\n / aVancer / d : entier, en mm / Fait avancer le robot de d mm, juste avec la consigne
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata %d != sizeof(cmd) %d !\r\n", code, nbdata, sizeof(cmd4));
                     ErrorLed = 1;
@@ -378,7 +377,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 't') // t%a\n / Tourner / a : entier, en degrées / Fait tourner le robot de a degrées. Le robot tournera dans le sens trigonométrique : si a est positif, il tourne à gauche, et vice-versa.
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -414,7 +413,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'f') // f%x%y / faire Face / x, y : entiers, en mm / Fait tourner le robot pour être en face du point de coordonnées (x, y). En gros, ça réalise la première partie d'un Goto : on se tourne vers le point cible, mais on avance pas.
-                    {
+            {
                 if (nbdata != sizeof(cmd8)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -455,7 +454,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'g') //  g%x#%y\n / Goto / x, y : entiers, en mm /Le robot se déplace au point de coordonnée (x, y). Il tourne vers le point, puis avance en ligne droite. L'angle est sans cesse corrigé pour bien viser le point voulu.
-                    {
+            {
                 if (nbdata != sizeof(cmd8)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -495,7 +494,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'e') //  e%x#%y\n / goto Enchaîné / x, y : entiers, en mm / Idem que le Goto, sauf que lorsque le robot est proche du point d'arrivée (x, y), on s'autorise à enchaîner directement la consigne suivante si c'est un Goto ou un Goto enchaîné, sans marquer d'arrêt.
-                    {
+            {
                 if (nbdata != sizeof(cmd8)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -535,7 +534,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'l') // set low speed or not
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -560,7 +559,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'A') // set angle regu
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -573,9 +572,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
                             bool activated = cmd4[0];
                             if (activated)
-                                consignC->angle_Regu_On(true);
+                            consignC->angle_Regu_On(true);
                             else
-                                consignC->angle_Regu_On(false);
+                            consignC->angle_Regu_On(false);
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
@@ -585,7 +584,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'D') // set dist regu
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -598,9 +597,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
                             bool activated = cmd4[0];
                             if (activated)
-                                consignC->dist_Regu_On(true);
+                            consignC->dist_Regu_On(true);
                             else
-                                consignC->dist_Regu_On(false);
+                            consignC->dist_Regu_On(false);
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
@@ -610,7 +609,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                 code = 0;
                 nbdata = 0;
             } else if (code == 'R') // reset regu
-                    {
+            {
                 if (nbdata != sizeof(cmd4)) {
                     printf("ERROR I2CSlave::WriteAddressed (code=%c) : nbdata != sizeof(cmd) !\r\n", code);
                     ErrorLed = 1;
@@ -623,9 +622,9 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
                             int activated = cmd4[0];
                             if (activated == 0)
-                                consignC->reset_regu_angle();
+                            consignC->reset_regu_angle();
                             else
-                                consignC->reset_regu_dist();
+                            consignC->reset_regu_dist();
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);
@@ -640,11 +639,11 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
     }
 
     for (unsigned int i = 0; i < sizeof(buf); i++)
-        buf[i] = 0;    // Clear buffer
+    buf[i] = 0;    // Clear buffer
     for (unsigned int i = 0; i < sizeof(cmd); i++)
-        cmd[i] = 0;    // Clear buffer
+    cmd[i] = 0;// Clear buffer
 
-    wait_us(5); //permet d'être détecté par USBPC !
+    wait_us(5);//permet d'être détecté par USBPC !
 }
 
 #endif /* CONFIG_COM_I2C_ACTIVATE */
