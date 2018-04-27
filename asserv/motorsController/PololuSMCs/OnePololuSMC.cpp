@@ -1,5 +1,5 @@
+#if CONFIG_MOTORCTRL_POLOLU_SMCS
 
-/*
 #include "../config/config.h"
 
 #include "OnePololuSMC.h"
@@ -50,4 +50,5 @@ void OnePololuSMC::setSpeed(int speed) {
     smcSerial->putc((uint8_t)(abs(speed)<=100 ? abs(speed) : 100));
 
 }
-*/
+
+#endif /* CONFIG_MOTORCTRL_POLOLU_SMCS */

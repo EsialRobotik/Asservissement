@@ -10,6 +10,22 @@ const Parameter Config::params[] = {
 #   include "params.h"
 };
 
+const PinName Config::pinNameList[] =
+{
+    (PinName) NULL, // p0 n'existe pas
+    (PinName) NULL, // p1 n'existe pas
+    (PinName) NULL, // p2 n'existe pas
+    (PinName) NULL, // p3 n'existe pas
+    (PinName) NULL, // p4 n'existe pas
+         p5,  p6,  p7,
+    p8,  p9,  p10, p11,
+    p12, p13, p14, p15,
+    p16, p17, p18, p19,
+    p20, p21, p22, p23,
+    p24, p25, p26, p27,
+    p28, p29, p30
+};
+
 const Parameter *Config::getParam(std::string name)
 {
     for (size_t i = 0; i < sizeof(Config::params) / sizeof(*Config::params); i++) {
@@ -123,7 +139,7 @@ std::string Config::dumpConfig() {
     std::ostringstream out;
     for (size_t i = 0; i < sizeof(Config::params) / sizeof(*Config::params); i++) {
         const Parameter *p = &(Config::params[i]);
-        out << p->getName() << " = " << p->toString() << endl;
+        out << p->getName() << " = " << p->toString() << "\r" << endl;
     }
     return out.str();
 }

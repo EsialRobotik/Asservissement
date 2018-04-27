@@ -3,7 +3,7 @@
 
 #include "MotorsController.h"
 
-class DummyMotorsController : public MotorsController
+class DummyMotorsController: public MotorsController
 {
 private:
     int vitMoteurG = 0;

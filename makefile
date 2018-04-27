@@ -19,6 +19,11 @@ GPFLAGS=-DDATE_COMPIL='"$(shell date)"' -DAUTEUR_COMPIL='"$(USER)"' -DGIT_VERSIO
 PYTHON?=/usr/bin/python
 NEWLIB_NANO=0
 
+# On récupère les options de configs. Si le fichier build_config.mk
+# n'existe pas, il doit être créé à partir de build_config.default.mk
+CONFIG_FLAGS:=$(shell sed 's/\#.*//' build_config/build_config.mk)
+GPFLAGS:=$(GPFLAGS) $(patsubst %, -DCONFIG_%, $(CONFIG_FLAGS))
+
 include $(GCC4MBED_DIR)/build/gcc4mbed.mk
 
 CONFIGS:=$(shell find config -name "*.txt")
@@ -27,18 +32,9 @@ configs: $(CONFIGS)
 $(CONFIGS): asserv/config/params.h
 	@echo Regénération $@
 	$(Q) $(PYTHON) gen_config.py $< $@
+	
 
-# TODO les règles "deploy" ne marchent plus avec le dossier de config
-deploy-default:
-	$(Q) $(subst PROJECT.bin,config.default.txt,$(LPC_DEPLOY))
-
-deploy-%:
-	$(Q) $(eval DIR=$(shell mktemp -d))
-	$(Q) cp config.$(subst deploy-,,$@).txt $(DIR)/config.txt
-	$(Q) $(subst PROJECT.bin,$(DIR)/config.txt,$(LPC_DEPLOY))
-	$(Q) rm -rf $(DIR)
-
-all: $(DEVICES) configs
+all: $(DEVICES) configs build_config/build_config.mk
 term:
 	picocom /dev/ttyACM0 -b 230400 --imap lfcrlf
 

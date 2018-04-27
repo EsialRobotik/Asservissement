@@ -1,6 +1,8 @@
+#if CONFIG_CODEUR_AVR
+
 #ifndef CODEUR_AVR
 #define CODEUR_AVR
-/*
+
 #include "mbed.h"
 #include "../config/config.h"
 #include "CodeursInterface.h"
@@ -21,5 +23,7 @@ class CodeursAVR : public CodeursInterface {
     SPI spiToAVR;
     DigitalOut slaveSelect;
 };
-*/
-#endif
+
+#endif /* CODEUR_AVR */
+
+#endif /* CONFIG_CODEUR_AVR */
