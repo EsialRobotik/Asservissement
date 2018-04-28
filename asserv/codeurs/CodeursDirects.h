@@ -1,3 +1,5 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #ifndef CODEUR_DIRECT
 #define CODEUR_DIRECT
 
@@ -24,4 +26,6 @@ private:
     int32_t lastCountG;
 };
 
-#endif
+#endif /* CODEUR_DIRECT */
+
+#endif /* CONFIG_CODEUR_DIRECTS */

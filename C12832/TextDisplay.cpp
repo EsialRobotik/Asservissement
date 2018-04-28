@@ -3,6 +3,8 @@
  * Released under the MIT License: http://mbed.org/license/mit
  */
 
+#if CONFIG_LCD_ACTIVATE
+
 #include "TextDisplay.h"
 
 TextDisplay::TextDisplay(const char *name) :
@@ -84,3 +86,5 @@ bool TextDisplay::claim(FILE *stream)
     setvbuf(stdout, NULL, _IOLBF, columns());
     return true;
 }
+
+#endif /* CONFIG_LCD_ACTIVATE */

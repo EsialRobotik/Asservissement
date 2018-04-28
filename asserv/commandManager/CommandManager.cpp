@@ -315,13 +315,6 @@ void CommandManager::computeEnchainement()
         currCMD = nextCMD; // La consigne suivante devient la consigne courante
         nextCMD = liste->dequeue(); // On essaye de récupérer la prochaine consigne
 
-        //TODO a changer pour l'I2C
-#ifdef COM_SERIE_ACTIVATE
-        // On vient de terminer la consigne courante, on le signale en haut lieu
-        putchar('d');
-        putchar('\r');
-        putchar('\n');
-#endif
         // Le reste, c'est pas grave, on le calculera à la prochaine itération
     }
 

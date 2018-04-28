@@ -5,6 +5,8 @@
  *      Author: pmx
  */
 
+#if CONFIG_MOTORCTRL_MD25
+
 #include "Md25ctrl.h"
 
 #include <DigitalOut.h>
@@ -142,3 +144,5 @@ void Md25ctrl::setVitesseD(int vitMoteurD)
 
     this->vitMoteurD_ = vitMoteurD;
 }
+
+#endif /* CONFIG_MOTORCTRL_MD25 */

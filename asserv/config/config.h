@@ -20,6 +20,7 @@ public:
     static void loadFile(const char *filename);
     static void saveToFile(const char *template_filename, const char *filename);
     static std::string dumpConfig();
+    static const PinName pinNameList[];
 
 private:
     static const Parameter params[];

@@ -5,16 +5,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "../codeurs/CodeursDirects.h"
 #include "../main/Main.h"
 #include <cinttypes>
 
-#ifdef DEBUG_UDP
-#include "../debug/DebugUDP.h"
-extern DebugUDP *debugUdp;
-#endif
-
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 #include "../../C12832/C12832.h"
 #endif
 
@@ -23,16 +17,13 @@ extern DebugUDP *debugUdp;
  * Lors de la création de l'objet, on calcul la distance entre les roues en UO et le nombre d'UO par front
  * Les infos nécessaires au calcul sont dans config.h
  */
-Odometrie::Odometrie()
+Odometrie::Odometrie(CodeursInterface *cdrs)
 {
-
     deltaDist = 0;
     deltaTheta = 0;
 
-    //Instanciation des codeurs
-    //codeurs = new CodeursDirects(p25, p26, p15, p16); //Avec des codeurs branchés directement sur la Mbed
-    //PMX TODO a mettre en fichier de config ?
-    codeurs = new CodeursDirects(p22, p21, p17, p18); //Avec des codeurs branchés directement sur la Mbed version PMX
+    // On récupère les codeurs
+    codeurs = cdrs;
 
     // Initialisation des compteurs
     compteurG = 0;
@@ -67,14 +58,10 @@ Odometrie::Odometrie()
 
     // Calcul de la distance entre les roues en UO
     distanceRouesUO = Config::distRoues * frontParMetre * Config::uOParFront / 1000.0;
-
 }
 
 // Destructeur
-Odometrie::~Odometrie()
-{
-    delete codeurs;
-}
+Odometrie::~Odometrie() { }
 
 void Odometrie::setX(int64_t xval)
 {
@@ -94,12 +81,13 @@ void Odometrie::setTheta(double thetaVal) {
 void Odometrie::refresh()
 {
     //Récupération des comptes des codeurs
-    codeurs->getCounts(&compteurG, &compteurD);
+    int32_t compteurBrutG = 0, compteurBrutD = 0;
+    codeurs->getCounts(&compteurBrutG, &compteurBrutD);
 
     if (!Config::reglageCodeurs) {
         //On transforme ces valeurs en Unites Odometrique
-        compteurD = compteurD * Config::uOParFront;
-        compteurG = compteurG * Config::uOParFront;
+        compteurD = compteurBrutD * Config::uOParFront;
+        compteurG = compteurBrutG * Config::uOParFront;
 
         // On applique le ratio pour prendre en compte la différence entre les codeurs
         if (applyRatioOnG) {
@@ -114,7 +102,7 @@ void Odometrie::refresh()
          *               distance entre les roues
          */
         deltaDist = (compteurG + compteurD) / 2; // En UO
-        int32_t diffCount = compteurD - compteurG; // On conserve la différence entre les comptes en UO
+        int64_t diffCount = compteurD - compteurG; // On conserve la différence entre les comptes en UO
         deltaTheta = (double) diffCount / (double) distanceRouesUO; // En radian
 
         if (labs(diffCount) < 1) {   // On considère le mouvement comme une ligne droite
@@ -139,34 +127,10 @@ void Odometrie::refresh()
         }
     } else {
         // TODO Vérifier qu'on ne perd pas l'accumulation dans ce mode
-        printf("CG=%ld \t\tCD=%ld\r\n", compteurG, compteurD);
-#ifdef LCD_ACTIVATE
+        printf("CG=%ld \t\tCD=%ld\r\n", compteurBrutG, compteurBrutD);
+#if CONFIG_LCD_ACTIVATE
         lcd.locate(0, 10);
-        lcd.printf("L=%ld R=%ld", compteurG, compteurD);
+        lcd.printf("L=%ld R=%ld", compteurBrutG, compteurBrutD);
 #endif
     }
-
-    //Si le débug est en route
-#ifdef DEBUG_UDP
-
-    if (debugUdp->getDebugSend())
-    {
-        /* on ajoute les valeurs et on les envoie */
-        //uint64_t XMM =  this->getXmm();
-        //uint64_t YMM =  this->getYmm();
-        debugUdp->addData("X", (double) x);
-        debugUdp->addData("Y", (double) y);
-        debugUdp->addData("Theta", (double) theta);
-        debugUdp->addData("deltaDist", (double) deltaDist);
-        debugUdp->addData("deltaTheta", (double) deltaTheta);
-        /*    udp_data_add("X",XMM);
-         udp_data_add("Y", YMM);
-         udp_data_add("T", this->getThetaDeg() );
-         udp_data_add("Vl", deltaDist/(frontParMetre*Config::uOParFront)*1000 );
-         udp_data_add("Va", deltaTheta*180/PI );
-         */
-    }
-
-#endif
-
 }

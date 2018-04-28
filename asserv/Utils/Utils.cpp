@@ -22,7 +22,7 @@ int64_t Utils::mmToUO(Odometrie *odo, int32_t valeur)
 // Conversion U0 vers mm
 int32_t Utils::UOTomm(Odometrie *odo, int64_t valeur)
 {
-    return (double) ((valeur * 1.0 / (odo->getFrontParMetre() * Config::uOParFront)) * 1000.0);
+    return (int32_t) ((valeur * 1.0 / (odo->getFrontParMetre() * Config::uOParFront)) * 1000.0);
 }
 
 // Conversion degres en UO
@@ -32,9 +32,9 @@ int64_t Utils::degToUO(Odometrie *odo, int32_t valeur)
 }
 
 // Conversion  UO en deg
-double Utils::UOToDeg(Odometrie *odo, int64_t valeur)
+float Utils::UOToDeg(Odometrie *odo, int64_t valeur)
 {
-    return (valeur * 180.0 / (PI * odo->getDistanceRouesUO()));
+    return (float) (valeur * 180.0 / (PI * odo->getDistanceRouesUO()));
 }
 
 // Conversion radians en UO

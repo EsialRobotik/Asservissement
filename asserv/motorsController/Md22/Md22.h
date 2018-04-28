@@ -1,3 +1,5 @@
+#if CONFIG_MOTORCTRL_MD22
+
 #ifndef MD22
 #define MD22
 
@@ -25,6 +27,6 @@ private:
     I2C i2cLink;
 };
 
+#endif /* MD22 */
 
-
-#endif
+#endif /* CONFIG_MOTORCTRL_MD22 */

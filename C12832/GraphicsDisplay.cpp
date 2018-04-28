@@ -3,6 +3,8 @@
  * Released under the MIT License: http://mbed.org/license/mit
  */
 
+#if CONFIG_LCD_ACTIVATE
+
 #include "GraphicsDisplay.h"
 
 const unsigned char FONT8x8[97][8] = { 0x08, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, // columns, rows, num_bytes_per_char
@@ -184,3 +186,4 @@ int GraphicsDisplay::rows()
     return height() / 8;
 }
 
+#endif /* CONFIG_LCD_ACTIVATE */

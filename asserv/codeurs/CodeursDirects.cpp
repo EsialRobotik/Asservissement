@@ -1,3 +1,5 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #include "CodeursDirects.h"
 
 CodeursDirects::CodeursDirects(PinName pinChanA_G, PinName pinChanB_G, PinName pinChanA_D, PinName pinChanB_D) :
@@ -47,3 +49,5 @@ void CodeursDirects::getCounts(int32_t* countG, int32_t* countD)
     }
 
 }
+
+#endif /* CONFIG_CODEUR_DIRECTS */

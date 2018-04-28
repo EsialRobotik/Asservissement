@@ -1,3 +1,5 @@
+#if CONFIG_MOTORCTRL_QIK
+
 #include "Qik.h"
 
 // Adress definition
@@ -90,4 +92,4 @@ void Qik::setVitesseG(int vitMoteurG)
     }
 }
 
-
+#endif /* CONFIG_MOTORCTRL_QIK */

@@ -1,3 +1,5 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #ifndef CODEUR
 #define CODEUR
 
@@ -27,4 +29,6 @@ private:
 
 };
 
-#endif
+#endif /* CODEUR */
+
+#endif /* CONFIG_CODEUR_DIRECTS */

@@ -1,3 +1,5 @@
+#if CONFIG_MOTORCTRL_MD22
+
 #include "Md22.h"
 
 // Définition des adresses
@@ -123,4 +125,4 @@ void Md22::setVitesseD(int vitMoteurD)
     i2cLink.stop();
 }
 
-
+#endif /* CONFIG_MOTORCTRL_MD22 */

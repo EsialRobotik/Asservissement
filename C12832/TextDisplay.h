@@ -9,9 +9,11 @@
  * Everything else (locate, printf, putc, cls) will come for free
  *
  * The model is the display will wrap at the right and bottom, so you can
- * keep writing and will always get valid characters. The location is 
+ * keep writing and will always get valid characters. The location is
  * maintained internally to the class to make this easy
  */
+
+#if CONFIG_LCD_ACTIVATE
 
 #ifndef MBED_TEXTDISPLAY_H
 #define MBED_TEXTDISPLAY_H
@@ -78,4 +80,6 @@ protected:
     char *_path;
 };
 
-#endif
+#endif /* MBED_TEXTDISPLAY_H */
+
+#endif /* CONFIG_LCD_ACTIVATE */

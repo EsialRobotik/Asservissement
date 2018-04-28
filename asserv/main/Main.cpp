@@ -16,12 +16,8 @@
 #include "../config/parameter.h"
 #include "../Utils/Utils.h"
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
 #include "EcouteI2c.h"
-#endif
-
-#ifdef COM_SERIE_ACTIVATE
-extern serial_t stdio_uart; //Verifier si util ?
 #endif
 
 extern "C" void HardFault_Handler()
@@ -59,12 +55,6 @@ int main()
     //initAsserv();
 
     gotoLed = 0;
-#ifdef DEBUG_UDP
-    debugUdp = new DebugUDP(commandManager, odometrie);
-    dataLed = 0;
-    receiveLed = 0;
-    liveLed = 0;
-#endif
 
     //On est prêt !
     for (int n = 0; n < 10; n++) {
@@ -77,11 +67,11 @@ int main()
     leftSpeed = 0;
     rightSpeed = 0;
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
     ecouteI2cConfig();
 #endif
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
 
     lcd.cls();
     //lcd.invert(0);
@@ -92,15 +82,15 @@ int main()
 #endif
 
     while (1) {
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
         ecouteSerie();
 #endif
 
-#ifdef COM_SERIEPC_ACTIVATE
+#if CONFIG_COM_SERIEPC_ACTIVATE
         ecouteSeriePC();
 #endif
 
-#ifdef COM_I2C_ACTIVATE
+#if CONFIG_COM_I2C_ACTIVATE
         ecouteI2c(consignController, commandManager, motorController, odometrie, &run);
 #endif
 
@@ -148,12 +138,10 @@ void ecouteSeriePC()
      p / get Position / Récupère la position et le cap du robot sur la connexion i2c, sous la forme de 3 types float (3 * 4 bytes), avec x, y, et a les coordonnées et l'angle du robot.
      S / set Position / applique la nouvelle position du robot
 
-     z / avance de 10 cm
-     s / recule de 10 cm
+     z / avance de 20 cm
+     s / recule de 20 cm
      q / tourne de 45° (gauche)
      d / tourne de -45° (droite)
-
-     --c / calage bordure
 
      M / modifie la valeur d'un paramètre / name, value
      R / réinitialiser l'asserv
@@ -163,7 +151,7 @@ void ecouteSeriePC()
      W / sauvegarde la config courante  config~1.txt = config.default.txt
 
      I / Active les actions dans la boucle d'asservissement (odo + managers)
-     ! / Stoppes actions dans la boucle d'asservissement
+     ! / Stoppe actions dans la boucle d'asservissement
      K / desactive le consignController et le commandManager
      J / reactive le consignController et le commandManager
 
@@ -199,7 +187,7 @@ void ecouteSeriePC()
         case 'z':
             if (!run || !consignController->on())
                 break;
-            // Go 10cm
+            // Go 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(Utils::mmToUO(odometrie, 200));
             //pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
@@ -208,7 +196,7 @@ void ecouteSeriePC()
         case 's':
             if (!run || !consignController->on())
                 break;
-            // Backward 10cm
+            // Backward 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 200));
             //pc.printf("consigne apres : %d\n", consignController->getDistConsigne());
@@ -274,9 +262,11 @@ void ecouteSeriePC()
             break;
 
         case 'I': // start l'asserv
+            pc.printf("I start Asserv");
             initAsserv(&run);
             break;
         case '!': // stop/quit l'asserv
+            pc.printf("! stop Asserv");
             stopAsserv(&run);
             break;
 
@@ -393,6 +383,10 @@ void ecouteSerie() //TODO Corriger les double/float/int64
     switch (c) {
     //Commandes basiques
 
+    case 'I': // start l'asserv
+        initAsserv(&run);
+        break;
+
     case 'h': //Arrêt d'urgence
         commandManager->setEmergencyStop();
 
@@ -453,13 +447,39 @@ void initAsserv(bool *prun)
     printf("Creation des objets si necessaire... \r\n");
     fflush (stdout);
 
+    if(codeurs == NULL)
+    {
+#   if CONFIG_CODEUR_DIRECTS
+        // Avec des codeurs branchés directement sur la Mbed
+        codeurs = new CodeursDirects(Config::pinNameList[Config::pinCodeurGchA],
+                                     Config::pinNameList[Config::pinCodeurGchB],
+                                     Config::pinNameList[Config::pinCodeurDchA],
+                                     Config::pinNameList[Config::pinCodeurDchB]);
+#   elif CONFIG_CODEUR_AVR
+        // Avec des codeurs branchés sur un AVR avec lequel on communique en SPI
+        codeurs = new CodeursAVR(p5, p6, p7, p8);
+#   else
+#       error "Undefined encoder interface; check build configuration"
+#   endif
+    }
+
     if (odometrie == NULL)
-        odometrie = new Odometrie();
+        odometrie = new Odometrie(codeurs);
+
     if (motorController == NULL)
+    {
+#   if CONFIG_MOTORCTRL_MD25
         motorController = new Md25ctrl(p28, p27);
-    //motorController = new Md22(p9, p10);
-    //motorController = new Qik(p9, p10);
-    //motorController = new PololuSMCs(p13, p14, p28, p27);
+#   elif CONFIG_MOTORCTRL_MD22
+        motorController = new Md22(p9, p10);
+#   elif CONFIG_MOTORCTRL_QIK
+        motorController = new Qik(p9, p10);
+#   elif CONFIG_MOTORCTRL_POLOLU_SMCS
+        motorController = new PololuSMCs(p13, p14, p28, p27);
+#   else
+#       error "Undefined motor controller; check build configuration"
+#   endif
+    }
 
     if (consignController == NULL)
         consignController = new ConsignController(odometrie, motorController);
@@ -480,9 +500,12 @@ void stopAsserv(bool *prun)
     leftSpeed = 0;
     rightSpeed = 0;
 
-    // On détruit tout les objets (sauf les moteurs, on s'en fiche de ça)
+    // On détruit tout les objets
     delete odometrie;
     odometrie = NULL;
+
+    delete codeurs;
+    codeurs = NULL;
 
     delete consignController;
     consignController = NULL;
@@ -500,15 +523,11 @@ void resetAsserv()
     printf("Réinitialisation de l'asserv...\r\n");
     stopAsserv(&run);
 
-#ifdef DEBUG_UDP
-    debugUdp->setNewObjectPointers(commandManager, odometrie);
-#endif
-
     ErrorLed = 0;
     //On reprend l'asserv
     initAsserv(&run);
 }
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
 static int mod = 0;
 #endif
 static int led = 0;
@@ -522,7 +541,7 @@ void Live_isr()
     if ((led++) % 500 == 0) {
         liveLed = 1 - liveLed;
 
-#ifdef LCD_ACTIVATE
+#if CONFIG_LCD_ACTIVATE
         lcd.locate(0, 10);
         lcd.printf("x%.1f y%.1f t%.1f  \n",
                 (float) Utils::UOTomm(odometrie, odometrie->getX()),
@@ -541,7 +560,7 @@ void Live_isr()
 
     liveLed = 1 - liveLed;
 
-#ifdef COM_SERIE_ACTIVATE
+#if CONFIG_COM_SERIE_ACTIVATE
     if ((mod++) % 20 == 0) {
         printf("#%" PRIi32 ";%" PRIi32 ";%lf;%" PRIi32 ";%" PRIi32 ";%" PRIi32 ";%" PRIi32 "\r\n",
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),
@@ -551,30 +570,6 @@ void Live_isr()
                 (int32_t) commandManager->getPendingCommandCount(),
                 (int32_t) motorController->getVitesseG() * (Config::inverseMoteurG ? -1 : 1),
                 (int32_t) motorController->getVitesseD() * (Config::inverseMoteurD ? -1 : 1));
-    }
-#endif
-
-#ifdef DEBUG_UDP
-    temps++;
-    static int refreshPeriod = 0;
-
-    if (refreshPeriod++ == 10)
-    {
-        Net::poll();
-
-        if (debugUdp->getDebugSend())
-        {
-            debugUdp->addData("t", (double)(temps * 0.05));
-            debugUdp->sendData();
-            dataLed = 1 - dataLed;
-        }
-
-        refreshPeriod = 0;
-    }
-    else
-    {
-        dataLed = 0;
-        debugUdp->dropCurrentData();
     }
 #endif
 }
