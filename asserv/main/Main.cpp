@@ -459,7 +459,7 @@ void initAsserv(bool *prun)
         // Avec des codeurs branchés sur un AVR avec lequel on communique en SPI
         codeurs = new CodeursAVR(p5, p6, p7, p8);
 #   else
-//#       error "Undefined encoder interface; check build configuration"
+#       error "Undefined encoder interface; check build configuration"
 #   endif
     }
 
@@ -477,7 +477,7 @@ void initAsserv(bool *prun)
 #   elif CONFIG_MOTORCTRL_POLOLU_SMCS
         motorController = new PololuSMCs(p13, p14, p28, p27);
 #   else
-//#       error "Undefined motor controller; check build configuration"
+#       error "Undefined motor controller; check build configuration"
 #   endif
     }
 
