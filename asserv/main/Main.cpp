@@ -21,7 +21,7 @@ int main()
     // Initialisation du port série sur USB (utilisé par printf & co)
     pc.baud(115200);
 
-    printf("--- Asservissement Nancyborg ---\r\n");
+    printf("--- Asservissement EsialRobotik ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
     LocalFileSystem local("local");

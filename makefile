@@ -28,18 +28,17 @@ $(CONFIGS): asserv/config/params.h
 	@echo Regénération $@
 	$(Q) $(PYTHON) gen_config.py $< $@
 
-# TODO les règles "deploy" ne marchent plus avec le dossier de config
-deploy-default:
-	$(Q) $(subst PROJECT.bin,config.default.txt,$(LPC_DEPLOY))
-
-deploy-%:
+# deploy-CONFIG_DIR-CONFIG_NAME
+# Copie le binaire et config/CONFIG_DIR/config.CONFIG_NAME.txt sur la mbed
+# Ne pas oublier de définir la variable d'environnement LPC_DEPLOY
+deploy-%: all
+	$(Q) $(eval CONFIG_DIR=$(firstword $(subst -, ,$(subst deploy-,,$@))))
+	$(Q) $(eval CONFIG_NAME=$(word 2,$(subst -, ,$(subst deploy-,,$@))))
 	$(Q) $(eval DIR=$(shell mktemp -d))
-	$(Q) cp config.$(subst deploy-,,$@).txt $(DIR)/config.txt
-	$(Q) $(subst PROJECT.bin,$(DIR)/config.txt,$(LPC_DEPLOY))
-	$(Q) rm -rf $(DIR)
+	$(Q) cp config/$(CONFIG_DIR)/config.$(CONFIG_NAME).txt $(LPC_DEPLOY)/config.txt
+	$(Q) cp LPC1768/$(PROJECT).bin $(LPC_DEPLOY)/$(PROJECT).bin
+	$(Q) sync
 
 all: $(DEVICES) configs
-term:
-	picocom /dev/ttyACM0 -b 230400 --imap lfcrlf
 
 .PHONY: all term configs

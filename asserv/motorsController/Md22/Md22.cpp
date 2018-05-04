@@ -122,5 +122,3 @@ void Md22::setVitesseD(int vitMoteurD)
     i2cLink.write((int8_t)vitMoteurD);
     i2cLink.stop();
 }
-
-
