@@ -52,11 +52,11 @@ placementOrigineY = 100
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 17900
+frontParMetreCodeurG = 40960
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 17900
+frontParMetreCodeurD = 40960
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -114,13 +114,13 @@ swapMoteurs = false
 
 
 // Coeff proportionelle
-DIST_KP = 40
+DIST_KP = 20
 
 // Coeff intégrale
 DIST_KI = 0
 
 // Coeff dérivée
-DIST_KD = 300
+DIST_KD = 200
 
 // Coeff permettant de diminuer les valeurs du PID
 DIST_OUT_RATIO = 0.00001
@@ -136,13 +136,13 @@ DIST_MAX_INTEGRAL = 0
 
 
 // Coeff proportionelle
-ANGLE_KP = 30
+ANGLE_KP = 20
 
 // Coeff intégrale
 ANGLE_KI = 0
 
 // Coeff dérivée
-ANGLE_KD = 200
+ANGLE_KD = 150
 
 // Coeff permettant de diminuer les valeurs du PID
 ANGLE_OUT_RATIO = 0.000005
