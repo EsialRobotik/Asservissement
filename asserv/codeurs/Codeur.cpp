@@ -8,9 +8,9 @@ Codeur::Codeur(PinName pinChanA , PinName pinChanB)
     count = 0;
 
     pinChannelA.rise(this, &Codeur::handleInterruptA);
-    pinChannelA.fall(this, &Codeur::handleInterruptA);
+//    pinChannelA.fall(this, &Codeur::handleInterruptA);
     pinChannelB.rise(this, &Codeur::handleInterruptB);
-    pinChannelB.fall(this, &Codeur::handleInterruptB);
+//    pinChannelB.fall(this, &Codeur::handleInterruptB);
 }
 
 Codeur::~Codeur() { }
