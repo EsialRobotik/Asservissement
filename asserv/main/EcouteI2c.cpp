@@ -44,7 +44,7 @@ void ecouteI2cConfig()
 //emergency stop	W			          'h' + 0x00
 //reset emerg stop 	W			          'r' + 0x00
 
-//add_dist_consigne           WR                            'V' + 4                                                     float
+//add_dist_consigne           WR                            'V' + 4            //TODO remplacer par z et q pour tourner add_angle_regu                                         float
 
 //aVance			WR			'v' + 4
 //Tourne			WR			't' + 4
@@ -283,14 +283,18 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                         t.bytes[1] = cmd[9];
                         t.bytes[2] = cmd[10];
                         t.bytes[3] = cmd[11];
+#if CONFIG_DEBUG_COM_I2C
 
+                        printf("S12 x.f=%ld  y.f=%f  t.f=%f\r\n", (long) floor(x.f), (float) y.f, (float) t.f);
+
+#endif
                         // set position
-                        odo->setX(x.f);//mm
-                        odo->setY(y.f);
+                        odo->setX(Utils::mmToUO(odo, (long) floor(x.f)));//UO
+                        odo->setY(Utils::mmToUO(odo, (long) floor(y.f)));
                         odo->setTheta(t.f);
 
 #if CONFIG_DEBUG_COM_I2C
-                        printf("S12 x=%f  y=%f  t=%f \r\n", (float) odo->getXmm(), (float) odo->getYmm(), (float) odo->getTheta());
+                        printf("S12 x=%ld  y=%ld  t=%lf \r\n", odo->getXmm(), odo->getYmm(), odo->getTheta());
 #endif
 #if CONFIG_LCD_ACTIVATE
                         lcd.cls();
@@ -361,7 +365,7 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
 
                             consignC->add_dist_consigne(Utils::mmToUO(odo, mm.f));
 #if CONFIG_DEBUG_COM_I2C
-                            printf("V4 dist=%f \r\n", mm.f);
+                            printf("V4 dist=%f %lld \r\n", mm.f, Utils::mmToUO(odo, mm.f));
 #endif
 #if CONFIG_LCD_ACTIVATE
                             lcd.cls();
