@@ -1,5 +1,6 @@
 #include "Main.h"
 
+#include <mbed.h>
 #include <DigitalOut.h>
 #include <LocalFileSystem.h>
 #include <mbed_error.h>
@@ -45,6 +46,7 @@ int main()
     printf("--- Asservissement ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
+
     LocalFileSystem local("local");
     loadConfig();
 
@@ -80,6 +82,7 @@ int main()
 
     lcd.printf("mbed Cho v3! c=%d", lcd.get_contrast());
 #endif
+
 
     while (1) {
 #if CONFIG_COM_SERIE_ACTIVATE
@@ -155,6 +158,8 @@ void ecouteSeriePC()
      K / desactive le consignController et le commandManager
      J / reactive le consignController et le commandManager
 
+     A desactive consign_angle_regu
+     a reactive consign angle regu
      + / applique une valeur +1 sur les moteurs LEFT
      - / applique une valeur -1 sur les moteurs LEFT
 
@@ -165,11 +170,25 @@ void ecouteSeriePC()
     double consigneValue2 = 0;
     std::string name, value;
     const Parameter *param;
-
+    float ff = 20.45;
     if (pc.readable()) {
         gotoLed = !gotoLed;
 
         switch (pc.getc()) {
+
+        case 'a': //desactive angle_regu
+            if (!run)
+                break;
+            consignController->angle_Regu_On(false);
+            pc.printf("desactive angle_regu ! ");
+            break;
+
+        case 'A': //active angle_regu
+            if (!run)
+                break;
+            consignController->angle_Regu_On(true);
+            pc.printf("active angle_regu ! ");
+            break;
 
         case 'h': //Arrêt d'urgence
             if (!run)
@@ -257,7 +276,18 @@ void ecouteSeriePC()
             break;
 
         case 'p': //retourne la Position et l'angle courants du robot
-            printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()), (double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
+            printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
+                    (double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
+                    commandManager->getCommandStatus());
+            break;
+
+        case 'S':
+            // set position
+            pc.printf("set position to 20.45 test\r\n");
+            odometrie->setX(Utils::mmToUO(odometrie, (long) round(20.45))); //mm
+            odometrie->setY(Utils::mmToUO(odometrie, (long) 20.45)); //mm
+            odometrie->setTheta((double) ff);
+            printf("set x%ldy%lda%lfs%d\r\n", odometrie->getXmm(), odometrie->getYmm(), odometrie->getTheta(),
                     commandManager->getCommandStatus());
             break;
 
@@ -445,16 +475,15 @@ void initAsserv(bool *prun)
 {
     *prun = false; //pour etre sûr que isr ne fait rien
     printf("Creation des objets si necessaire... \r\n");
-    fflush (stdout);
+    fflush(stdout);
 
-    if(codeurs == NULL)
-    {
+    if (codeurs == NULL) {
 #   if CONFIG_CODEUR_DIRECTS
         // Avec des codeurs branchés directement sur la Mbed
         codeurs = new CodeursDirects(Config::pinNameList[Config::pinCodeurGchA],
-                                     Config::pinNameList[Config::pinCodeurGchB],
-                                     Config::pinNameList[Config::pinCodeurDchA],
-                                     Config::pinNameList[Config::pinCodeurDchB]);
+                Config::pinNameList[Config::pinCodeurGchB],
+                Config::pinNameList[Config::pinCodeurDchA],
+                Config::pinNameList[Config::pinCodeurDchB]);
 #   elif CONFIG_CODEUR_AVR
         // Avec des codeurs branchés sur un AVR avec lequel on communique en SPI
         codeurs = new CodeursAVR(p5, p6, p7, p8);
@@ -466,8 +495,7 @@ void initAsserv(bool *prun)
     if (odometrie == NULL)
         odometrie = new Odometrie(codeurs);
 
-    if (motorController == NULL)
-    {
+    if (motorController == NULL) {
 #   if CONFIG_MOTORCTRL_MD25
         motorController = new Md25ctrl(p28, p27);
 #   elif CONFIG_MOTORCTRL_MD22

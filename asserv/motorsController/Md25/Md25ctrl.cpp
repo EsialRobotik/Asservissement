@@ -70,7 +70,6 @@ Md25ctrl::Md25ctrl(PinName I2CsdaPin, PinName I2CsclPin) :
         printf("ERROR MD25 speed2_set not set %d\r\n", r);
         ErrorLed = 1;
     }
-
 }
 
 Md25ctrl::~Md25ctrl()
@@ -95,13 +94,13 @@ void Md25ctrl::setVitesseG(int vitMoteurG)
     if (vitMoteurG > Config::V_MAX_POS_MOTOR) {
         vitMoteurG = Config::V_MAX_POS_MOTOR;
     } else if (vitMoteurG > 0 && vitMoteurG < Config::V_MIN_POS_MOTOR) {
-        vitMoteurG = 0;
+        vitMoteurG = Config::V_MIN_POS_MOTOR;
     }
 
     if (vitMoteurG < Config::V_MAX_NEG_MOTOR) {
         vitMoteurG = Config::V_MAX_NEG_MOTOR;
     } else if (vitMoteurG < 0 && vitMoteurG > Config::V_MIN_NEG_MOTOR) {
-        vitMoteurG = 0;
+        vitMoteurG = Config::V_MIN_NEG_MOTOR;
     }
 
     if (!Config::swapMoteurs) {
