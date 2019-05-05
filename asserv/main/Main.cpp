@@ -1,5 +1,6 @@
 #include "Main.h"
 
+#include <mbed.h>
 #include <DigitalOut.h>
 #include <LocalFileSystem.h>
 #include <mbed_error.h>
@@ -45,6 +46,7 @@ int main()
     printf("--- Asservissement ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
 
+
     LocalFileSystem local("local");
     loadConfig();
 
@@ -80,6 +82,7 @@ int main()
 
     lcd.printf("mbed Cho v3! c=%d", lcd.get_contrast());
 #endif
+
 
     while (1) {
 #if CONFIG_COM_SERIE_ACTIVATE
@@ -173,14 +176,14 @@ void ecouteSeriePC()
 
         switch (pc.getc()) {
 
-        case 'a': //Arrêt d'urgence
+        case 'a': //desactive angle_regu
             if (!run)
                 break;
             consignController->angle_Regu_On(false);
             pc.printf("desactive angle_regu ! ");
             break;
 
-        case 'A': //Arrêt d'urgence
+        case 'A': //active angle_regu
             if (!run)
                 break;
             consignController->angle_Regu_On(true);

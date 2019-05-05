@@ -3,6 +3,13 @@
  *
  *  Created on: 13 avr. 2017
  *      Author: pmx
+ *      
+ *  //Logging console commande à taper sous linux
+ *  screen /dev/ttyACM0 230400,cs8
+ *  screen /dev/ttyACM0 115200,cs8
+ * 
+ *
+ *      
  */
 
 #if CONFIG_COM_I2C_ACTIVATE
@@ -133,8 +140,8 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
         break;
 
         case I2CSlave::WriteGeneral:
-        //slave.read(buf, sizeof(buf));
-        //printf("Read G: %s\r\n", buf);
+            slave.read(buf, sizeof(buf)); //Ne pas supprimer : est utilisé par i2cdetect par exemple et le bus n'est pas en carafe!
+            //printf("Read G: %s\r\n", buf);
         break;
 
         case I2CSlave::WriteAddressed:
