@@ -1,3 +1,5 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #ifndef CODEUR
 #define CODEUR
 
@@ -11,7 +13,7 @@ class Codeur
 
 public:
 
-    Codeur(PinName pinChanA , PinName pinChanB);
+    Codeur(PinName pinChanA, PinName pinChanB);
     ~Codeur();
     int32_t getCount();
     void reset();
@@ -25,7 +27,8 @@ private:
     InterruptIn pinChannelA;
     InterruptIn pinChannelB;
 
-
 };
 
-#endif
+#endif /* CODEUR */
+
+#endif /* CONFIG_CODEUR_DIRECTS */

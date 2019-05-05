@@ -1,3 +1,5 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #include "Codeur.h"
 
 Codeur::Codeur(PinName pinChanA , PinName pinChanB)
@@ -62,3 +64,5 @@ void Codeur::handleInterruptB(void)
         }
     }
 }
+
+#endif /* CONFIG_CODEUR_DIRECTS */

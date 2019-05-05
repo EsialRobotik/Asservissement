@@ -18,7 +18,7 @@ class CommandManager
 {
 
 public:
-    CommandManager(int capacity , ConsignController *ctrlr, Odometrie *odo);
+    CommandManager(int capacity, ConsignController *ctrlr, Odometrie *odo);
     ~CommandManager();
 
     bool addStraightLine(int32_t valueInmm);
@@ -37,12 +37,23 @@ public:
     int getCommandStatus() { return commandStatus; }
     int getPendingCommandCount();
 
+    void perform_On(bool enable)
+    {
+        perform_on = enable;
+    }
+    bool on()
+    {
+        return perform_on;
+    }
+
 private:
     CMDList *liste; //File d'attente des commandes
     ConsignController *cnsgCtrl;
     Odometrie *odometrie; // Odométrie, pour pouvoir faire les conversion et calculer la cible
     CMD currCMD; //commande courante
     CMD nextCMD; //commande suivante
+
+    bool perform_on;
 
     CommandStatus commandStatus;
 
