@@ -19,6 +19,11 @@ GPFLAGS=-DDATE_COMPIL='"$(shell date)"' -DAUTEUR_COMPIL='"$(USER)"' -DGIT_VERSIO
 PYTHON?=/usr/bin/python
 NEWLIB_NANO=0
 
+# On récupère les options de configs. Si le fichier build_config.mk
+# n'existe pas, il doit être créé à partir de build_config.default.mk
+CONFIG_FLAGS:=$(shell sed 's/\#.*//' build_config/build_config.mk)
+GPFLAGS:=$(GPFLAGS) $(patsubst %, -DCONFIG_%, $(CONFIG_FLAGS))
+
 include $(GCC4MBED_DIR)/build/gcc4mbed.mk
 
 CONFIGS:=$(shell find config -name "*.txt")
@@ -27,6 +32,7 @@ configs: $(CONFIGS)
 $(CONFIGS): asserv/config/params.h
 	@echo Regénération $@
 	$(Q) $(PYTHON) gen_config.py $< $@
+	
 
 # deploy-CONFIG_DIR-CONFIG_NAME
 # Copie le binaire et config/CONFIG_DIR/config.CONFIG_NAME.txt sur la mbed
@@ -39,6 +45,9 @@ deploy-%: all
 	$(Q) cp LPC1768/$(PROJECT).bin $(LPC_DEPLOY)/$(PROJECT).bin
 	$(Q) sync
 
-all: $(DEVICES) configs
+all: $(DEVICES) configs build_config/build_config.mk
+
+term:
+	picocom /dev/ttyACM0 -b 230400 --imap lfcrlf
 
 .PHONY: all term configs

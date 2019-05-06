@@ -1,8 +1,9 @@
+#if CONFIG_CODEUR_DIRECTS
+
 #include "CodeursDirects.h"
 
 CodeursDirects::CodeursDirects(PinName pinChanA_G, PinName pinChanB_G, PinName pinChanA_D, PinName pinChanB_D) :
-    codeurG(pinChanA_G , pinChanB_G),
-    codeurD(pinChanA_D , pinChanB_D)
+        codeurG(pinChanA_G, pinChanB_G), codeurD(pinChanA_D, pinChanB_D)
 {
     // On change la priorité de l'interruption timer pour qu'elle soit plus basse que celle des ticks codeurs
     NVIC_SetPriority(TIMER3_IRQn, 1);
@@ -10,7 +11,9 @@ CodeursDirects::CodeursDirects(PinName pinChanA_G, PinName pinChanB_G, PinName p
     lastCountG = 0;
 }
 
-CodeursDirects::~CodeursDirects() { }
+CodeursDirects::~CodeursDirects()
+{
+}
 
 void CodeursDirects::getCounts(int32_t* countG, int32_t* countD)
 {
@@ -46,3 +49,5 @@ void CodeursDirects::getCounts(int32_t* countG, int32_t* countD)
     }
 
 }
+
+#endif /* CONFIG_CODEUR_DIRECTS */

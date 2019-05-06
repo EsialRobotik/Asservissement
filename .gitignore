@@ -1,4 +1,10 @@
 LPC176x/*
+LPC1768/*
 *.bin
 *.elf
 *.hex
+.project
+.cproject
+.settings/*
+
+build_config/build_config.mk

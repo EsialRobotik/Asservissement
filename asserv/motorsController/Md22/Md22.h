@@ -1,3 +1,5 @@
+#if CONFIG_MOTORCTRL_MD22
+
 #ifndef MD22
 #define MD22
 
@@ -11,7 +13,7 @@ public:
     // Constructeur
     Md22(PinName I2CsdaPin , PinName I2CsclPin);
     // Destructeur
-    ~Md22();
+    virtual ~Md22();
 
     // Paramétrage des vitesses
     virtual void setVitesseG(int vitMoteurG);
@@ -25,6 +27,6 @@ private:
     I2C i2cLink;
 };
 
+#endif /* MD22 */
 
-
-#endif
+#endif /* CONFIG_MOTORCTRL_MD22 */

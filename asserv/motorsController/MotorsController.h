@@ -16,13 +16,16 @@ public:
     virtual int getVitesseD(void) = 0;
     virtual ~MotorsController() { }
 
-    void inverseMoteurDroit() {
+    void inverseMoteurDroit()
+    {
         Config::inverseMoteurG = !Config::inverseMoteurG;
     }
-    void inverseMoteurGauche() {
+    void inverseMoteurGauche()
+    {
         Config::inverseMoteurD = !Config::inverseMoteurD;
     }
-    void echangeMoteurs() {
+    void echangeMoteurs()
+    {
         Config::swapMoteurs = !Config::swapMoteurs;
     }
 };

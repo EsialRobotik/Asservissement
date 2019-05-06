@@ -1,4 +1,4 @@
-/*
+#if CONFIG_CODEUR_AVR
 
 #include "CodeursAVR.h"
 
@@ -37,4 +37,4 @@ void CodeursAVR::getCounts(int64_t* countG, int64_t* countD) {
 
 }
 
-*/
+#endif /* CONFIG_CODEUR_AVR */

@@ -11,10 +11,10 @@ public:
 
     // Constructeur et Destructeur
     /*
-    * isDistance est un booléen passé en paramètre pour déterminer si le régulateur s'occupe de la distance ou de l'angle
-    * En fonction du cas, la QuadRampDerivee et le PID à créer ne sont pas les mêmes, on passe donc cet argument à leur constructeur pour
-    * les différencier
-    */
+     * isDistance est un booléen passé en paramètre pour déterminer si le régulateur s'occupe de la distance ou de l'angle
+     * En fonction du cas, la QuadRampDerivee et le PID à créer ne sont pas les mêmes, on passe donc cet argument à leur constructeur pour
+     * les différencier
+     */
     Regulateur(bool isDistance);
     ~Regulateur();
 
@@ -22,30 +22,36 @@ public:
     int64_t manage(int64_t consigne, int64_t feedback_odometrie);
 
     // Permet d'activer ou de désactiver la QuadRampDerivee
-    void setfiltreQuadRampDeriveeON(bool val) {
+    void setfiltreQuadRampDeriveeON(bool val)
+    {
         filtreQuadRampDeriveeON = val;
     }
 
     // Réinitialisation de l'accumulateur (distance en UO parcourue depuis l'origine)
-    void reset_accumulator() {
+    void reset_accumulator()
+    {
         accumulateur = 0;
     }
 
-    int64_t getAccumulateur() {
+    int64_t getAccumulateur()
+    {
         return accumulateur;
     }
 
     // Détermine si la QuandRampDerivee est terminée et donc si le robot a atteint sa cible
-    bool isRampFinished() {
+    bool isRampFinished()
+    {
         return filtreQuadRampDerivee.isRampFinished();
     }
 
     // Permet de modifier dynamiquement la vitesse de la marche arrière, pour le calage bordure notamment
-    void setVitesseMarcheArriere(int64_t vitesse) {
+    void setVitesseMarcheArriere(int64_t vitesse)
+    {
         filtreQuadRampDerivee.setVitesseMarcheArriere(vitesse);
     }
 
-    void setVitesseMarcheAvant(int64_t vitesse) {
+    void setVitesseMarcheAvant(int64_t vitesse)
+    {
         filtreQuadRampDerivee.setVitesseMarcheAvant(vitesse);
     }
 
@@ -61,6 +67,5 @@ private:
 
     bool isDistance; //permet de savoir si cette instance de régulateur est utilisée pour la régulation de distance
 };
-
 
 #endif

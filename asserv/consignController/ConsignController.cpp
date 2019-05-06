@@ -1,13 +1,8 @@
 #include "ConsignController.h"
 
-//#define DEBUG
-#ifdef DEBUG
-#include "../debug/DebugUDP.h"
-#endif
-
 // Constructeur prenant deux objets initialisé avec l'asserv en paramètre
-ConsignController::ConsignController(Odometrie *odo, MotorsController *mot)
-    : angle_regu(false), dist_regu(true)
+ConsignController::ConsignController(Odometrie *odo, MotorsController *mot) :
+        angle_regu(false), dist_regu(true)
 {
 
     // Au départ on se place à (0,0)
@@ -24,10 +19,14 @@ ConsignController::ConsignController(Odometrie *odo, MotorsController *mot)
 
     // On ne commence pas bloqué
     blocked_ticks = 0;
+
+    perform_on = true;
 }
 
 // Destructeur
-ConsignController::~ConsignController() {}
+ConsignController::~ConsignController()
+{
+}
 
 /*
  * Les consignes, que ce soit des add ou des set sont en UO !!!!
@@ -52,32 +51,32 @@ void ConsignController::set_dist_consigne(int64_t consigneUO)
     dist_consigne = consigneUO;
 }
 
-
-
 // On recalcule la consigne à appliquer aux moteurs et on leur envoie l'ordre
 void ConsignController::perform()
 {
+    if (perform_on) {
 
-    int64_t dist_output = 0; // Calcul de la sortie moteur en distance
-    int64_t angle_output = 0; // Calcul de la sortie moteur en angle
+        int32_t dist_output = 0; // Calcul de la sortie moteur en distance
+        int32_t angle_output = 0; // Calcul de la sortie moteur en angle
 
-    // Si le régulateur d'angle est actif, il doit calculer la consigne angulaire en fonction de la différence des tics codeurs (variation d'angle en UO)
-    if (angle_regu_on && !Config::disableAngleRegu) {
-        angle_output = angle_regu.manage(angle_consigne, odometrie->getDeltaThetaBrut());
-    }
+        // Si le régulateur d'angle est actif, il doit calculer la consigne angulaire en fonction de la différence des tics codeurs (variation d'angle en UO)
+        if (angle_regu_on && !Config::disableAngleRegu) {
+            angle_output = angle_regu.manage(angle_consigne, odometrie->getDeltaThetaBrut());
+        }
 
-    // Si le régu de distance est actif, il doit calculer la consigne de distance en fonction de la moyenne des tics codeurs (variation de distance en UO)
-    if (dist_regu_on && !Config::disableDistanceRegu) {
-        dist_output = dist_regu.manage(dist_consigne, odometrie->getDeltaDist());
-    }
+        // Si le régu de distance est actif, il doit calculer la consigne de distance en fonction de la moyenne des tics codeurs (variation de distance en UO)
+        if (dist_regu_on && !Config::disableDistanceRegu) {
 
-    //Calcul des vitesses à appliquer en les bornant évidemment
-    int64_t VmoteurD = Utils::constrain(dist_output + angle_output , Config::V_MAX_NEG_MOTOR , Config::V_MAX_POS_MOTOR);
-    int64_t VmoteurG = Utils::constrain(dist_output - angle_output, Config::V_MAX_NEG_MOTOR , Config::V_MAX_POS_MOTOR);
+            dist_output = dist_regu.manage(dist_consigne, odometrie->getDeltaDist());
+        }
 
-    // On donne l'ordre aux moteurs et roulez jeunesse !!
-    motors->setVitesseG(VmoteurG);
-    motors->setVitesseD(VmoteurD);
+        //Calcul des vitesses à appliquer en les bornant évidemment
+        int32_t VmoteurD = Utils::constrain(dist_output + angle_output, Config::V_MAX_NEG_MOTOR, Config::V_MAX_POS_MOTOR);
+        int32_t VmoteurG = Utils::constrain(dist_output - angle_output, Config::V_MAX_NEG_MOTOR, Config::V_MAX_POS_MOTOR);
+
+        // On donne l'ordre aux moteurs et roulez jeunesse !!
+        motors->setVitesseG(VmoteurG);
+        motors->setVitesseD(VmoteurD);
 
     // On vérifie si on n'est pas bloqué. Note: on utilise les getters
     // du MotorsController parce qu'il peut mettre les vitesses à 0
@@ -97,16 +96,30 @@ void ConsignController::perform()
         blocked_ticks = 0;
     }
 
-    //printf("VG=%d  ", VmoteurG);
-    //printf("VD=%d\r\n", VmoteurD);
+        //printf("VG=%ld  \tVD=%ld\r\r\n", VmoteurG, VmoteurD);
+    }
 }
 
+void ConsignController::setLeftSpeed(int vit)
+{
+    motors->setVitesseG(vit);
+}
+
+void ConsignController::setRightSpeed(int vit)
+{
+    motors->setVitesseD(vit);
+}
 
 void ConsignController::setLowSpeed(bool b)
 {
+    setLowSpeed(b,Config::DIST_QUAD_AR_LOW_DIV,Config::DIST_QUAD_AV_LOW_DIV);
+}
+
+void ConsignController::setLowSpeed(bool b, unsigned char factor_div_back, unsigned char factor_div_forward)
+{
     if (b) {
-        dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG / Config::DIST_QUAD_AR_LOW_DIV);
-        dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS / Config::DIST_QUAD_AV_LOW_DIV);
+        dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG / factor_div_back);
+        dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS / factor_div_forward);
     } else {
         dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG);
         dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
