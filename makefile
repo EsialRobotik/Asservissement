@@ -36,6 +36,6 @@ $(CONFIGS): asserv/config/params.h
 
 all: $(DEVICES) configs build_config/build_config.mk
 term:
-	picocom /dev/ttyACM0 -b 230400 --imap lfcrlf
+	sudo picocom /dev/ttyACM0 -b 115200 --imap lfcrlf
 
 .PHONY: all term configs

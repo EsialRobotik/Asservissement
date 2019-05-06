@@ -172,21 +172,27 @@ void ecouteSeriePC()
         switch (pc.getc()) {
 
         case 'h': //Arrêt d'urgence
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             commandManager->setEmergencyStop();
             pc.printf("Arrêt d'urgence ! ");
             break;
 
         case 'r': //Reset de l'arrêt d'urgence
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             commandManager->resetEmergencyStop();
             break;
 
         case 'z':
-            if (!run || !consignController->on())
+            if (!run || !consignController->on()) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             // Go 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(Utils::mmToUO(odometrie, 200));
@@ -194,8 +200,10 @@ void ecouteSeriePC()
             break;
 
         case 's':
-            if (!run || !consignController->on())
+            if (!run || !consignController->on()) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             // Backward 20cm
             //printf("consigne avant : %d\n", consignController->getDistConsigne());
             consignController->add_dist_consigne(-Utils::mmToUO(odometrie, 200));
@@ -203,54 +211,68 @@ void ecouteSeriePC()
             break;
 
         case 'q':
-            if (!run || !consignController->on())
+            if (!run || !consignController->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             // Left 45
             consignController->add_angle_consigne(Utils::degToUO(odometrie, 45));
             break;
 
         case 'd':
-            if (!run || !consignController->on())
+            if (!run || !consignController->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             // Right 45
             consignController->add_angle_consigne(-Utils::degToUO(odometrie, 45));
             break;
 
         case 'v': //aVance d'un certain nombre de mm
-            if (!run || !commandManager->on())
+            if (!run || !commandManager->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             pc.scanf("%lf", &consigneValue1);
             commandManager->addStraightLine(consigneValue1);
             pc.printf("v%lf\r\n", consigneValue1);
             break;
 
         case 't': //Tourne d'un certain angle en degrés
-            if (!run || !commandManager->on())
+            if (!run || !commandManager->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             pc.scanf("%lf", &consigneValue1);
             commandManager->addTurn(consigneValue1);
             pc.printf("t%lf\n", consigneValue1);
             break;
 
         case 'f': //faire Face à un point précis, mais ne pas y aller, juste se tourner
-            if (!run || !commandManager->on())
+            if (!run || !commandManager->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
             commandManager->addGoToAngle(consigneValue1, consigneValue2);
             pc.printf("g%lf#%lf\n", consigneValue1, consigneValue2);
             break;
 
         case 'g': //Go : va à un point précis
-            if (!run || !commandManager->on())
+            if (!run || !commandManager->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
             commandManager->addGoTo(consigneValue1, consigneValue2);
             //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
             break;
 
         case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
-            if (!run || !commandManager->on())
+            if (!run || !commandManager->on()){
+                pc.printf("Commande ignorée !");
                 break;
+            }
             pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
             commandManager->addGoToEnchainement(consigneValue1, consigneValue2);
             //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
@@ -271,19 +293,25 @@ void ecouteSeriePC()
             break;
 
         case 'R': // réinitialiser l'asserv
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             resetAsserv();
             break;
         case 'K': //uniquement odométrie active
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             consignController->perform_On(false);
             commandManager->perform_On(false);
             break;
         case 'J':
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             consignController->perform_On(true);
             commandManager->perform_On(true);
             break;
@@ -326,8 +354,10 @@ void ecouteSeriePC()
             break;
 
         case '+':
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             leftSpeed++;
             consignController->perform_On(false);
             commandManager->perform_On(false);
@@ -335,8 +365,10 @@ void ecouteSeriePC()
             pc.printf("LEFT+%d ", leftSpeed);
             break;
         case '-':
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             leftSpeed--;
             consignController->perform_On(false);
             commandManager->perform_On(false);
@@ -345,8 +377,10 @@ void ecouteSeriePC()
             break;
 
         case '*':
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             rightSpeed++;
             consignController->perform_On(false);
             commandManager->perform_On(false);
@@ -354,8 +388,10 @@ void ecouteSeriePC()
             pc.printf("RIGHT+%d ", rightSpeed);
             break;
         case '/':
-            if (!run)
+            if (!run) {
+                pc.printf("Commande ignorée !");
                 break;
+            }
             rightSpeed--;
             consignController->perform_On(false);
             commandManager->perform_On(false);

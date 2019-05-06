@@ -6,5 +6,6 @@ LPC1768/*
 .project
 .cproject
 .settings/*
+.idea/
 
 build_config/build_config.mk
