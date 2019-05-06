@@ -6,6 +6,7 @@ LPC1768/*
 .project
 .cproject
 .settings/*
-.idea/
+.idea/*
+.vscode/*
 
 build_config/build_config.mk

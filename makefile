@@ -34,7 +34,19 @@ $(CONFIGS): asserv/config/params.h
 	$(Q) $(PYTHON) gen_config.py $< $@
 	
 
+# deploy-CONFIG_DIR-CONFIG_NAME
+# Copie le binaire et config/CONFIG_DIR/config.CONFIG_NAME.txt sur la mbed
+# Ne pas oublier de définir la variable d'environnement LPC_DEPLOY
+deploy-%: all
+	$(Q) $(eval CONFIG_DIR=$(firstword $(subst -, ,$(subst deploy-,,$@))))
+	$(Q) $(eval CONFIG_NAME=$(word 2,$(subst -, ,$(subst deploy-,,$@))))
+	$(Q) $(eval DIR=$(shell mktemp -d))
+	$(Q) cp config/$(CONFIG_DIR)/config.$(CONFIG_NAME).txt $(LPC_DEPLOY)/config.txt
+	$(Q) cp LPC1768/$(PROJECT).bin $(LPC_DEPLOY)/$(PROJECT).bin
+	$(Q) sync
+
 all: $(DEVICES) configs build_config/build_config.mk
+
 term:
 	sudo picocom /dev/ttyACM0 -b 115200 --imap lfcrlf
 
