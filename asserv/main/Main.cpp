@@ -101,19 +101,25 @@ int main()
 void startAsserv()
 {
     printf("start asserv ...\r\n");
+
     run = false; //on lance le thread qui ne fait rien
     if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
             {
         // On attache l'interruption timer à la méthode Live_isr
         double period = Config::asservPeriod;
-        if (period > 0 && period < 0.5) {
-
+        if (period > 0 && period < 0.05) {
             Live.attach(Live_isr, period);
             printf("Periode asserv ok : %lf sec\r\n", period);
         } else {
             printf("pb avec la valeur de periode de l'asserv dans la config : %lf!!\r\n", period);
             ErrorLed = 1;
         }
+    }
+
+    if (odometrie != NULL) {
+        odometrie->setX(0);
+        odometrie->setY(0);
+        odometrie->setTheta(0);
     }
 }
 
@@ -248,35 +254,14 @@ void ecouteSeriePC()
             pc.printf("t%lf\n", consigneValue1);
             break;
 
-        case 'f': //faire Face à un point précis, mais ne pas y aller, juste se tourner
+        case 'g': //GoTo : déplacement ou alignement avec un point
             if (!run || !commandManager->on()){
                 pc.printf("Commande ignorée !");
                 break;
             }
             pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoToAngle(consigneValue1, consigneValue2);
-            pc.printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
-
-        case 'g': //Go : va à un point précis
-            if (!run || !commandManager->on()){
-                pc.printf("Commande ignorée !");
-                break;
-            }
-            pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoTo(consigneValue1, consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
-
-        case 'e': // goto, mais on s'autorise à Enchainer la consigne suivante sans s'arrêter
-            if (!run || !commandManager->on()){
-                pc.printf("Commande ignorée !");
-                break;
-            }
-            pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
-            commandManager->addGoToEnchainement(consigneValue1, consigneValue2);
-            //printf("g%lf#%lf\n", consigneValue1, consigneValue2);
-            break;
+            parseGoto();
+            break;      
 
         case 'p': //retourne la Position et l'angle courants du robot
             printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()), (double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
@@ -287,6 +272,7 @@ void ecouteSeriePC()
             pc.printf("I start Asserv");
             initAsserv(&run);
             break;
+
         case '!': // stop/quit l'asserv
             pc.printf("! stop Asserv");
             stopAsserv(&run);
@@ -297,43 +283,51 @@ void ecouteSeriePC()
                 pc.printf("Commande ignorée !");
                 break;
             }
+            pc.printf("Reset asserv");
             resetAsserv();
             break;
-        case 'K': //uniquement odométrie active
+
+        case 'K': // uniquement odométrie active
             if (!run) {
                 pc.printf("Commande ignorée !");
                 break;
             }
+            pc.printf("K odométrie uniquement");
             consignController->perform_On(false);
             commandManager->perform_On(false);
             break;
-        case 'J':
+
+        case 'J': // emet en route les commandes et consignes
             if (!run) {
                 pc.printf("Commande ignorée !");
                 break;
             }
+            pc.printf("J remise en route commande et consigne");
             consignController->perform_On(true);
             commandManager->perform_On(true);
             break;
+
         case 'D': // dump la config du robot
+            pc.printf("Dump config");
             std::cout << Config::dumpConfig() << std::endl;
             break;
 
         case 'G': // lire la valeur d'un paramètre
             std::getline(std::cin, name, '\r');
             param = Config::getParam(name);
-
-            if (param == NULL)
+            pc.printf("Lecture paramètre");
+            if (param == NULL) {
                 std::cout << "error" << endl;
-            else
+            } else {
                 std::cout << param->toString() << std::endl;
+            }
             break;
 
         case 'M': // modifie la valeur d'un paramètre
             std::getline(std::cin, name, '\r');
             std::getline(std::cin, value, '\r');
             param = Config::getParam(name);
-
+            pc.printf("Modification de paramètre");
             if (param == NULL) {
                 std::cout << "error" << endl;
             } else {
@@ -343,12 +337,13 @@ void ecouteSeriePC()
             break;
 
         case 'L': // recharge la config
+            pc.printf("Load config");
             loadConfig();
             std::cout << "ok" << endl;
             break;
 
         case 'W': // sauvegarde la config courante
-            // config~1.txt = config.default.txt
+            pc.printf("W sauvegarde de la config");
             Config::saveToFile("/local/config~1.txt", "/local/config.txt");
             std::cout << "ok" << endl;
             break;
@@ -362,8 +357,9 @@ void ecouteSeriePC()
             consignController->perform_On(false);
             commandManager->perform_On(false);
             consignController->setLeftSpeed(leftSpeed);
-            pc.printf("LEFT+%d ", leftSpeed);
+            pc.printf("LEFT motor +%d ", leftSpeed);
             break;
+            
         case '-':
             if (!run) {
                 pc.printf("Commande ignorée !");
@@ -373,7 +369,7 @@ void ecouteSeriePC()
             consignController->perform_On(false);
             commandManager->perform_On(false);
             consignController->setLeftSpeed(leftSpeed);
-            pc.printf("LEFT-%d ", leftSpeed);
+            pc.printf("LEFT motor-%d ", leftSpeed);
             break;
 
         case '*':
@@ -385,8 +381,9 @@ void ecouteSeriePC()
             consignController->perform_On(false);
             commandManager->perform_On(false);
             consignController->setRightSpeed(rightSpeed);
-            pc.printf("RIGHT+%d ", rightSpeed);
+            pc.printf("RIGHT motor +%d ", rightSpeed);
             break;
+
         case '/':
             if (!run) {
                 pc.printf("Commande ignorée !");
@@ -396,14 +393,9 @@ void ecouteSeriePC()
             consignController->perform_On(false);
             commandManager->perform_On(false);
             consignController->setRightSpeed(rightSpeed);
-            pc.printf("RIGHT-%d ", rightSpeed);
+            pc.printf("RIGHT motor -%d ", rightSpeed);
             break;
 
-        case '3':
-            // do what you want for '3'
-            pc.printf("--3\r\n");
-
-            break;
         default:
             pc.printf(" - unexpected character\r\n");
             break;
@@ -483,8 +475,7 @@ void initAsserv(bool *prun)
     printf("Creation des objets si necessaire... \r\n");
     fflush (stdout);
 
-    if(codeurs == NULL)
-    {
+    if(codeurs == NULL) {
 #   if CONFIG_CODEUR_DIRECTS
         // Avec des codeurs branchés directement sur la Mbed
         codeurs = new CodeursDirects(Config::pinNameList[Config::pinCodeurGchA],
@@ -499,11 +490,11 @@ void initAsserv(bool *prun)
 #   endif
     }
 
-    if (odometrie == NULL)
+    if (odometrie == NULL) {
         odometrie = new Odometrie(codeurs);
+    }
 
-    if (motorController == NULL)
-    {
+    if (motorController == NULL) {
 #   if CONFIG_MOTORCTRL_MD25
         motorController = new Md25ctrl(p28, p27);
 #   elif CONFIG_MOTORCTRL_MD22
@@ -517,10 +508,16 @@ void initAsserv(bool *prun)
 #   endif
     }
 
-    if (consignController == NULL)
+    if (consignController == NULL) {
         consignController = new ConsignController(odometrie, motorController);
-    if (commandManager == NULL)
+    }
+    if (commandManager == NULL) {
         commandManager = new CommandManager(50, consignController, odometrie);
+    }
+
+    odometrie->setTheta(0);
+    odometrie->setX(Utils::mmToUO(odometrie, (int32_t) 0));
+    odometrie->setY(Utils::mmToUO(odometrie, (int32_t) 0));
 
     *prun = true;
 
@@ -529,7 +526,6 @@ void initAsserv(bool *prun)
 
 void stopAsserv(bool *prun)
 {
-
     //On arrête le traitement de l'asserv
     *prun = false; //afin de pouvoir supprimer les objets
 
@@ -571,8 +567,9 @@ static int led = 0;
 // On rafraichit l'asservissement régulièrement
 void Live_isr()
 {
-    if (run == false)
+    if (run == false) {
         return;
+    }
 
     if ((led++) % 500 == 0) {
         liveLed = 1 - liveLed;
@@ -584,7 +581,6 @@ void Live_isr()
                 (float) Utils::UOTomm(odometrie, odometrie->getY()),
                 (float) Utils::UOToDeg(odometrie, odometrie->getTheta()));
 #endif
-
     }
 
     odometrie->refresh();
