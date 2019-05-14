@@ -322,6 +322,9 @@ void CommandManager::computeEnchainement()
 
 void CommandManager::setEmergencyStop()  //Gestion d'un éventuel arrêt d'urgence
 {
+    cnsgCtrl->setQuadRamp_Angle(false); //Ajouter cho/Jeff 2019
+    cnsgCtrl->setQuadRamp_Dist(false);
+
     cnsgCtrl->set_dist_consigne(cnsgCtrl->getAccuDist());
     cnsgCtrl->set_angle_consigne(cnsgCtrl->getAccuAngle());
 
@@ -337,6 +340,9 @@ void CommandManager::resetEmergencyStop()
     if(commandStatus == STATUS_HALTED) {
         commandStatus = STATUS_IDLE;
     }
+
+    cnsgCtrl->setQuadRamp_Angle(true);//Ajouter cho/Jeff 2019
+    cnsgCtrl->setQuadRamp_Dist(true);
 }
 
 int CommandManager::getPendingCommandCount()
