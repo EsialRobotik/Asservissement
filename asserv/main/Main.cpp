@@ -261,7 +261,7 @@ void ecouteSeriePC()
             }
             pc.scanf("%lf#%lf", &consigneValue1, &consigneValue2); //X, Y
             parseGoto();
-            break;      
+            break;
 
         case 'p': //retourne la Position et l'angle courants du robot
             printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()), (double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
@@ -359,7 +359,7 @@ void ecouteSeriePC()
             consignController->setLeftSpeed(leftSpeed);
             pc.printf("LEFT motor +%d ", leftSpeed);
             break;
-            
+
         case '-':
             if (!run) {
                 pc.printf("Commande ignorée !");
@@ -469,7 +469,7 @@ void ecouteSerie() //TODO Corriger les double/float/int64
     }
 }
 
-void initAsserv(bool *prun)
+void initAsserv(volatile bool *prun)
 {
     *prun = false; //pour etre sûr que isr ne fait rien
     printf("Creation des objets si necessaire... \r\n");
@@ -524,7 +524,7 @@ void initAsserv(bool *prun)
     //printf("ok\r\n");
 }
 
-void stopAsserv(bool *prun)
+void stopAsserv(volatile bool *prun)
 {
     //On arrête le traitement de l'asserv
     *prun = false; //afin de pouvoir supprimer les objets

@@ -24,13 +24,13 @@ Ticker Live;
 void Live_isr(void);
 
 int leftSpeed, rightSpeed;
-bool run = false;
+volatile bool run = false;
 
 // Méthodes utiles
 int main();
 void startAsserv();
-void stopAsserv(bool *prun);
-void initAsserv(bool *prun);
+void stopAsserv(volatile bool *prun);
+void initAsserv(volatile bool *prun);
 void resetAsserv();
 void ecouteSeriePC();
 
