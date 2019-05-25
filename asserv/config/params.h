@@ -124,7 +124,7 @@ PARAM(double, frontParMetreCodeurD)
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-PARAM(int32_t, distRoues)
+PARAM(double, distRoues)
 
 // Nombre d'UO pour un tic de codeur
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
