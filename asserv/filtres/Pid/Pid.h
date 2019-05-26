@@ -6,6 +6,9 @@
 
 // PID(Proportionnel-Integrale-Derivee) - Filtre sur l'erreur
 
+// TODO configurable?
+#define PID_INTEGRALE_BUFFER 8
+
 class Pid : public Filtre
 {
 public:
@@ -18,8 +21,9 @@ public:
     int64_t filtre(int64_t erreur);
 
 private:
-    // Somme des erreurs
-    int64_t integrale;
+    // Buffer pour la somme des erreurs
+    int64_t buf_integrale[PID_INTEGRALE_BUFFER];
+    unsigned int integrale_index;
 
     // Ancienne erreur. Permet de calculer la dérivée de l'erreur
     int64_t old_erreur;

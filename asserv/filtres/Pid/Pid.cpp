@@ -4,7 +4,11 @@
 Pid::Pid(bool isDistance)
 {
     // L'intégrale est nulle au départ
-    integrale = 0;
+    for (unsigned int i = 0; i < PID_INTEGRALE_BUFFER; i++)
+    {
+        buf_integrale[i] = 0;
+    }
+    integrale_index = 0;
 
     // En fonction du type de PID on ne récupère pas les même paramètres
     if (isDistance) {
@@ -35,9 +39,18 @@ int64_t Pid::filtre(int64_t erreur)
 
     //printf("P=%d ", P);
 
-    //Calcul de l'Intégrale que l'on oublie pas de borner
-    integrale += erreur;
-    integrale = Utils::constrain(integrale, -maxIntegral , maxIntegral);
+    // Calcul de l'Intégrale
+    // On stocke la valeur de l'erreur dans le buffer glissant
+    buf_integrale[integrale_index] = erreur;
+    integrale_index = (integrale_index + 1) % PID_INTEGRALE_BUFFER;
+
+    // On prend la moyenne du buffer glissant pour valeur de l'intégrale
+    int64_t integrale = 0;
+    for(unsigned int i = 0; i < PID_INTEGRALE_BUFFER; i++)
+    {
+        integrale += buf_integrale[integrale_index];
+    }
+    integrale /= PID_INTEGRALE_BUFFER;
     int64_t I = integrale * ki;
 
 
