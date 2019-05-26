@@ -28,7 +28,7 @@ Pid::Pid(bool isDistance)
 Pid::~Pid() {}
 
 // On filtre l'erreur pour calculer la sortie à donner aux moteurs
-int64_t Pid::filtre(int64_t erreur , int64_t feedback_odometrie , int64_t value3)
+int64_t Pid::filtre(int64_t erreur)
 {
     // Calcul de la Proportionnelle
     int64_t P = erreur * kp;
@@ -41,8 +41,9 @@ int64_t Pid::filtre(int64_t erreur , int64_t feedback_odometrie , int64_t value3
     int64_t I = integrale * ki;
 
 
-    // Calcul de la Dérivée
-    int64_t D = feedback_odometrie * kd;
+    // Calcul de la Dérivée.
+    int64_t D = (erreur - old_erreur) * kd;
+    old_erreur = erreur; // On met de coté l'erreur pour le prochain tour
 
     //printf("D=%d ", D);
 

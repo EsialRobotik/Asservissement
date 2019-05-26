@@ -15,11 +15,14 @@ public:
     ~Pid();
 
     // On filtre l'erreur pour déterminer comment la corriger
-    int64_t filtre(int64_t erreur , int64_t feedback_odometrie , int64_t value3 = 0);
+    int64_t filtre(int64_t erreur);
 
 private:
     // Somme des erreurs
     int64_t integrale;
+
+    // Ancienne erreur. Permet de calculer la dérivée de l'erreur
+    int64_t old_erreur;
 
     //Coeffs d'asservissement
     int32_t kp, ki, kd; // Coeff venant de config.h
