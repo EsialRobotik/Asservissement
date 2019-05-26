@@ -102,6 +102,22 @@ void startAsserv()
 {
     printf("start asserv ...\r\n");
 
+    // On initialise immédiatement le controle moteurs, pour être sûr
+    // qu'ils ne fassent pas n'imp dès le boot
+    if (motorController == NULL) {
+#   if CONFIG_MOTORCTRL_MD25
+        motorController = new Md25ctrl(p28, p27);
+#   elif CONFIG_MOTORCTRL_MD22
+        motorController = new Md22(p9, p10);
+#   elif CONFIG_MOTORCTRL_QIK
+        motorController = new Qik(p9, p10);
+#   elif CONFIG_MOTORCTRL_POLOLU_SMCS
+        motorController = new PololuSMCs(p13, p14, p28, p27);
+#   else
+#       error "Undefined motor controller; check build configuration"
+#   endif
+    }
+
     run = false; //on lance le thread qui ne fait rien
     if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
             {
@@ -114,12 +130,6 @@ void startAsserv()
             printf("pb avec la valeur de periode de l'asserv dans la config : %lf!!\r\n", period);
             ErrorLed = 1;
         }
-    }
-
-    if (odometrie != NULL) {
-        odometrie->setX(0);
-        odometrie->setY(0);
-        odometrie->setTheta(0);
     }
 }
 
@@ -492,20 +502,6 @@ void initAsserv(volatile bool *prun)
 
     if (odometrie == NULL) {
         odometrie = new Odometrie(codeurs);
-    }
-
-    if (motorController == NULL) {
-#   if CONFIG_MOTORCTRL_MD25
-        motorController = new Md25ctrl(p28, p27);
-#   elif CONFIG_MOTORCTRL_MD22
-        motorController = new Md22(p9, p10);
-#   elif CONFIG_MOTORCTRL_QIK
-        motorController = new Qik(p9, p10);
-#   elif CONFIG_MOTORCTRL_POLOLU_SMCS
-        motorController = new PololuSMCs(p13, p14, p28, p27);
-#   else
-#       error "Undefined motor controller; check build configuration"
-#   endif
     }
 
     if (consignController == NULL) {
