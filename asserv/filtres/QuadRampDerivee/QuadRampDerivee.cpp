@@ -66,20 +66,48 @@ int64_t QuadRampDerivee::filtre(int64_t consigne, int64_t position_actuelle , in
     //Calcul de la position du pivot qui sert à déterminer si l'on doit commencer à décélérer ou non
     char sens = (consigne - position_actuelle >= 0) ? 1 : -1;
     int64_t position_pivot;
-
+    // Pas les mêmes coeffs suivant si on avance ou on recule, si le
+    // robot est pas équilibré ; on prend la valeur de décélération, puisqu'on
+    // calcule le début de la rampe de décélération
     if (sens == 1) {
-        position_pivot = consigne + ((vitesse >= 0) ? -1 : 1) * (((vitesse * vitesse) / (2 * derivee_2nd_pos_av)) + llabs(vitesse) * gainAnticipation_av);
+        position_pivot = consigne + ((vitesse >= 0) ? -1 : 1) * (((vitesse * vitesse) / (2 * derivee_2nd_neg_av)) + llabs(vitesse) * gainAnticipation_av);
     } else {
-        position_pivot = consigne + ((vitesse >= 0) ? -1 : 1) * (((vitesse * vitesse) / (2 * derivee_2nd_pos_ar)) + llabs(vitesse) * gainAnticipation_ar);
+        position_pivot = consigne + ((vitesse >= 0) ? -1 : 1) * (((vitesse * vitesse) / (2 * derivee_2nd_neg_ar)) + llabs(vitesse) * gainAnticipation_ar);
     }
 
-    //Calcul de la consigne d'accélération qui dépend dans le sens dans lequel on roule et vient de config.h
+    // Calcul de la consigne d'accélération qui dépend dans le sens dans lequel on roule
+    // Pour l'accélération, on prend directement la valeur qui vient de config.h.
+    // Pour la décélération, on calcule la force nécéssaire pour être
+    // à l'arrêt au point de consigne, connaissant la vitesse de consigne
+    // actuelle (v) et la distance restance (d).
+    // La valeur nécessaire d'accélération est a = v²/(2*d)
+    // Si le début de la rampe (pivot) est bien calculé, on doit avoir
+    // à peu près la même valeur que la décélération du config.h
     int64_t acceleration_consign;
-
-    if (position_pivot >= position_actuelle) {
-        acceleration_consign = (sens == 1) ? derivee_2nd_pos_av : derivee_2nd_neg_ar;
+    if (sens == 1) {
+        // on est en train d'avancer : si le pivot est devant nous, on
+        // accélère, sinon on freine
+        if (position_pivot >= position_actuelle) {
+            // Accélération constante
+            acceleration_consign = derivee_2nd_pos_av;
+        } else {
+            // Décélération permettant d'attendre la vitesse 0 au point de consigne
+            acceleration_consign =
+                - (prevConsigneVitesse * prevConsigneVitesse)
+                    / (2 * llabs(consigne - position_actuelle));
+        }
     } else {
-        acceleration_consign = (sens == 1) ? -derivee_2nd_neg_av : -derivee_2nd_pos_ar;
+        // on est en train de reculer : si le pivot est derrière nous, on
+        // accélère, sinon on freine
+        if (position_pivot <= position_actuelle) {
+            // Accélération constante (vers l'arrière donc "-")
+            acceleration_consign = -derivee_2nd_pos_ar;
+        } else {
+            // Décélération permettant d'attendre la vitesse 0 au point de consigne
+            acceleration_consign =
+                  (prevConsigneVitesse * prevConsigneVitesse)
+                    / (2 * llabs(consigne - position_actuelle));
+        }
     }
 
     // Calcul de la consigne de vitesse
