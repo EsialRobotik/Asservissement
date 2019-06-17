@@ -58,7 +58,7 @@ void ecouteI2cConfig()
 //faire face		WR			'f' + 8
 //Goto 			WR		          'g' + 8
 //Enchainement		WR			'e' + 8
-//Set low Speed 	          WR		          'l' + 1 (true/false)
+//Set low Speed Forward       WR		          'l' + 1 (true/false)
 //set angle regu              WR                            'A' + 1 (true/false)
 //set dist  regu              WR                            'D' + 1 (true/false)
 //reset regu                  WR                            'R' + 1 (1=dist/0=angle)
@@ -140,8 +140,8 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
         break;
 
         case I2CSlave::WriteGeneral:
-            slave.read(buf, sizeof(buf)); //Ne pas supprimer : est utilisé par i2cdetect par exemple et le bus n'est pas en carafe!
-            //printf("Read G: %s\r\n", buf);
+        slave.read(buf, sizeof(buf)); //Ne pas supprimer : est utilisé par i2cdetect par exemple et le bus n'est pas en carafe!
+        //printf("Read G: %s\r\n", buf);
         break;
 
         case I2CSlave::WriteAddressed:
@@ -557,10 +557,13 @@ void ecouteI2c(ConsignController *consignC, CommandManager *commandM, MotorsCont
                             gotoLed = !gotoLed;
                             printf("      Read CMD: %d %d %d %d\r\n", cmd4[0], cmd4[1], cmd4[2], cmd4[3]);
                             bool lowSpeedActivated = cmd4[0];
-                            unsigned char back = cmd4[1];
-                            unsigned char forward = cmd4[2];
+                            int back = cmd4[1];
+                            int forward = cmd4[2];
 
-                            consignC->setLowSpeed(lowSpeedActivated, back, forward);
+                            if (back == 0)
+                                consignC->setLowSpeedForward(lowSpeedActivated, forward);
+                            if (forward == 0)
+                                consignC->setLowSpeedBackward(lowSpeedActivated, back);
                         }
                     } else {
                         printf("ERROR I2CSlave::WriteAddressed : IMPOSSIBLE TO READ SECOND COMMAND for P! %d\r\n", r);

@@ -185,7 +185,7 @@ DIST_QUAD_AV_2ND_ACC = 8000
 // Décélération max en marche avant
 DIST_QUAD_AV_2ND_DEC = 5000
 
-// Coeff déterminant le début de la rampe de décélération en marche avant//80 //270
+// Coeff déterminant le début de la rampe de décélération en marche avant
 DIST_QUAD_AV_ANTICIPATION_GAIN_COEF = 80
 
 // Accélération max en marche arrière

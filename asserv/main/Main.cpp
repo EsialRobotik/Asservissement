@@ -41,7 +41,7 @@ int main()
     ErrorLed = 0;
 
     // Initialisation du port série sur USB (utilisé par printf & co)
-    pc.baud(115200);
+    pc.baud(230400);
 
     printf("--- Asservissement ---\r\n");
     printf("Version " GIT_VERSION " - Compilée le " DATE_COMPIL " par " AUTEUR_COMPIL "\r\n\r\n");
@@ -108,7 +108,7 @@ void startAsserv()
     if (ErrorLed == 0) //s'il n'y pas d'erreur d'init.
             {
         // On attache l'interruption timer à la méthode Live_isr
-        double period = Config::asservPeriod;
+        float period = Config::asservPeriod;
         if (period > 0 && period < 0.5) {
 
             Live.attach(Live_isr, period);
@@ -166,8 +166,8 @@ void ecouteSeriePC()
 
      */
 
-    double consigneValue1 = 0;
-    double consigneValue2 = 0;
+    float consigneValue1 = 0;
+    float consigneValue2 = 0;
     std::string name, value;
     const Parameter *param;
     float ff = 20.45;
@@ -276,8 +276,8 @@ void ecouteSeriePC()
             break;
 
         case 'p': //retourne la Position et l'angle courants du robot
-            printf("x%lfy%lfa%lfs%d\r\n", (double) Utils::UOTomm(odometrie, odometrie->getX()),
-                    (double) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
+            printf("x%lfy%lfa%lfs%d\r\n", (float) Utils::UOTomm(odometrie, odometrie->getX()),
+                    (float) Utils::UOTomm(odometrie, odometrie->getY()), odometrie->getTheta(),
                     commandManager->getCommandStatus());
             break;
 
@@ -286,7 +286,7 @@ void ecouteSeriePC()
             pc.printf("set position to 20.45 test\r\n");
             odometrie->setX(Utils::mmToUO(odometrie, (long) round(20.45))); //mm
             odometrie->setY(Utils::mmToUO(odometrie, (long) 20.45)); //mm
-            odometrie->setTheta((double) ff);
+            odometrie->setTheta((float) ff);
             printf("set x%ldy%lda%lfs%d\r\n", odometrie->getXmm(), odometrie->getYmm(), odometrie->getTheta(),
                     commandManager->getCommandStatus());
             break;
@@ -405,7 +405,7 @@ void ecouteSeriePC()
     }
 }
 
-void ecouteSerie() //TODO Corriger les double/float/int64
+void ecouteSerie() //TODO Corriger les float/float/int64
 {
     int32_t consigneValue;
     char c = getchar();
@@ -593,7 +593,7 @@ void Live_isr()
         printf("#%" PRIi32 ";%" PRIi32 ";%lf;%" PRIi32 ";%" PRIi32 ";%" PRIi32 ";%" PRIi32 "\r\n",
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getX()),
                 (int32_t)Utils::UOTomm(odometrie, odometrie->getY()),
-                (double) odometrie->getTheta(),
+                (float) odometrie->getTheta(),
                 (int32_t) commandManager->getCommandStatus(),
                 (int32_t) commandManager->getPendingCommandCount(),
                 (int32_t) motorController->getVitesseG() * (Config::inverseMoteurG ? -1 : 1),
@@ -634,14 +634,14 @@ void parseGoto(void)
 void parseCommandeOdometrie(void)
 {
     char c1, c2;
-    double consigneValue;
+    float consigneValue;
 
     // On récupère le type de commande
     c1 = getchar();
     c2 = getchar();
 
     // On attend une valeur en consigne
-    scanf("%lf", &consigneValue);
+    scanf("%f", &consigneValue);
 
     // Les commandes d'odométrie n'ont que des 'set'
     if (c1 == 's') {

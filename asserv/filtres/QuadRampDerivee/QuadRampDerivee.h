@@ -30,6 +30,8 @@ public:
 
     // Filtre la consigne pour tenir compte des rampes d'accélération et de décélération
     int64_t filtre(int64_t consigne, int64_t position_actuelle , int64_t vitesse);
+    // On filtre la consigne pour prendre en compte l'accélération et la décélération et la vitesse
+    int64_t filtre_new(int64_t consigne, int64_t position_actuelle , int64_t vitesse);
 
 private:
 
@@ -46,8 +48,8 @@ private:
     int64_t derivee_2nd_neg_ar; // Vient de config.h
 
     //On ajoute de l' "anticipation " pour eviter que la vitesse ne chute brutalement à zéro quand on atteint le point d'arrivée
-    double gainAnticipation_av; // En avant // Vient de config.h
-    double gainAnticipation_ar; // En arrière // Vient de config.h
+    float gainAnticipation_av; // En avant // Vient de config.h
+    float gainAnticipation_ar; // En arrière // Vient de config.h
 
     // Sauvegarde de la vitesse précédente
     int64_t prevConsigneVitesse; // Stocke la vitesse de l'itération précédente

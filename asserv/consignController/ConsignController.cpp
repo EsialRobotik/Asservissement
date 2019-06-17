@@ -81,10 +81,12 @@ void ConsignController::perform()
     // On vérifie si on n'est pas bloqué. Note: on utilise les getters
     // du MotorsController parce qu'il peut mettre les vitesses à 0
     // si elles sont trop faibles.
-    if( motors->getVitesseG() != 0 && motors->getVitesseD() != 0
-        && abs(odometrie->getDeltaThetaBrut()) < Config::BLOCK_ANGLE_SPEED_THRESHOLD
-        && abs(odometrie->getDeltaDist()) < Config::BLOCK_DIST_SPEED_THRESHOLD )
-    {
+    if ((abs(VmoteurG) >= 10 || abs(VmoteurD) >= 10)
+                && (((VmoteurG * VmoteurD >= 0) && (abs(odometrie->getDeltaDist()) < Config::BLOCK_DIST_SPEED_THRESHOLD))
+                        || ((VmoteurG * VmoteurD <= 0)
+                                && (abs(odometrie->getDeltaThetaBrut()) < Config::BLOCK_ANGLE_SPEED_THRESHOLD))))
+
+        {
         // Bloqué !
         if(blocked_ticks < INT32_MAX) {
             // On n'incrémente pas en continue pour éviter l'overflow (au bout de 124 jours...)
@@ -112,17 +114,25 @@ void ConsignController::setRightSpeed(int vit)
 
 void ConsignController::setLowSpeed(bool b)
 {
-    setLowSpeed(b,Config::DIST_QUAD_AR_LOW_DIV,Config::DIST_QUAD_AV_LOW_DIV);
+    setLowSpeedForward(b, Config::DIST_QUAD_AV_LOW_DIV);
+    setLowSpeedBackward(b, Config::DIST_QUAD_AR_LOW_DIV);
 }
 
-void ConsignController::setLowSpeed(bool b, unsigned char factor_div_back, unsigned char factor_div_forward)
+void ConsignController::setLowSpeedForward(bool b, int percent)
 {
     if (b) {
-        dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG / factor_div_back);
-        dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS / factor_div_forward);
+        int64_t vit = (Config::DIST_QUAD_1ST_POS * percent) / 100.0;
+        dist_regu.setVitesseMarcheAvant(vit);
+    } else {
+        dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
+    }
+}
+void ConsignController::setLowSpeedBackward(bool b, int percent)
+{
+    if (b) {
+        dist_regu.setVitesseMarcheArriere((Config::DIST_QUAD_1ST_NEG * percent) / 100.0);
     } else {
         dist_regu.setVitesseMarcheArriere(Config::DIST_QUAD_1ST_NEG);
-        dist_regu.setVitesseMarcheAvant(Config::DIST_QUAD_1ST_POS);
     }
 }
 

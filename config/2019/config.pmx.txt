@@ -5,7 +5,7 @@
 
 // Version du fichier ce configuration (date, mois, jour, puis révision entre 01 et 99)
 // Exemple : 2013030801 : révision 01 le 08/03/2013
-configVersion = 2018042801
+configVersion = 2019052001
 
 //----------------------------------//
 //  Configuration des branchements  //
@@ -69,11 +69,11 @@ placementOrigineY = 0
 
 // Nombre de tics codeurs en 1m pour codeur gauche
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurG = 20830.0
+frontParMetreCodeurG = 20735.0
 
 // Nombre de tics codeurs en 1m pour codeur droite
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
-frontParMetreCodeurD = 20830.0
+frontParMetreCodeurD = 20735.0
 
 // Distance entre les roues codeuses en mm
 // !!! ATTENTION : redémarrer l'asserv pour prendre en compte les changements !!
@@ -230,10 +230,10 @@ ANGLE_TAILLE_FENETRE_ARRIVEE = 200000
 //--------------------------//
 
 // Seuil de détection du blocage pour la distance (en UO/tick)
-BLOCK_DIST_SPEED_THRESHOLD = 1024
+BLOCK_DIST_SPEED_THRESHOLD = 2500
 
 // Seuil de détection du blocage pour l'angle (en UO/tick)
-BLOCK_ANGLE_SPEED_THRESHOLD = 1024
+BLOCK_ANGLE_SPEED_THRESHOLD = 2500
 
 // Si on ne bouge pas pendant ce nombre de tick, on signale l'info
 BLOCK_TICK_THRESHOLD = 200

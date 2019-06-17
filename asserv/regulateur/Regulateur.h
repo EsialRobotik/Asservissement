@@ -9,6 +9,7 @@ class Regulateur
 {
 public:
 
+
     // Constructeur et Destructeur
     /*
      * isDistance est un booléen passé en paramètre pour déterminer si le régulateur s'occupe de la distance ou de l'angle
@@ -52,6 +53,7 @@ public:
 
     void setVitesseMarcheAvant(int64_t vitesse)
     {
+        printf("vitesse ==== %lld\n", vitesse);
         filtreQuadRampDerivee.setVitesseMarcheAvant(vitesse);
     }
 

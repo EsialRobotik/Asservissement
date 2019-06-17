@@ -64,11 +64,10 @@ bool CommandManager::addGoToAngle(int32_t posXInmm, int32_t posYInmm)
 void CommandManager::perform()
 {
     // Arrêt d'urgence! On n'accepte aucune commande.
-    if (commandStatus == STATUS_HALTED) {
+    if (commandStatus == STATUS_HALTED || commandStatus == STATUS_BLOCKED) {
         while (currCMD.type != CMD_NULL) { //On s'assure que la liste des commandes est vide
             currCMD = liste->dequeue();
         }
-
         nextCMD.type = CMD_NULL;
         return;
     }
@@ -81,6 +80,13 @@ void CommandManager::perform()
         // On est forcément en train d'exécuter une consigne, on vérifie
         // si on est pas bloqué
         if(cnsgCtrl->isBlocked()) {
+
+            cnsgCtrl->setQuadRamp_Angle(false); //Ajouter cho 2019
+            cnsgCtrl->setQuadRamp_Dist(false);
+
+            cnsgCtrl->set_dist_consigne(cnsgCtrl->getAccuDist());
+            cnsgCtrl->set_angle_consigne(cnsgCtrl->getAccuAngle());
+
             commandStatus = STATUS_BLOCKED;
         } else {
             commandStatus = STATUS_RUNNING;
@@ -148,14 +154,14 @@ void CommandManager::perform()
 void CommandManager::computeGoTo()
 {
 
-    double deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
-    double deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
+    float deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
+    float deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
 
             // Valeur absolue de la distance à parcourir en allant tout droit pour atteindre la consigne
     int64_t deltaDist = computeDeltaDist(deltaX, deltaY);
 
     // La différence entre le thetaCible (= cap à atteindre) et le theta (= cap actuel du robot) donne l'angle à parcourir
-    double deltaTheta = computeDeltaTheta(deltaX, deltaY);
+    float deltaTheta = computeDeltaTheta(deltaX, deltaY);
 
     //TODO ajouter dans la config un parametre cap_enabled ?
     /*//TODO à tester en conditions réelles et extrêmes de mauvaises utilisations
@@ -170,7 +176,7 @@ void CommandManager::computeGoTo()
      cnsgCtrl->set_angle_consigne( consigne_angle ); // On set la consigne*/
     //  Ancienne version, juste au cas où. A virer une fois operationnelle
     // On projette la distance à parcourir sur l'axe X du repaire mobile du robot
-    double projectedDist = deltaDist * cos(deltaTheta);
+    float projectedDist = deltaDist * cos(deltaTheta);
     //printf("dd=%lld - rT=%lld - rTUO=%lld - ", deltaDist, Config::returnThreshold, Utils::mmToUO(odometrie, Config::returnThreshold));
     int64_t consigne_dist;
 
@@ -200,8 +206,8 @@ void CommandManager::computeGoTo()
 void CommandManager::computeGoToBack()
 {
 
-    double deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
-    double deltaY = currCMD.secValue - odometrie->getY();  // Différence entre la cible et le robot selon Y
+    float deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
+    float deltaY = currCMD.secValue - odometrie->getY();  // Différence entre la cible et le robot selon Y
 
     // Valeur absolue de la distance à parcourir en allant tout droit pour atteindre la consigne
     int64_t deltaDist = computeDeltaDist(deltaX, deltaY);
@@ -209,10 +215,10 @@ void CommandManager::computeGoToBack()
     // La différence entre le thetaCible (= cap à atteindre) et le theta (= cap actuel du robot) donne l'angle à parcourir
     // Comme on veux aller en marche arrière (computeGoToBack), on utilise
     // -deltaX et -deltaY pour calculer l'angle.
-    double deltaTheta = computeDeltaTheta(-deltaX, -deltaY);
+    float deltaTheta = computeDeltaTheta(-deltaX, -deltaY);
 
     // On projette la distance à parcourir sur l'axe X du repaire mobile du robot
-    double projectedDist = deltaDist * cos(deltaTheta);
+    float projectedDist = deltaDist * cos(deltaTheta);
     //printf("dd=%lld - rT=%lld - rTUO=%lld - ", deltaDist, Config::returnThreshold, Utils::mmToUO(odometrie, Config::returnThreshold));
     int64_t consigne_dist;
 
@@ -245,11 +251,11 @@ void CommandManager::computeGoToBack()
 void CommandManager::computeGoToAngle()
 {
 
-    double deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
-    double deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
+    float deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
+    float deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
 
             // Angle à parcourir
-    double deltaTheta = computeDeltaTheta(deltaX, deltaY);
+    float deltaTheta = computeDeltaTheta(deltaX, deltaY);
 
     //TODO a tester en conditions réelles et extrêmes de mauvaises utilisations
     // La consigne à atteindre en angle est la somme du deltaTheta en UO et de l'accumulateur du régu
@@ -261,14 +267,14 @@ void CommandManager::computeGoToAngle()
 /*
  * Calcul de l'angle à parcourir par le robot, ça sert souvent...
  */
-double CommandManager::computeDeltaTheta(double deltaX, double deltaY)
+float CommandManager::computeDeltaTheta(float deltaX, float deltaY)
 {
 
     // Cap que doit atteindre le robot
-    double thetaCible = atan2(deltaY, deltaX);
+    float thetaCible = atan2(deltaY, deltaX);
 
     // La différence entre le thetaCible (= cap à atteindre) et le theta (= cap actuel du robot) donne l'angle à parcourir
-    double deltaTheta = thetaCible - odometrie->getTheta();
+    float deltaTheta = thetaCible - odometrie->getTheta();
 
     // On ajuste l'angle à parcourir pour ne pas faire plus d'un demi-tour
     // Exemple, tourner de 340 degrés est plus chiant que de tourner de -20 degrés
@@ -281,11 +287,11 @@ double CommandManager::computeDeltaTheta(double deltaX, double deltaY)
     return deltaTheta;
 }
 
-int64_t CommandManager::computeDeltaDist(double deltaX, double deltaY)
+int64_t CommandManager::computeDeltaDist(float deltaX, float deltaY)
 {
     // On a besoin de min et max pour le calcul de la racine carrée
-    double max = fabs(deltaX) > fabs(deltaY) ? fabs(deltaX) : fabs(deltaY);
-    double min = fabs(deltaX) <= fabs(deltaY) ? fabs(deltaX) : fabs(deltaY);
+    float max = fabs(deltaX) > fabs(deltaY) ? fabs(deltaX) : fabs(deltaY);
+    float min = fabs(deltaX) <= fabs(deltaY) ? fabs(deltaX) : fabs(deltaY);
 
     // Valeur absolue de la distance à parcourir en allant tout droit pour atteindre la consigne
     if (max != 0) {
@@ -307,8 +313,8 @@ void CommandManager::computeEnchainement()
     }
 
     //Bon, maintenant, on va checker notre distance par rapport à la consigne
-    double deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
-    double deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
+    float deltaX = currCMD.value - odometrie->getX(); // Différence entre la cible et le robot selon X
+    float deltaY = currCMD.secValue - odometrie->getY(); // Différence entre la cible et le robot selon Y
     int64_t deltaDist = computeDeltaDist(deltaX, deltaY);
 
     if (deltaDist < Config::enchainThreshold) { // On a le droit de passer à la consigne suivante
@@ -322,7 +328,7 @@ void CommandManager::computeEnchainement()
 
 void CommandManager::setEmergencyStop()  //Gestion d'un éventuel arrêt d'urgence
 {
-    cnsgCtrl->setQuadRamp_Angle(false); //Ajouter cho/Jeff 2019
+    cnsgCtrl->setQuadRamp_Angle(false);
     cnsgCtrl->setQuadRamp_Dist(false);
 
     cnsgCtrl->set_dist_consigne(cnsgCtrl->getAccuDist());
@@ -331,18 +337,27 @@ void CommandManager::setEmergencyStop()  //Gestion d'un éventuel arrêt d'urgen
     while (currCMD.type != CMD_NULL) {
         currCMD = liste->dequeue();
     }
+    nextCMD.type = CMD_NULL;
 
     commandStatus = STATUS_HALTED;
 }
 
 void CommandManager::resetEmergencyStop()
 {
-    if(commandStatus == STATUS_HALTED) {
+
+    while (currCMD.type != CMD_NULL) {
+        currCMD = liste->dequeue();
+    }
+    nextCMD.type = CMD_NULL;
+    
+
+    if (commandStatus == STATUS_HALTED || commandStatus == STATUS_BLOCKED) { 
         commandStatus = STATUS_IDLE;
     }
-
-    cnsgCtrl->setQuadRamp_Angle(true);//Ajouter cho/Jeff 2019
+    cnsgCtrl->setQuadRamp_Angle(true); 
     cnsgCtrl->setQuadRamp_Dist(true);
+    cnsgCtrl->reset_blocked_ticks();
+
 }
 
 int CommandManager::getPendingCommandCount()
@@ -351,8 +366,7 @@ int CommandManager::getPendingCommandCount()
     int count = liste->size();
 
     // On n'oublie pas l'éventuelle commande suivante
-    if(nextCMD.type != CMD_NULL)
-    {
+    if(nextCMD.type != CMD_NULL) {
         count++;
     }
 

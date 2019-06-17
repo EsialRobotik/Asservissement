@@ -56,6 +56,50 @@ QuadRampDerivee::QuadRampDerivee(bool isDistance)
 // Destructeur
 QuadRampDerivee::~QuadRampDerivee() {};
 
+
+
+// On filtre la consigne pour prendre en compte l'accélération et la décélération et la vitesse
+int64_t QuadRampDerivee::filtre_new(int64_t consigne, int64_t position_actuelle, int64_t vitesse)
+{
+    arrivee = false;
+    int64_t reste = consigne - position_actuelle;
+    if (llabs(reste) < tailleFenetreArrivee) {
+        prevConsigneVitesse = 0; // On reset la consigne precedente
+        arrivee = true;
+        return consigne;
+    }
+    char sens = (reste >= 0) ? 1 : -1;
+
+    // 0 ---- X1 ---------- X2 ---- consigne
+    // calcul la distance que parcourerait le robot si on freine a fond
+    int64_t distanceFreinage = 0;
+    if (sens == 1) {
+        distanceFreinage = (vitesse * gainAnticipation_av) / derivee_2nd_neg_av;
+    } else {
+        distanceFreinage = (vitesse * gainAnticipation_ar) / derivee_2nd_neg_ar;
+    }
+
+    int64_t vitesseConsigne = prevConsigneVitesse;
+    int64_t accelerationConsigne = 0;
+    if (distanceFreinage < reste) {
+        // on accelere
+        accelerationConsigne = (sens == 1) ? derivee_2nd_pos_av : derivee_2nd_neg_ar;
+    } else {
+        // on decelere
+        accelerationConsigne = (sens == 1) ? -derivee_2nd_neg_av : -derivee_2nd_pos_ar;
+    }
+
+    vitesseConsigne += accelerationConsigne;
+
+    // limitation de la vitesse
+    int64_t vitesseConsigneLimitee = Utils::constrain(vitesseConsigne, -derivee_1ier_neg, derivee_1ier_pos);
+
+    prevConsigneVitesse = vitesseConsigneLimitee;
+
+    int64_t positionConsigne = position_actuelle + vitesseConsigneLimitee;
+
+    return positionConsigne;
+}
 // On filtre la consigne pour prendre en compte l'accélération et la décélération
 int64_t QuadRampDerivee::filtre(int64_t consigne, int64_t position_actuelle , int64_t vitesse)
 {

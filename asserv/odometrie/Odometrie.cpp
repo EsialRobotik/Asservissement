@@ -36,7 +36,7 @@ Odometrie::Odometrie(CodeursInterface *cdrs)
 
     // Calcul de frontParMetre et de ratioCodeur
     if (Config::frontParMetreCodeurG != Config::frontParMetreCodeurD) {
-        double min, max;
+        float min, max;
 
         if (Config::frontParMetreCodeurG > Config::frontParMetreCodeurD) {
             min = Config::frontParMetreCodeurD;
@@ -73,7 +73,7 @@ void Odometrie::setY(int64_t yval)
     y = yval;
 }
 
-void Odometrie::setTheta(double thetaVal) {
+void Odometrie::setTheta(float thetaVal) {
     theta = thetaVal;
 }
 
@@ -103,7 +103,7 @@ void Odometrie::refresh()
          */
         deltaDist = (compteurG + compteurD) / 2; // En UO
         int64_t diffCount = compteurD - compteurG; // On conserve la différence entre les comptes en UO
-        deltaTheta = (double) diffCount / (double) distanceRouesUO; // En radian
+        deltaTheta = (float) diffCount / (float) distanceRouesUO; // En radian
 
         if (labs(diffCount) < 1) {   // On considère le mouvement comme une ligne droite
                                      // Mise à jour de la position
@@ -111,7 +111,7 @@ void Odometrie::refresh()
             y += deltaDist * sin(theta);
         } else { //On approxime en considérant que le robot suit un arc de cercle
                  // On calcule le rayon de courbure du cercle
-            double R = deltaDist / deltaTheta;
+            float R = deltaDist / deltaTheta;
             //Mise à jour de la position
             x += R * (-sin(theta) + sin(theta + deltaTheta));
             y += R * (cos(theta) - cos(theta + deltaTheta));
